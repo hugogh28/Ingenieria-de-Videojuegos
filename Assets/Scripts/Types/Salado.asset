@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69611a2b6edd4b84bb063af22de9765e, type: 3}
+  m_Name: Salado
+  m_EditorClassIdentifier: 
+  _name: 
+  weakAgainst:
+  - {fileID: 11400000, guid: 6c6a8582f73fb57408f5d416346cb624, type: 2}
+  - {fileID: 11400000, guid: 3ab238e523f09b5499f1d86ce56a0187, type: 2}
+  strongAgainst:
+  - {fileID: 11400000, guid: cbeabc68dd5407a429ee6832a875f177, type: 2}
+  - {fileID: 11400000}
+  - {fileID: 11400000, guid: 2acd263ad279d2f41bc2df47798b791c, type: 2}
