@@ -58,7 +58,7 @@ public class Weapon : MonoBehaviour
 
         bulletsLeft = magazineSize;
 
-        SoundManager.Instance.fryingSoundPatata.Play();
+        // SoundManager.Instance.fryingSoundPatata.Play();
     }
 
     // Update is called once per frame
@@ -107,6 +107,7 @@ public class Weapon : MonoBehaviour
         muzzleEffect.GetComponent<ParticleSystem>().Play();
 
         animator.SetTrigger("recoil");
+
 
         if (next)
         {
