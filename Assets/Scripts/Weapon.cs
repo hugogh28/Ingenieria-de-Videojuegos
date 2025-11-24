@@ -5,27 +5,37 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 public class Weapon : MonoBehaviour
-{    
-    public bool isShooting, readyToShoot, next;
-    bool allowReset = true;
+{
+    [Header("Gun Properties")]
     public float shootingDelay = 2f;
-
     public int bulletsPerBurst = 1;
-    public int burstBulletsLeft;
-
     public float spreadIntensity;
 
+    [Header("Bullet Properties")]
     public GameObject bulletPrefab;
     public Transform bulletSpawn;
     public float bulletVelocity = 30;
     public float bulletPrefabLifeTime = 3f;
 
+    [Header("Visuals")]
     public GameObject muzzleEffect;
     public Animator animator;
 
+    [Header("Reloads")]
     public float reloadTime;
     public int magazineSize, bulletsLeft;
+
+    [Header("Lanza Patatas")]
+    public Transform potatoAmmo;
+    float minAmmoLevel, maxAmmoLevel, currentPotatoLevel, drainPerBullet;
+    private Coroutine reloadRoutine;
+
+    [Header("Debug")]
+    public bool isShooting;
+    public bool readyToShoot, next;
+    bool allowReset = true;
     public bool isReloading;
+    public int burstBulletsLeft;
 
     public enum WeaponModel
     {
@@ -47,8 +57,10 @@ public class Weapon : MonoBehaviour
         Burst,
         Auto
     }
-
+    [Header("Weapon Type")]
     public ShootingMode currentShootingMode;
+
+    public WeaponModel weaponModel;
 
     private void Awake()
     {
@@ -58,6 +70,14 @@ public class Weapon : MonoBehaviour
 
         bulletsLeft = magazineSize;
 
+        if (potatoAmmo != null)
+        {
+            maxAmmoLevel = potatoAmmo.localPosition.y;
+            minAmmoLevel = maxAmmoLevel - 0.05f;
+
+            currentPotatoLevel = maxAmmoLevel;
+            drainPerBullet = (maxAmmoLevel - minAmmoLevel) / magazineSize;
+        }
         // SoundManager.Instance.fryingSoundPatata.Play();
     }
 
@@ -93,21 +113,17 @@ public class Weapon : MonoBehaviour
         {
             AmmoManager.Instance.ammoDisplay.text = $"{bulletsLeft / bulletsPerBurst}/{magazineSize / bulletsPerBurst}";
         }
-
-
-
     }
 
     private void FireWeapon()
     {
         bulletsLeft--;
         
-
-
         muzzleEffect.GetComponent<ParticleSystem>().Play();
 
         animator.SetTrigger("recoil");
 
+        DrainPotatos();
 
         if (next)
         {
@@ -149,6 +165,9 @@ public class Weapon : MonoBehaviour
         isReloading = true;
         SoundManager.Instance.reloadSoundLanzapatatas.Play();
         animator.SetTrigger("reload");
+
+        ReloadPotatos();
+
         Invoke("ReloadCompleted", reloadTime);
     }
 
@@ -162,6 +181,46 @@ public class Weapon : MonoBehaviour
     {
         readyToShoot = true;
         allowReset = true;
+    }
+
+    // potatoLevel
+    private void DrainPotatos()
+    {
+        if (potatoAmmo == null) return;
+
+        float progress = 1f - ((float)bulletsLeft / (float)magazineSize);
+
+        animator.Play("DecreasePotato", 2, progress);
+    }
+
+    private void ReloadPotatos()
+    {
+        if (potatoAmmo == null) return;
+
+        // Si ya había una corrutina de recarga, la paramos
+        if (reloadRoutine != null)
+            StopCoroutine(reloadRoutine);
+
+        reloadRoutine = StartCoroutine(ReloadPotatoesRoutine());
+    }
+
+    private IEnumerator ReloadPotatoesRoutine()
+    {
+        float startProgress = 1f - ((float)bulletsLeft / magazineSize);
+        float t = 0f;
+
+        while (t < 1f)
+        {
+            t += Time.deltaTime / reloadTime;
+
+            float progress = Mathf.Lerp(startProgress, 0f, t);
+            animator.Play("DecreasePotato", 2, progress);
+
+            yield return null;
+        }
+
+        bulletsLeft = magazineSize;
+        DrainPotatos();
     }
 
     public Vector3 CalculateDirectionAndSpread()

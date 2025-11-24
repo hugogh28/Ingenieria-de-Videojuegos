@@ -905,12 +905,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1efd24b2ac75dd446a9092705841c5b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isShooting: 0
-  readyToShoot: 0
-  next: 0
   shootingDelay: 0.3
   bulletsPerBurst: 3
-  burstBulletsLeft: 0
   spreadIntensity: 0
   bulletPrefab: {fileID: 7986737223097620403, guid: 4c3c8fa4a804f9441bad9d0d07183454, type: 3}
   bulletSpawn: {fileID: 707644383}
@@ -921,8 +917,14 @@ MonoBehaviour:
   reloadTime: 0
   magazineSize: 0
   bulletsLeft: 0
+  potatoAmmo: {fileID: 0}
+  isShooting: 0
+  readyToShoot: 0
+  next: 0
   isReloading: 0
+  burstBulletsLeft: 0
   currentShootingMode: 2
+  weaponModel: 0
 --- !u!65 &411302294
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1000,7 +1002,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -381, y: -282}
+  m_AnchoredPosition: {x: -445, y: -282}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &518740725
@@ -1023,7 +1025,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: 0/0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1102,28 +1104,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 518740723}
   m_CullTransparentMesh: 1
---- !u!95 &669238306
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 919132148502351279}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 709bd4c6253da1b4b83d7757df953979, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &706424461
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12308,8 +12288,8 @@ GameObject:
   m_Component:
   - component: {fileID: 543450652239435541}
   - component: {fileID: 919132148502351280}
-  - component: {fileID: 669238306}
   - component: {fileID: 919132148502351281}
+  - component: {fileID: 919132148502351282}
   m_Layer: 0
   m_Name: Lanzapatatas
   m_TagString: Untagged
@@ -12329,24 +12309,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1efd24b2ac75dd446a9092705841c5b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isShooting: 0
-  readyToShoot: 0
-  next: 0
   shootingDelay: 0.5
   bulletsPerBurst: 1
-  burstBulletsLeft: 0
   spreadIntensity: 0
   bulletPrefab: {fileID: 7986737223097620403, guid: 4c3c8fa4a804f9441bad9d0d07183454, type: 3}
   bulletSpawn: {fileID: 300652615}
   bulletVelocity: 500
   bulletPrefabLifeTime: 3
   muzzleEffect: {fileID: 1684160368}
-  animator: {fileID: 669238306}
+  animator: {fileID: 919132148502351282}
   reloadTime: 1.5
   magazineSize: 12
   bulletsLeft: 0
+  potatoAmmo: {fileID: 7088439213643885114}
+  isShooting: 0
+  readyToShoot: 0
+  next: 0
   isReloading: 0
+  burstBulletsLeft: 0
   currentShootingMode: 0
+  weaponModel: 0
 --- !u!65 &919132148502351281
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -12368,6 +12350,28 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.0415354, y: 0.14933896, z: 0.14095533}
   m_Center: {x: -0.10388385, y: 0.0063523054, z: -0.0030810982}
+--- !u!95 &919132148502351282
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919132148502351279}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: c749093c5e84eba43af3054e15b17091, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!65 &967020287113735746
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -12401,12 +12405,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1efd24b2ac75dd446a9092705841c5b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isShooting: 0
-  readyToShoot: 0
-  next: 0
   shootingDelay: 0.5
   bulletsPerBurst: 1
-  burstBulletsLeft: 0
   spreadIntensity: 0
   bulletPrefab: {fileID: 7986737223097620403, guid: 4c3c8fa4a804f9441bad9d0d07183454, type: 3}
   bulletSpawn: {fileID: 3131024152921047540}
@@ -12417,8 +12417,14 @@ MonoBehaviour:
   reloadTime: 1.5
   magazineSize: 12
   bulletsLeft: 0
+  potatoAmmo: {fileID: 0}
+  isShooting: 0
+  readyToShoot: 0
+  next: 0
   isReloading: 0
+  burstBulletsLeft: 0
   currentShootingMode: 0
+  weaponModel: 0
 --- !u!33 &1189552768003497448
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -12844,7 +12850,7 @@ Animator:
   m_GameObject: {fileID: 1841746569593971352}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 3b46839d130b2c645b6ba2a93986ab4b, type: 2}
+  m_Controller: {fileID: 0}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
