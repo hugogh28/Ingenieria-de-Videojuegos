@@ -21,22 +21,17 @@ public class Weapon : MonoBehaviour
     public GameObject muzzleEffect;
     public Animator animator;
 
-    [Header("Reloads")]
+    [Header("Reload")]
     public float reloadTime;
     public int magazineSize, bulletsLeft;
 
-    [Header("Lanza Patatas")]
-    public Transform potatoAmmo;
+    // [Header("Lanza Patatas")]
+    private Transform potatoAmmo;
     float minAmmoLevel, maxAmmoLevel, currentPotatoLevel, drainPerBullet;
     private Coroutine reloadRoutine;
 
-    [Header("Debug")]
-    public bool isShooting;
-    public bool readyToShoot, next;
-    bool allowReset = true;
-    public bool isReloading;
-    public int burstBulletsLeft;
-
+    [Header("Weapon Type")]
+    public WeaponModel weaponModel;
     public enum WeaponModel
     {
         Lanzapatatas,
@@ -51,16 +46,20 @@ public class Weapon : MonoBehaviour
         Nitrosifon
     }
 
+    public ShootingMode currentShootingMode;
     public enum ShootingMode
     {
         Single,
         Burst,
         Auto
     }
-    [Header("Weapon Type")]
-    public ShootingMode currentShootingMode;
 
-    public WeaponModel weaponModel;
+    [Header("Debug")]
+    public bool isShooting;
+    public bool readyToShoot, next;
+    bool allowReset = true;
+    public bool isReloading;
+    public int burstBulletsLeft;
 
     private void Awake()
     {
@@ -70,6 +69,8 @@ public class Weapon : MonoBehaviour
 
         bulletsLeft = magazineSize;
 
+        potatoAmmo = transform.Find("Potatos");
+
         if (potatoAmmo != null)
         {
             maxAmmoLevel = potatoAmmo.localPosition.y;
@@ -78,7 +79,7 @@ public class Weapon : MonoBehaviour
             currentPotatoLevel = maxAmmoLevel;
             drainPerBullet = (maxAmmoLevel - minAmmoLevel) / magazineSize;
         }
-        // SoundManager.Instance.fryingSoundPatata.Play();
+        SoundManager.Instance.PlayIdleSound(weaponModel);
     }
 
     // Update is called once per frame
@@ -125,15 +126,7 @@ public class Weapon : MonoBehaviour
 
         DrainPotatos();
 
-        if (next)
-        {
-            SoundManager.Instance.shootingSoundsLanzapatatas[0].Play();
-        }
-        else
-        {
-            SoundManager.Instance.shootingSoundsLanzapatatas[1].Play();
-        }
-        next = !next;
+        SoundManager.Instance.PlayShootingSound(weaponModel);
 
         readyToShoot = false;
 
@@ -163,10 +156,14 @@ public class Weapon : MonoBehaviour
     private void Reload()
     {
         isReloading = true;
-        SoundManager.Instance.reloadSoundLanzapatatas.Play();
+        SoundManager.Instance.PlayReloadSound(weaponModel);
+
         animator.SetTrigger("reload");
 
-        ReloadPotatos();
+        if (weaponModel == WeaponModel.Lanzapatatas || weaponModel == WeaponModel.CañonSalado)
+        {
+            ReloadPotatos();
+        }
 
         Invoke("ReloadCompleted", reloadTime);
     }
@@ -197,7 +194,6 @@ public class Weapon : MonoBehaviour
     {
         if (potatoAmmo == null) return;
 
-        // Si ya había una corrutina de recarga, la paramos
         if (reloadRoutine != null)
             StopCoroutine(reloadRoutine);
 
