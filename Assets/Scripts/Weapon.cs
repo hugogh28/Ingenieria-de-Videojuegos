@@ -61,6 +61,9 @@ public class Weapon : MonoBehaviour
     public bool isReloading;
     public int burstBulletsLeft;
 
+    public Vector3 spawnPosition;
+    public Vector3 spawnRotation;
+
     private void Awake()
     {
         readyToShoot = true;
