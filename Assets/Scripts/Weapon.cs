@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class Weapon : MonoBehaviour
 {
+    public bool isActiveWeapon;
+    
     [Header("Gun Properties")]
     public float shootingDelay = 2f;
     public int bulletsPerBurst = 1;
@@ -19,15 +21,13 @@ public class Weapon : MonoBehaviour
 
     [Header("Visuals")]
     public GameObject muzzleEffect;
-    public Animator animator;
+    internal Animator animator;
 
     [Header("Reload")]
     public float reloadTime;
     public int magazineSize, bulletsLeft;
-
-    // [Header("Lanza Patatas")]
-    private Transform potatoAmmo;
-    float minAmmoLevel, maxAmmoLevel, currentPotatoLevel, drainPerBullet;
+    
+    private float minAmmoLevel, maxAmmoLevel, currentPotatoLevel, drainPerBullet;
     private Coroutine reloadRoutine;
 
     [Header("Weapon Type")]
@@ -54,15 +54,17 @@ public class Weapon : MonoBehaviour
         Auto
     }
 
+    [Header("Hand Transform")]
+    public Vector3 spawnPosition;
+    public Vector3 spawnRotation;
+
     [Header("Debug")]
     public bool isShooting;
     public bool readyToShoot, next;
     bool allowReset = true;
     public bool isReloading;
     public int burstBulletsLeft;
-
-    public Vector3 spawnPosition;
-    public Vector3 spawnRotation;
+    public Transform potatoAmmo;
 
     private void Awake()
     {
@@ -72,8 +74,6 @@ public class Weapon : MonoBehaviour
 
         bulletsLeft = magazineSize;
 
-        potatoAmmo = transform.Find("Potatos");
-
         if (potatoAmmo != null)
         {
             maxAmmoLevel = potatoAmmo.localPosition.y;
@@ -82,40 +82,45 @@ public class Weapon : MonoBehaviour
             currentPotatoLevel = maxAmmoLevel;
             drainPerBullet = (maxAmmoLevel - minAmmoLevel) / magazineSize;
         }
-        SoundManager.Instance.PlayIdleSound(weaponModel);
+        // SoundManager.Instance.PlayIdleSound(weaponModel);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (currentShootingMode == ShootingMode.Auto)
+        if (isActiveWeapon)
         {
-            isShooting = Input.GetKey(KeyCode.Mouse0);
-        }
-        else if (currentShootingMode == ShootingMode.Single || currentShootingMode == ShootingMode.Burst)
-        { 
-            isShooting = Input.GetKeyDown(KeyCode.Mouse0);
-        }
+            GetComponent<Outline>().enabled = false;
+            
+            if (currentShootingMode == ShootingMode.Auto)
+            {
+                isShooting = Input.GetKey(KeyCode.Mouse0);
+            }
+            else if (currentShootingMode == ShootingMode.Single || currentShootingMode == ShootingMode.Burst)
+            {
+                isShooting = Input.GetKeyDown(KeyCode.Mouse0);
+            }
 
-        if (Input.GetKeyDown(KeyCode.R) && bulletsLeft < magazineSize && isReloading == false)
-        {
-            Reload();
-        }
+            if (Input.GetKeyDown(KeyCode.R) && bulletsLeft < magazineSize && isReloading == false)
+            {
+                Reload();
+            }
 
-        if (readyToShoot && isShooting == false && isReloading == false && bulletsLeft <= 0)
-        {
-            Reload();
-        }
+            if (readyToShoot && isShooting == false && isReloading == false && bulletsLeft <= 0)
+            {
+                Reload();
+            }
 
-        if (readyToShoot && isShooting && bulletsLeft > 0 && isReloading == false)
-        {
-            burstBulletsLeft = bulletsPerBurst;
-            FireWeapon();
-        }
+            if (readyToShoot && isShooting && bulletsLeft > 0 && isReloading == false)
+            {
+                burstBulletsLeft = bulletsPerBurst;
+                FireWeapon();
+            }
 
-        if (AmmoManager.Instance.ammoDisplay != null)
-        {
-            AmmoManager.Instance.ammoDisplay.text = $"{bulletsLeft / bulletsPerBurst}/{magazineSize / bulletsPerBurst}";
+            if (AmmoManager.Instance.ammoDisplay != null)
+            {
+                AmmoManager.Instance.ammoDisplay.text = $"{bulletsLeft / bulletsPerBurst}/{magazineSize / bulletsPerBurst}";
+            } 
         }
     }
 
@@ -127,7 +132,10 @@ public class Weapon : MonoBehaviour
 
         animator.SetTrigger("recoil");
 
-        DrainPotatos();
+        if (weaponModel == WeaponModel.Lanzapatatas || weaponModel == WeaponModel.CañonSalado)
+        {
+            DrainPotatos();
+        }
 
         SoundManager.Instance.PlayShootingSound(weaponModel);
 
