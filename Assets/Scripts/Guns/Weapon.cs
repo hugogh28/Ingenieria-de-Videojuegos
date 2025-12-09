@@ -7,8 +7,9 @@ using UnityEngine;
 public class Weapon : MonoBehaviour
 {
     public bool isActiveWeapon;
-    
+
     [Header("Gun Properties")]
+    public float weaponDamage = 20;
     public float shootingDelay = 2f;
     public int bulletsPerBurst = 1;
     public float spreadIntensity;
@@ -85,13 +86,17 @@ public class Weapon : MonoBehaviour
         // SoundManager.Instance.PlayIdleSound(weaponModel);
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (isActiveWeapon)
         {
+            foreach (Transform child in transform)
+            {
+                child.gameObject.layer = LayerMask.NameToLayer("WeaponRender");
+            }
+
             GetComponent<Outline>().enabled = false;
-            
+
             if (currentShootingMode == ShootingMode.Auto)
             {
                 isShooting = Input.GetKey(KeyCode.Mouse0);
@@ -116,11 +121,13 @@ public class Weapon : MonoBehaviour
                 burstBulletsLeft = bulletsPerBurst;
                 FireWeapon();
             }
-
-            if (AmmoManager.Instance.ammoDisplay != null)
+        }
+        else
+        {
+            foreach (Transform child in transform)
             {
-                AmmoManager.Instance.ammoDisplay.text = $"{bulletsLeft / bulletsPerBurst}/{magazineSize / bulletsPerBurst}";
-            } 
+                child.gameObject.layer = LayerMask.NameToLayer("Default");
+            }
         }
     }
 
@@ -144,6 +151,9 @@ public class Weapon : MonoBehaviour
         Vector3 shootingDirection = CalculateDirectionAndSpread().normalized;
         
         GameObject bullet = Instantiate(bulletPrefab, bulletSpawn.position, Quaternion.identity);
+
+        Bullet bul = bullet.GetComponent<Bullet>();
+        bul.dmg = weaponDamage;
 
         bullet.transform.forward = shootingDirection;
 

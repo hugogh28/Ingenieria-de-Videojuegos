@@ -82,6 +82,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isActiveWeapon: 0
+  weaponDamage: 10
   shootingDelay: 0.15
   bulletsPerBurst: 1
   spreadIntensity: 0

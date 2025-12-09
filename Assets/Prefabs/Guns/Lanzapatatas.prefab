@@ -5263,6 +5263,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isActiveWeapon: 0
+  weaponDamage: 35
   shootingDelay: 0.5
   bulletsPerBurst: 1
   spreadIntensity: 0

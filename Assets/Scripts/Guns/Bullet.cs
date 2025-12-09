@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
+    public float dmg;
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Target"))
@@ -27,6 +29,12 @@ public class Bullet : MonoBehaviour
             print("Hit a Bottle");
 
             collision.gameObject.GetComponent<ShatterDestruction>().Shatter();
+        }
+        if (collision.gameObject.CompareTag("Rat"))
+        {
+            collision.gameObject.GetComponent<BasicRat>().TakeDamage(dmg);
+
+            Destroy(gameObject);
         }
     }
 
