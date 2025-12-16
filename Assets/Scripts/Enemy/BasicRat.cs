@@ -1,13 +1,16 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class BasicRat : MonoBehaviour
 {
     [SerializeField] private float health = 100;
     private Animator animator;
+    private NavMeshAgent navAgent;
 
     private void Start()
     {
         animator = GetComponent<Animator>();
+        navAgent = GetComponent<NavMeshAgent>();
     }
 
     public void TakeDamage(float dmg)
@@ -23,6 +26,18 @@ public class BasicRat : MonoBehaviour
         else
         {
             animator.SetTrigger("damage");
+        }
+    }
+
+    public void Update() 
+    {
+        if (navAgent.velocity.magnitude > 0.1f) 
+        {
+            animator.SetBool("isWalking", true);
+        }
+        else
+        {
+            animator.SetBool("isWalking", false);
         }
     }
 }
