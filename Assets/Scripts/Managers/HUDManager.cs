@@ -13,18 +13,18 @@ public class HUDManager : MonoBehaviour
     public TextMeshProUGUI magazineAmmoUI;
     public TextMeshProUGUI totalAmmoUI;
     public Image ammoTypeUI;
+    public Image ammoIconUI;
 
     [Header("Weapon")]
-    public Image activeWeaponUI;
-    public Image unActiveWeaponUI;
+    public TextMeshProUGUI weaponNameUI;
+    public Image weaponIconUI;
 
-    [Header("Flavour")]
-    public Image flavourUI;
+    [Header("Health")]
+    public Image healthBar;
 
     [Header("Other")]
     public Sprite emptySlot;
     
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -37,11 +37,9 @@ public class HUDManager : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
-        Weapon activeWeapon = WeaponManager.Instance.activeWeaponSlot.GetComponent<Weapon>();
-        Weapon unActiveWeapon = GetUnActiveWeaponSlot().GetComponentInChildren<Weapon>();
+        Weapon activeWeapon = WeaponManager.Instance.activeWeaponSlot.GetComponentInChildren<Weapon>();
 
         if (activeWeapon)
         {
@@ -49,24 +47,23 @@ public class HUDManager : MonoBehaviour
             totalAmmoUI.text = $"{activeWeapon.magazineSize / activeWeapon.bulletsPerBurst}";
 
             Weapon.WeaponModel model = activeWeapon.weaponModel;
-            ammoTypeUI.sprite = GetAmmoSprite(model);
 
-            activeWeaponUI.sprite = GetWeaponSprite(model);
+            weaponIconUI.sprite = GetWeaponSprite(model);
+            weaponNameUI.text = GetWeaponName(model);
 
-            if (unActiveWeapon)
-            {
-                unActiveWeaponUI.sprite = GetWeaponSprite(unActiveWeapon.weaponModel);
-            }
+            ammoIconUI.sprite = GetAmmoSprite(model);
+            ammoTypeUI.sprite = GetTypeSprite(model);
         }
         else
         {
             magazineAmmoUI.text = "";
             totalAmmoUI.text = "";
+            weaponNameUI.text = "";
 
+            weaponIconUI.sprite = emptySlot;
+            
             ammoTypeUI.sprite = emptySlot;
-
-            activeWeaponUI.sprite = emptySlot;
-            unActiveWeaponUI.sprite = emptySlot;
+            ammoIconUI.sprite = emptySlot;
         }
     }
 
@@ -101,18 +98,6 @@ public class HUDManager : MonoBehaviour
         }
     }
 
-    private GameObject GetUnActiveWeaponSlot()
-    {
-        foreach (var weaponSlot in WeaponManager.Instance.weaponSlots)
-        {
-            if (weaponSlot != WeaponManager.Instance.activeWeaponSlot)
-            {
-                return weaponSlot;
-            }
-        }
-        return null;
-    }
-
     private Sprite GetWeaponSprite(Weapon.WeaponModel model)
     {
         switch (model)
@@ -125,6 +110,24 @@ public class HUDManager : MonoBehaviour
 
             case Weapon.WeaponModel.FuriaFrijol:
                 return Instantiate(Resources.Load<GameObject>("FuriaFrijol_Weapon")).GetComponent<SpriteRenderer>().sprite;
+            */
+            default:
+                return null;
+        }
+    }
+
+    private Sprite GetTypeSprite(Weapon.WeaponModel model)
+    {
+        switch (model)
+        {
+            case Weapon.WeaponModel.Lanzapatatas:
+                return Instantiate(Resources.Load<GameObject>("LanzaPatatas_Type")).GetComponent<SpriteRenderer>().sprite;
+            /*
+            case Weapon.WeaponModel.CañonSalado:
+                return Instantiate(Resources.Load<GameObject>("CañonSalado_Type")).GetComponent<SpriteRenderer>().sprite;
+
+            case Weapon.WeaponModel.FuriaFrijol:
+                return Instantiate(Resources.Load<GameObject>("FuriaFrijol_Type")).GetComponent<SpriteRenderer>().sprite;
             */
             default:
                 return null;
