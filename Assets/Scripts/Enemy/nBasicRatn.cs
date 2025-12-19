@@ -64,7 +64,7 @@ public class nBasicRatn : MonoBehaviour
         {
             animator.SetBool("isWalking", false);
         }
-        << Interface >> 
+        //<< Interface >> 
     }
     public void SmoothLookAt(Transform target)
     {

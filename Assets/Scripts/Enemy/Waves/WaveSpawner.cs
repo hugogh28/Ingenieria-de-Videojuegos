@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -21,10 +22,11 @@ public class WaveSpawner : MonoBehaviour
 
         for (int i = 0; i < countdown; i++)
         {
-            
+
         }
     }
-
+}
+    /*
     // Update is called once per frame
     private void Update()
     {
@@ -83,3 +85,4 @@ public class WaveSpawner : MonoBehaviour
         }
     }
 }
+*/
