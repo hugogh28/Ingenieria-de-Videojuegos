@@ -10,16 +10,17 @@ public class nBasicRatn : MonoBehaviour
     [SerializeField] public float health = 100;
     public Animator animator;
     public NavMeshAgent navAgent;
-    private WaveSpawner waveSpawner;
+    //private WaveSpawner waveSpawner;
     public float attackRange = 10f;
     public float timer;
 
     //#region IEnemyProtoype
     public Transform player;
-    public nBasicRatn rat;
+    //private nBasicRatn rat;
+    private GameObject[] rat;
     public float detectionRange = 15f;
     public float delay = 1f; //Define el delay entre una acción y la siguiente, como bien puede ser curar, atacar o recargar
-    public List<nBasicRatn> nearRats;
+    public List<GameObject> nearRats;
     //public float actionProbability = 0.5f; 
     //public float shootingRange = 7f;
     //public float fireRate = 1f;
@@ -35,6 +36,7 @@ public class nBasicRatn : MonoBehaviour
         timer = 0;
         animator = GetComponent<Animator>();
         navAgent = GetComponent<NavMeshAgent>();
+        rat = GameObject.FindGameObjectsWithTag("Rat");
     }
 
     public void DetectPlayer()
@@ -51,21 +53,24 @@ public class nBasicRatn : MonoBehaviour
 
     public void AddRatsToList(float detectionRange)
     {
-        distanceToOtherRat = Vector3.Distance(transform.position, rat.transform.position);
-        if (distanceToOtherRat <= detectionRange && distanceToOtherRat>0)
+        foreach (var rat in rat) 
         {
-            nearRats.Add(rat);
-            Debug.Log(nearRats);
+            distanceToOtherRat = Vector3.Distance(transform.position, rat.transform.position);
+            if (distanceToOtherRat <= detectionRange && distanceToOtherRat > 0)
+            {
+                nearRats.Add(rat);
+                Debug.Log(nearRats);
+            }
         }
     }
 
-    public void DeleteRatsFromList()
+    public void DeleteRatsFromList(float detectionRange)
     {
-        for(int i = 0; i < nearRats.Count; i++)
+        foreach(var rat in nearRats)
         {
-            if (distanceToOtherRat > detectionRange || nearRats[i].health == 0) 
-            { 
-                nearRats.RemoveAt(i); 
+            if(distanceToOtherRat > detectionRange || rat == null || !rat.activeInHierarchy)
+            {
+                nearRats.Remove(rat);
                 Debug.Log(nearRats);
             }
         }
@@ -127,7 +132,7 @@ public class nBasicRatn : MonoBehaviour
         else navAgent.isStopped = false;
         //<< Interface >> 
         AddRatsToList(20f); //En una distancia de veinte unidades las ratas pueden interactuar entre ellas
-        DeleteRatsFromList();
+        DeleteRatsFromList(20f);
     }
     public void SmoothLookAt(Transform target)
     {
@@ -141,7 +146,10 @@ public class nBasicRatn : MonoBehaviour
         }
     }
 
-    
+    public void Create(nBasicRatn rat)
+    {
+        Instantiate(rat);
+    }
 
     public void SetWaveSpawner(WaveSpawner spawner)
     {

@@ -8,6 +8,7 @@ TagManager:
   - Wall
   - Bottle
   - Rat
+  - Spawner
   layers:
   - Default
   - TransparentFX

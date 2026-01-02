@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -27,11 +28,11 @@ public class SupportRat : nBasicRatn
             float random = Random.value;
             if (random <= 0.85)
             {
-                nearRats[GetRat()].health+=healingAmount;
+                nearRats[GetRat()].GetComponent<nBasicRatn>().health += healingAmount;
             }
             else //Con un 15% de probabilidad de elegir una rata random para curarla
             {
-                nearRats[Random.Range(0,nearRats.Count()-1)].health+=healingAmount;
+                nearRats[Random.Range(0, nearRats.Count() - 1)].GetComponent<nBasicRatn>().health += healingAmount;
             }
         }
     }
@@ -41,7 +42,7 @@ public class SupportRat : nBasicRatn
         int index = 0;
         for (int i = 0; i < nearRats.Count(); i++) 
         {
-            if (nearRats[i].health < nearRats[index].health) index = i;
+            if (nearRats[i].GetComponent<nBasicRatn>().health < nearRats[index].GetComponent<nBasicRatn>().health) index = i;
         }
         return index;
     }
