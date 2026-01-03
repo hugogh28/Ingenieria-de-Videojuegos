@@ -16,7 +16,7 @@ public class ShooterRat : nBasicRatn
         attackRange = shootinRange;
     }
 
-    public void Shoot()
+    public void Shoot()//Añadir delay y un cargador de 20 de munición (puedes copiar el código de las armas)
     {
         if (ShouldStop()==true)
         {
@@ -24,9 +24,10 @@ public class ShooterRat : nBasicRatn
             if (RollDice(critic) == true)//Hay cierta probabilidad de recibir un daño crítico
             {
                 float criticImpact = Random.Range(1f, 1.5f);
-                bulletDamage *= criticImpact;
+                bulletDamage *= criticImpact;//Añadir indicador de crítico
             }
             else bulletDamage = 20f;
+            //Aplicar daño al jugador
         }
     }
 

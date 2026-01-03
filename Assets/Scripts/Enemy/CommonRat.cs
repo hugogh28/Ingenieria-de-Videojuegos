@@ -8,6 +8,9 @@ public class CommonRat : nBasicRatn
     //public float attackRange = 2f;
     public float criticProbability = 0.05f;
 
+    GameObject notanque;
+    GameObject tanque;
+
     void Start()
     {
         attackRange = 2f;
@@ -21,9 +24,10 @@ public class CommonRat : nBasicRatn
             if (RollDice(criticProbability) == true)
             {
                 float criticImpact = Random.Range(1f, 2f);
-                attackDamage *= criticImpact;
+                attackDamage *= criticImpact;//Añadir indicador de crítico
             }
             else attackDamage = 5f;
+            //Aplicar daño al jugador
         }
     }
 
