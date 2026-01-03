@@ -6,7 +6,7 @@ public class ShooterRat : nBasicRatn
     public float bulletDamage = 20f;
     public float fireRate = 1f;
     public int ammo = 20;
-    public float critic = 0.05f;
+    public float critic = 0.01f;
 
     //Podría ser interesante hacer un ataque especial, o que se meta más daño por un crítico a la rata
 

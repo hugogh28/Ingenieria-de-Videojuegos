@@ -56,7 +56,7 @@ public class nBasicRatn : MonoBehaviour
         foreach (var rat in rat) 
         {
             distanceToOtherRat = Vector3.Distance(transform.position, rat.transform.position);
-            if (distanceToOtherRat <= detectionRange && distanceToOtherRat > 0)
+            if (distanceToOtherRat <= detectionRange && !nearRats.Contains(rat))
             {
                 nearRats.Add(rat);
                 Debug.Log(nearRats);
@@ -107,7 +107,7 @@ public class nBasicRatn : MonoBehaviour
 
     public bool RollDice(float actionProbability)
     {
-        if (timer % 5 == 0)//Cada vez que el timer pase por múltiplos exactos de 5 se comprobará si las ratas pueden hacer una acción especial
+        if (timer % 5 == 0)//Cada vez que el timer pase por múltiplos exactos de 5 se comprobará si las ratas pueden hacer una acción especial (queda sujeto a revisión)
         {
             float random = Random.value;
             if (random <= actionProbability) return true;
@@ -151,7 +151,7 @@ public class nBasicRatn : MonoBehaviour
         Instantiate(rat);
     }
 
-    public void SetWaveSpawner(WaveSpawner spawner)
+    public void SetWaveSpawner(SpawnerManager spawner)
     {
         //Asignar aquí el spawner de la rata en función de la zona del jugador
     }

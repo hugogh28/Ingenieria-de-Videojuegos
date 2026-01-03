@@ -7,35 +7,42 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
-public class WaveSpawner : MonoBehaviour
+public class SpawnerManager : MonoBehaviour
 {
     [SerializeField] private float countdown;
     //[SerializeField] private GameObject spawnPoint;
     //[SerializeField] private float spawnRadius = 3f;
 
+    public List<WaveManager> waves;
+
     public int currentWaveIndex = 0;
 
-    public float spawnProbability;
+    public float spawnProbability = 1f;
 
     public List<GameObject> spawners;
-    public List<nBasicRatn> ratsPerWave;
+    public List<GameObject> avalaibleSpawners;
+
+    public float maxDistanceToSpawn = 50f;
 
     GameObject player;
 
-    GameObject[] allSpawners;
+    Vector3 playerPosition;
 
-    private bool readyToCountDown;
+
+    //public GameObject[] allSpawners;
+
+    //private bool readyToCountDown;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
     {
-        readyToCountDown = true;
-        spawnProbability = 1f/spawners.Count;
+        //readyToCountDown = true;
 
-        allSpawners = GameObject.FindGameObjectsWithTag("Spawner");
+        player = GameObject.FindGameObjectWithTag("Player");
+        //allSpawners = GameObject.FindGameObjectsWithTag("Spawner");
         spawners.Clear();
     }
 
-    private nBasicRatn CreateRat(string name)
+    /*private nBasicRatn CreateRat(string name)
     {
         nBasicRatn rat;
 
@@ -51,34 +58,37 @@ public class WaveSpawner : MonoBehaviour
         }
 
         return rat;
-    }
+    }*/
 
-    private void SetUpSpawners() 
+    /*private void SetUpSpawners() 
     {
         for(int i = 0; i<spawners.Count; i++)
         {
 
         }
-    }
+    }*/
     /// <summary>
     /// Podría hacerse el Pool no solo en las ratas, sino también, en el número de spawners activos
     /// De este modo ahorraremos recursos
     /// </summary>
-    private void AddSpawnersToList()//Añadimos a la lista de spawners todos aquellos spawners que se encuentren activos en la escena
+    /*public void AddSpawnersToList()//Añadimos a la lista de spawners todos aquellos spawners que se encuentren activos en la escena
     {
-        spawners.Clear();
-
-        foreach(GameObject spawner in allSpawners)
+        if(spawners != null) 
+        { 
+            spawners.Clear();
+        }
+        foreach(var spawner in allSpawners)
         {
-            if (spawner.activeInHierarchy /*Esto sujeto a revisión*/ && !spawners.Contains(spawner)) 
+            if (spawner.activeInHierarchy && !spawners.Contains(spawner)) 
             {
+                //spawners.Clear();
                 spawners.Add(spawner);
                 Debug.Log(spawners);
             } 
         }
-    }
+    }*/
 
-    private void DeleteSpawnersFromList()//Eliminamos de la lista de spawners todos aquellos que se encuentren desactivados en la escena
+    /*private void DeleteSpawnersFromList()//Eliminamos de la lista de spawners todos aquellos que se encuentren desactivados en la escena
     {
         foreach(GameObject spawner in spawners)
         {
@@ -88,24 +98,32 @@ public class WaveSpawner : MonoBehaviour
                 Debug.Log(spawners);
             }
         }
-    }
+    }*/
 
-    private void ChooseSpawner() //Elegimos los spawners mejor posicionados con respecto al jugador y a la zona en la que se encuentra
+    private void TakeInCountSpawner() //Cada spawner que esté activo y dentro de un radio de 50 unidades con respecto al jugador será incluido para poder instanciar ratas
     {
-        foreach(GameObject spawner in spawners)
+        foreach (var spawner in spawners)
         {
-            //if(player) //Si el jugador está dentro de una zona, se le asignará a dicho spawn una mayor probabilidad de ser escogido
+            if (Vector3.Distance(playerPosition, spawner.transform.position) <= maxDistanceToSpawn && !avalaibleSpawners.Contains(spawner))
+            {
+                avalaibleSpawners.Add(spawner);
+                spawnProbability = 1f / avalaibleSpawners.Count;
+                Debug.Log(avalaibleSpawners);
+            }
+            else if(Vector3.Distance(playerPosition, spawner.transform.position) > maxDistanceToSpawn)
+            {
+                avalaibleSpawners.Remove(spawner);
+                spawnProbability = 1f / avalaibleSpawners.Count;
+                Debug.Log(avalaibleSpawners);
+            }
         }
     }
 
-    private void OnTriggerEnter(Collider other) //Detectamos si el jugador está dentro de alguna de las zonas de spawn
-    {
-        //if(player)
-    }
-
+    
     private void Update()
     {
-        
+        playerPosition = player.transform.position;
+        TakeInCountSpawner();
     }
 }
     /*

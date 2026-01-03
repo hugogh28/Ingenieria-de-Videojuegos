@@ -9,6 +9,7 @@ TagManager:
   - Bottle
   - Rat
   - Spawner
+  - Zone
   layers:
   - Default
   - TransparentFX

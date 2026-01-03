@@ -6,7 +6,7 @@ public class CommonRat : nBasicRatn
 
     public float attackDamage = 5f;
     //public float attackRange = 2f;
-    public float criticProbability = 0.2f;
+    public float criticProbability = 0.05f;
 
     void Start()
     {
