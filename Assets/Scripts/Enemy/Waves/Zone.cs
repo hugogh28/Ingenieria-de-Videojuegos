@@ -14,7 +14,7 @@ public class Zone : MonoBehaviour
         foreach (Transform t in transform) //Se activa cada hijo del objeto y si este no estaba en la lista de spawners, es incluido en la misma
         { 
             t.gameObject.SetActive(true);
-            if(wave.spawners != null && !wave.spawners.Contains(t.gameObject) ) wave.spawners.Add(t.gameObject);
+            if(wave.spawners != null && !wave.spawners.Contains(t.GetComponent<Spawner>()) ) wave.spawners.Add(t.GetComponent<Spawner>());
         }
         gameObject.GetComponent<BoxCollider>().enabled = false;
         //wave.AddSpawnersToList();

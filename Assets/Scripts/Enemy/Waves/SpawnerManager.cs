@@ -1,7 +1,8 @@
 
-using System;
+//using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -13,20 +14,25 @@ public class SpawnerManager : MonoBehaviour
     //[SerializeField] private GameObject spawnPoint;
     //[SerializeField] private float spawnRadius = 3f;
 
-    public List<WaveManager> waves;
+    WaveManager waveManager;
+
+    //public List<WaveManager> waves;
 
     public int currentWaveIndex = 0;
 
     public float spawnProbability = 1f;
 
-    public List<GameObject> spawners;
-    public List<GameObject> avalaibleSpawners;
+    public List<Spawner> spawners;
+    public List<Spawner> avalaibleSpawners;
 
     public float maxDistanceToSpawn = 50f;
 
     GameObject player;
 
     Vector3 playerPosition;
+
+    bool spawnerIsActive = false;
+    bool waveIsActive = true;
 
 
     //public GameObject[] allSpawners;
@@ -107,23 +113,74 @@ public class SpawnerManager : MonoBehaviour
             if (Vector3.Distance(playerPosition, spawner.transform.position) <= maxDistanceToSpawn && !avalaibleSpawners.Contains(spawner))
             {
                 avalaibleSpawners.Add(spawner);
-                spawnProbability = 1f / avalaibleSpawners.Count;
-                Debug.Log(avalaibleSpawners);
             }
             else if(Vector3.Distance(playerPosition, spawner.transform.position) > maxDistanceToSpawn)
             {
                 avalaibleSpawners.Remove(spawner);
-                spawnProbability = 1f / avalaibleSpawners.Count;
-                Debug.Log(avalaibleSpawners);
             }
         }
     }
 
-    
+    private GameObject ChooseSpawner()
+    {
+        int random = Random.Range(0, avalaibleSpawners.Count());
+        if(avalaibleSpawners.All(s => s.spawnerIsActive==true)) //Esto no detiene el stackeo infinito
+        {
+            StartCoroutine(WaitToCheck(2f));
+        }
+        if (avalaibleSpawners[random].spawnerIsActive == true)
+        {
+            return ChooseSpawner(); //Va a provocar un stackeo infinito de recursividad
+        }
+        else 
+        {
+            avalaibleSpawners[random].spawnerIsActive = true;
+            StartCoroutine(AllowSpawn(avalaibleSpawners[random], 2f));
+            return avalaibleSpawners[random].spawner;
+        }
+    }
+
+    IEnumerator WaitToCheck(float time)
+    {
+        yield return new WaitForSeconds(time);
+        ChooseSpawner();
+    }
+
+    IEnumerator AllowSpawn(Spawner spawner, float time)
+    {
+        yield return new WaitForSeconds(time);
+        spawner.spawnerIsActive = false;
+    }
+
+    private IEnumerator Wave() //Se organiza el spawn de las ratas
+    {
+        yield return new WaitForSeconds(15f);//Antes de comenzar una oleada, el jugador tendrá 15 segundos para decidir qué puede hacer
+        for (int i = 0; i < waveManager.ratsPerWave.Count; i++)
+        {
+            waveManager.ratsPerWave[i].transform.position = ChooseSpawner().transform.position;
+        }
+
+        waveIsActive = false;
+    }
+
+    public void CheckIfWaveIsOver()
+    {
+        if (waveIsActive) return;
+
+        if (waveManager.ratsPerWave.All(r => r == null))
+        {
+            waveIsActive = true;
+            waveManager.ratsPerWave.Clear();
+            waveManager.WaveCreation();
+            StartCoroutine(Wave());
+        }
+    }
+
     private void Update()
     {
         playerPosition = player.transform.position;
-        TakeInCountSpawner();
+        TakeInCountSpawner(); //No debe ejecutarse cada frame, de lo contrario, va a ser una carga en el procesador enorme
+        CheckIfWaveIsOver();
     }
 }
     /*

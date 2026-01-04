@@ -2,6 +2,11 @@ using UnityEngine;
 
 public class ShooterRat : nBasicRatn
 {
+    [SerializeField] private ShooterRat shooterRatTank;
+    [SerializeField] private ShooterRat shooterRatNormal;
+
+    
+
     public float shootinRange = 12f;
     public float bulletDamage = 20f;
     public float fireRate = 1f;
@@ -14,6 +19,12 @@ public class ShooterRat : nBasicRatn
     void Start()
     {
         attackRange = shootinRange;
+    }
+
+    public ShooterRat Clone(bool tank)
+    {
+        ShooterRat rat = tank == true ? Instantiate(shooterRatTank) : Instantiate(shooterRatNormal); //Si requerimos de utilizar el patrón Prototype para crear una rata tanque, tan solo debemos habilitar al clonar tank = true
+        return rat;
     }
 
     public void Shoot()//Añadir delay y un cargador de 20 de munición (puedes copiar el código de las armas)
