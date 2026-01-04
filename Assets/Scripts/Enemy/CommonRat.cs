@@ -3,9 +3,6 @@ using UnityEngine;
 public class CommonRat : nBasicRatn
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    [SerializeField] CommonRat commonRatTank;
-    [SerializeField] CommonRat commonRatNormal;
-
 
     public float attackDamage = 5f;
     //public float attackRange = 2f;
@@ -16,13 +13,6 @@ public class CommonRat : nBasicRatn
     void Start()
     {
         attackRange = 2f;
-    }
-
-    public CommonRat Clone(bool tank)
-    {
-        CommonRat rat = tank == true ? Instantiate(commonRatTank) : Instantiate(commonRatNormal); //Si requerimos de utilizar el patrón Prototype para crear una rata tanque, tan solo debemos habilitar al clonar tank = true
-        
-        return rat;
     }
 
     public void Melee()

@@ -4,5 +4,5 @@ public class Spawner : MonoBehaviour
 {
     public bool spawnerIsActive = false;
 
-    public GameObject spawner;
+    public Transform spawner;
 }

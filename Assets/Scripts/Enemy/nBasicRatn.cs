@@ -15,7 +15,8 @@ public class nBasicRatn : MonoBehaviour
     public float timer;
 
     //#region IEnemyProtoype
-    public Transform player;
+    //GameObject p;
+    //public Transform player;
     //private nBasicRatn rat;
     private GameObject[] rat;
     public float detectionRange = 15f;
@@ -25,7 +26,9 @@ public class nBasicRatn : MonoBehaviour
     //public float shootingRange = 7f;
     //public float fireRate = 1f;
     // #endregion
+    SpawnerManager spawnerManager;
 
+    public Transform position;
 
     [HideInInspector] public float distanceToPlayer;
     [HideInInspector] public float distanceToOtherRat;
@@ -36,15 +39,14 @@ public class nBasicRatn : MonoBehaviour
         timer = 0;
         animator = GetComponent<Animator>();
         navAgent = GetComponent<NavMeshAgent>();
-        rat = GameObject.FindGameObjectsWithTag("Rat");
     }
 
     public void DetectPlayer()
     {
-        distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        distanceToPlayer = Vector3.Distance(transform.position, spawnerManager.playerPosition);
         if (distanceToPlayer <= detectionRange)
         {
-            navAgent.SetDestination(player.position);
+            navAgent.SetDestination(spawnerManager.playerPosition);
         }else if(distanceToPlayer > detectionRange)
         {
             //Agregar aquí una serie de destinos que hagan a la rata divagar por la zona
@@ -118,18 +120,19 @@ public class nBasicRatn : MonoBehaviour
 
     public void Update() 
     {
+        rat = GameObject.FindGameObjectsWithTag("Rat");
         timer += Time.deltaTime;
-        if (navAgent.velocity.magnitude > 0.1f) 
-        {
-            animator.SetBool("isWalking", true);
-        }
-        else
-        {
-            animator.SetBool("isWalking", false);
-        }
+            if (navAgent.velocity.magnitude > 0.1f)
+            {
+                animator.SetBool("isWalking", true);
+            }
+            else
+            {
+                animator.SetBool("isWalking", false);
+            }
 
-        if (ShouldStop() == true) navAgent.isStopped = true;
-        else navAgent.isStopped = false;
+            if (ShouldStop() == true) navAgent.isStopped = true;
+            else navAgent.isStopped = false;
         //<< Interface >> 
         AddRatsToList(20f); //En una distancia de veinte unidades las ratas pueden interactuar entre ellas
         DeleteRatsFromList(20f);

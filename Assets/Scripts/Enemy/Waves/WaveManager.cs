@@ -11,9 +11,8 @@ public class WaveManager : MonoBehaviour
 
     public List<nBasicRatn> ratsPerWave;
 
-    ShooterRat shooter; 
-    SupportRat support;
-    CommonRat common;
+
+    [SerializeField] RatManager rat;
 
     float shooterProb;
     float supportProb;
@@ -30,6 +29,8 @@ public class WaveManager : MonoBehaviour
 
     private void Start()
     {
+        ratsPerWave = new List<nBasicRatn>();
+
         currentWave = 0;
         commonProb = 1f;
         shooterProb = 0f;
@@ -37,6 +38,8 @@ public class WaveManager : MonoBehaviour
         numRats = 5;
         increment = 0;
         tankProb = 0f;
+
+        WaveCreation();
     }
     
     private void IncrementDifficulty()
@@ -58,26 +61,27 @@ public class WaveManager : MonoBehaviour
 
     public void WaveCreation() //Creación de una oleada semialeatoria, con enemigos variados y de habilidades y ataques distintos
     {
+        ratsPerWave.Clear();
         for (int i = 0; i < numRats; i++) 
         {
             random = Random.value;
             if (random < supportProb)
             {
                 random = Random.value;
-                if (random <= tankProb) ratsPerWave.Add(support.Clone(true));
-                else ratsPerWave.Add(support.Clone(false));
+                if (random <= tankProb) ratsPerWave.Add(rat.Clone(true, rat.supportRatTank, rat.supportRatNormal));
+                else ratsPerWave.Add(rat.Clone(false, rat.supportRatTank, rat.supportRatNormal));
             }
             else if (random < supportProb + shooterProb)
             {
                 random = Random.value;
-                if (random <= tankProb) ratsPerWave.Add(shooter.Clone(true));
-                ratsPerWave.Add(shooter.Clone(false));
+                if (random <= tankProb) ratsPerWave.Add(rat.Clone(true, rat.shooterRatTank, rat.shooterRatNormal));
+                ratsPerWave.Add(rat.Clone(false, rat.shooterRatTank, rat.shooterRatNormal));
             }
             else
             {
                 random = Random.value;
-                if (random <= tankProb) ratsPerWave.Add(common.Clone(true));
-                ratsPerWave.Add(common.Clone(false));
+                if (random <= tankProb) ratsPerWave.Add(rat.Clone(true, rat.commonRatTank, rat.commonRatNormal));
+                ratsPerWave.Add(rat.Clone(false, rat.commonRatTank, rat.commonRatNormal));
             }
         }
         currentWave++;

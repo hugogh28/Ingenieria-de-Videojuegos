@@ -437,11 +437,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   countdown: 0
+  waveManager: {fileID: 1615501596}
   currentWaveIndex: 0
   spawnProbability: 0
   spawners: []
   avalaibleSpawners: []
   maxDistanceToSpawn: 50
+  timeToCheck: 2
+  spawnPosition: {x: 0, y: 0, z: 0}
+  playerPosition: {x: 0, y: 0, z: 0}
 --- !u!4 &133579869
 Transform:
   m_ObjectHideFlags: 0
@@ -457,6 +461,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1294221256}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &140503002
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 140503003}
+  - component: {fileID: 140503004}
+  m_Layer: 0
+  m_Name: Spawner 3
+  m_TagString: Spawner
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &140503003
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 140503002}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.207, y: -0.485, z: 0.278}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 507735862}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &140503004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 140503002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bb22a445d32e2d4eb75b90b681a7b79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnerIsActive: 0
+  spawner: {fileID: 140503003}
 --- !u!1 &187977515
 GameObject:
   m_ObjectHideFlags: 0
@@ -978,6 +1028,56 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+--- !u!1 &367677060
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 367677061}
+  - component: {fileID: 367677062}
+  m_Layer: 0
+  m_Name: RatManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &367677061
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 367677060}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -5.15812, y: -4.37356, z: -78.791115}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1294221256}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &367677062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 367677060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39d987444860d9a4cbf47e14b145c5cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  commonRatTank: {fileID: 8430496292407625669, guid: 3df022119b0888240a95ecca861788ec, type: 3}
+  commonRatNormal: {fileID: -5512944248983678709, guid: e7cc8c61549a9244983d4f56c03869e0, type: 3}
+  supportRatTank: {fileID: 4309375367813483532, guid: a5a8e96ecb4e31841847a648c741f528, type: 3}
+  supportRatNormal: {fileID: 5419479553537737616, guid: f911790735bdbac4a97c8205cb5cb002, type: 3}
+  shooterRatTank: {fileID: 2208513136887461129, guid: 3a86568a8b4154b4685bbde0d3bee352, type: 3}
+  shooterRatNormal: {fileID: -3404328604175906699, guid: d658d0cf05a9d2a4babc423bfd6f6939, type: 3}
 --- !u!1 &387366417
 GameObject:
   m_ObjectHideFlags: 0
@@ -1315,6 +1415,7 @@ Transform:
   m_Children:
   - {fileID: 1988054821}
   - {fileID: 1938700569}
+  - {fileID: 140503003}
   m_Father: {fileID: 981676236}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &507735863
@@ -3220,6 +3321,7 @@ Transform:
   - {fileID: 1681104985}
   - {fileID: 133579869}
   - {fileID: 1615501595}
+  - {fileID: 367677061}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1384370390
@@ -3561,6 +3663,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ratsPerWave: []
+  rat: {fileID: 367677062}
   incrementMultiplier: 1.8
   maxRatsPerWave: 50
 --- !u!1 &1617449987
@@ -4019,7 +4122,7 @@ GameObject:
   - component: {fileID: 1938700569}
   - component: {fileID: 1938700570}
   m_Layer: 0
-  m_Name: Spawner
+  m_Name: Spawner 2
   m_TagString: Spawner
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4034,7 +4137,7 @@ Transform:
   m_GameObject: {fileID: 1938700568}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.296, y: 0, z: -0.311}
+  m_LocalPosition: {x: -0.296, y: -0.485, z: -0.311}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4053,7 +4156,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnerIsActive: 0
-  spawner: {fileID: 1938700568}
+  spawner: {fileID: 1938700569}
 --- !u!1 &1987035570
 GameObject:
   m_ObjectHideFlags: 0
@@ -4110,7 +4213,7 @@ GameObject:
   - component: {fileID: 1988054821}
   - component: {fileID: 1988054822}
   m_Layer: 0
-  m_Name: Spawner
+  m_Name: Spawner 1
   m_TagString: Spawner
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4125,7 +4228,7 @@ Transform:
   m_GameObject: {fileID: 1988054820}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.318, y: 0, z: 0.265}
+  m_LocalPosition: {x: -0.395, y: 0, z: 0.265}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4144,7 +4247,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnerIsActive: 0
-  spawner: {fileID: 1988054820}
+  spawner: {fileID: 1988054821}
 --- !u!1 &2097008632
 GameObject:
   m_ObjectHideFlags: 0

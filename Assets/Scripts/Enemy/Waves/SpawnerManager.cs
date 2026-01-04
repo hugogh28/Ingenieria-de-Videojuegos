@@ -1,5 +1,6 @@
 
 //using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ public class SpawnerManager : MonoBehaviour
     //[SerializeField] private GameObject spawnPoint;
     //[SerializeField] private float spawnRadius = 3f;
 
-    WaveManager waveManager;
+    [SerializeField] WaveManager waveManager;
 
     //public List<WaveManager> waves;
 
@@ -27,13 +28,16 @@ public class SpawnerManager : MonoBehaviour
 
     public float maxDistanceToSpawn = 50f;
 
+    public float timeToCheck = 2f;
+
     GameObject player;
 
-    Vector3 playerPosition;
+    public Vector3 spawnPosition;
 
-    bool spawnerIsActive = false;
-    bool waveIsActive = true;
+    public Vector3 playerPosition;
+    bool waveIsActive = false;
 
+    float timer = 5f;
 
     //public GameObject[] allSpawners;
 
@@ -42,10 +46,11 @@ public class SpawnerManager : MonoBehaviour
     private void Start()
     {
         //readyToCountDown = true;
-
+        timer = 15f;
         player = GameObject.FindGameObjectWithTag("Player");
         //allSpawners = GameObject.FindGameObjectsWithTag("Spawner");
         spawners.Clear();
+        StartCoroutine(Wave());
     }
 
     /*private nBasicRatn CreateRat(string name)
@@ -110,40 +115,47 @@ public class SpawnerManager : MonoBehaviour
     {
         foreach (var spawner in spawners)
         {
-            if (Vector3.Distance(playerPosition, spawner.transform.position) <= maxDistanceToSpawn && !avalaibleSpawners.Contains(spawner))
+            float distance = Vector3.Distance(playerPosition, spawner.transform.position);
+            if (distance <= maxDistanceToSpawn && !avalaibleSpawners.Contains(spawner))
             {
                 avalaibleSpawners.Add(spawner);
             }
-            else if(Vector3.Distance(playerPosition, spawner.transform.position) > maxDistanceToSpawn)
+            else if(distance > maxDistanceToSpawn)
             {
                 avalaibleSpawners.Remove(spawner);
             }
         }
     }
 
-    private GameObject ChooseSpawner()
+    private GameObject ChooseSpawner() //Se elige un spawner semialeatoriamente para que cada rata pueda spawnear 
     {
-        int random = Random.Range(0, avalaibleSpawners.Count());
-        if(avalaibleSpawners.All(s => s.spawnerIsActive==true)) //Esto no detiene el stackeo infinito
-        {
-            StartCoroutine(WaitToCheck(2f));
-        }
-        if (avalaibleSpawners[random].spawnerIsActive == true)
-        {
-            return ChooseSpawner(); //Va a provocar un stackeo infinito de recursividad
-        }
-        else 
-        {
-            avalaibleSpawners[random].spawnerIsActive = true;
-            StartCoroutine(AllowSpawn(avalaibleSpawners[random], 2f));
-            return avalaibleSpawners[random].spawner;
-        }
-    }
+        List<Spawner> unusedSpawners = avalaibleSpawners.Where(s => s.spawnerIsActive == false).ToList();
 
-    IEnumerator WaitToCheck(float time)
-    {
-        yield return new WaitForSeconds(time);
-        ChooseSpawner();
+        //Debug.Log($"Total spawners: {spawners.Count} | " + $"Available: {avalaibleSpawners.Count} | " + $"Unused: {unusedSpawners.Count}");
+
+
+        if (unusedSpawners.Count()==0) return null; //Si todos los spawners se encuentran activos se devuelve null
+
+        int random = UnityEngine.Random.Range(0, unusedSpawners.Count());
+
+        unusedSpawners[random].spawnerIsActive = true;
+
+        StartCoroutine(AllowSpawn(unusedSpawners[random], 1.99f));
+
+        return unusedSpawners[random].gameObject;
+
+        /*if (avalaibleSpawners[random].spawnerIsActive == true) //Si no todos los spawners están activos, pero el aleatorio sí lo está se buscará en la lista al primero que no lo esté
+        {
+            int index = avalaibleSpawners.FindIndex(s => s.spawnerIsActive == false);
+            StartCoroutine(AllowSpawn(avalaibleSpawners[index], 2.5f));
+            return avalaibleSpawners[index].spawner;
+        }
+        else
+        {
+            StartCoroutine(AllowSpawn(avalaibleSpawners[random], 2.5f));
+
+            return avalaibleSpawners[random].spawner;
+        }*/
     }
 
     IEnumerator AllowSpawn(Spawner spawner, float time)
@@ -157,20 +169,37 @@ public class SpawnerManager : MonoBehaviour
         yield return new WaitForSeconds(15f);//Antes de comenzar una oleada, el jugador tendrá 15 segundos para decidir qué puede hacer
         for (int i = 0; i < waveManager.ratsPerWave.Count; i++)
         {
-            waveManager.ratsPerWave[i].transform.position = ChooseSpawner().transform.position;
+            GameObject o = ChooseSpawner();
+            if (o != null)
+            {
+                waveManager.ratsPerWave[i].transform.position = o.transform.position; //Si no todos los spawns se encuentran activos se elige el spawner de la rata
+                waveManager.ratsPerWave[i].gameObject.SetActive(true);
+
+                var rat = waveManager.ratsPerWave[i];
+                Debug.Log(
+                    $"Rat index {i} | ID {rat.GetInstanceID()} | Pos {rat.transform.position}"
+                );
+
+                yield return new WaitForSeconds(0.5f);
+            }
+            else if(o == null)//Si todos los spawns se encuentran activos se reintenta spawnear la rata tras transcurrir el tiempo definido, por ejemplo, 2 segundos
+            {
+                yield return new WaitForSeconds(timeToCheck);
+                i--;
+            }
         }
 
         waveIsActive = false;
     }
 
-    public void CheckIfWaveIsOver()
+    public void CheckIfWaveIsOver() //DA ERROR PARA LA PRIMERA OLEADA PORQUE LA LISTA NO ESTÁ CREADA
     {
         if (waveIsActive) return;
 
-        if (waveManager.ratsPerWave.All(r => r == null))
+        if (waveManager.ratsPerWave.All(r => r == null) || waveManager.ratsPerWave.Count()==0 /*CUIDADO NO SE SI DARA ERRORES*/)
         {
-            waveIsActive = true;
             waveManager.ratsPerWave.Clear();
+            waveIsActive = true;
             waveManager.WaveCreation();
             StartCoroutine(Wave());
         }
@@ -178,9 +207,18 @@ public class SpawnerManager : MonoBehaviour
 
     private void Update()
     {
-        playerPosition = player.transform.position;
-        TakeInCountSpawner(); //No debe ejecutarse cada frame, de lo contrario, va a ser una carga en el procesador enorme
-        CheckIfWaveIsOver();
+        if (timer > 0f)
+        {
+            timer -= Time.deltaTime;
+
+            if (timer <= 0f)
+            {
+                playerPosition = player.transform.position;
+                TakeInCountSpawner(); 
+                CheckIfWaveIsOver();
+                timer = 5f;
+            }
+        }
     }
 }
     /*

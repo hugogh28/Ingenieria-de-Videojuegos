@@ -7,9 +7,6 @@ using UnityEngine.UIElements;
 
 public class SupportRat : nBasicRatn
 {
-    [SerializeField] SupportRat supportRatTank;
-    [SerializeField] SupportRat supportRatNormal;
-
     public float healingRange = 20f;
     public float healingAmount;
     public float healingProbability = 0.1f;
@@ -18,12 +15,6 @@ public class SupportRat : nBasicRatn
     void Start()
     {
         delay = 5f;
-    }
-
-    public SupportRat Clone(bool tank)
-    {
-        SupportRat rat = tank == true ? Instantiate(supportRatTank) : Instantiate(supportRatNormal); //Si requerimos de utilizar el patrón Prototype para crear una rata tanque, tan solo debemos habilitar al clonar tank = true
-        return rat;
     }
 
     public void Heal()
@@ -41,7 +32,7 @@ public class SupportRat : nBasicRatn
             }
             else //Con un 15% de probabilidad de elegir una rata random para curarla
             {
-                nearRats[Random.Range(0, nearRats.Count() - 1)].GetComponent<nBasicRatn>().health += healingAmount;
+                nearRats[Random.Range(0, nearRats.Count())].GetComponent<nBasicRatn>().health += healingAmount;
             }
         }
     }
