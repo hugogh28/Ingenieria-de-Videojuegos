@@ -31,6 +31,8 @@ public class ShooterRat : nBasicRatn
         }
     }
 
+
+
     // Update is called once per frame
     /*void Update()
     {
