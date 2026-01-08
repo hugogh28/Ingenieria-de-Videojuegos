@@ -9,7 +9,7 @@ public class WaveManager : MonoBehaviour
     //public WaveManager Instance {  get; set; }
     //SpawnerManager spawnerManager;
 
-    public List<nBasicRatn> ratsPerWave;
+    public List<BasicRat> ratsPerWave;
 
 
     [SerializeField] RatManager rat;
@@ -29,7 +29,7 @@ public class WaveManager : MonoBehaviour
 
     private void Start()
     {
-        ratsPerWave = new List<nBasicRatn>();
+        ratsPerWave = new List<BasicRat>();
 
         currentWave = 0;
         commonProb = 1f;

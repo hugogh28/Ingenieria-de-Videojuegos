@@ -1,17 +1,25 @@
+using System.Collections.Generic;
+using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.ProBuilder.MeshOperations;
 
 public class BasicRat : MonoBehaviour
 {
-    [SerializeField] private float health = 100;
-    private Animator animator;
-    private NavMeshAgent navAgent;
+    [HideInInspector] public Animator animator;
+    [HideInInspector] public NavMeshAgent navAgent;
+    
+    [SerializeField] public float health = 100;
+    [SerializeField] public float value = 10;
+    public float attackRange = 10f;
+    public float cooldown = 1f;
+    public float attackDamage = 5f;
+    public float criticProbability = 0.05f;
 
-    private void Start()
-    {
-        animator = GetComponent<Animator>();
-        navAgent = GetComponent<NavMeshAgent>();
-    }
+    [HideInInspector] public float timer;
+    [HideInInspector] public Transform transform;
+    [HideInInspector] public float distanceToPlayer;
 
     public void TakeDamage(float dmg)
     {
@@ -29,15 +37,14 @@ public class BasicRat : MonoBehaviour
         }
     }
 
-    public void Update() 
+    public bool RollDice(float actionProbability)
     {
-        if (navAgent.velocity.magnitude > 0.1f) 
+        if (timer % 5 == 0)//Cada vez que el timer pase por múltiplos exactos de 5 se comprobará si las ratas pueden hacer una acción especial (queda sujeto a revisión)
         {
-            animator.SetBool("isWalking", true);
+            float random = Random.value;
+            if (random <= actionProbability) return true;
+            else return false;
         }
-        else
-        {
-            animator.SetBool("isWalking", false);
-        }
+        return false;
     }
 }

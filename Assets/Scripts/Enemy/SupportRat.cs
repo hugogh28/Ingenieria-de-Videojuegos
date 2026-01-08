@@ -5,8 +5,9 @@ using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class SupportRat : nBasicRatn
+public class SupportRat : BasicRat
 {
+    /*
     public float healingRange = 20f;
     public float healingAmount;
     public float healingProbability = 0.1f;
@@ -14,7 +15,7 @@ public class SupportRat : nBasicRatn
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        delay = 5f;
+        cooldown = 5f;
     }
 
     public void Heal()
@@ -28,11 +29,11 @@ public class SupportRat : nBasicRatn
             float random = Random.value;
             if (random <= 0.85)
             {
-                nearRats[GetRat()].GetComponent<nBasicRatn>().health += healingAmount;
+                nearRats[GetRat()].GetComponent<BasicRat>().health += healingAmount;
             }
             else //Con un 15% de probabilidad de elegir una rata random para curarla
             {
-                nearRats[Random.Range(0, nearRats.Count())].GetComponent<nBasicRatn>().health += healingAmount;
+                nearRats[Random.Range(0, nearRats.Count())].GetComponent<BasicRat>().health += healingAmount;
             }
         }
     }
@@ -42,7 +43,7 @@ public class SupportRat : nBasicRatn
         int index = 0;
         for (int i = 0; i < nearRats.Count(); i++) 
         {
-            if (nearRats[i].GetComponent<nBasicRatn>().health < nearRats[index].GetComponent<nBasicRatn>().health) index = i;
+            if (nearRats[i].GetComponent<BasicRat>().health < nearRats[index].GetComponent<BasicRat>().health) index = i;
         }
         return index;
     }

@@ -1,7 +1,8 @@
 using UnityEngine;
 
-public class ShooterRat : nBasicRatn
+public class ShooterRat : BasicRat
 {
+    /*
     public float shootinRange = 12f;
     public float bulletDamage = 20f;
     public float fireRate = 1f;

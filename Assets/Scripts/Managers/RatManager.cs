@@ -11,9 +11,9 @@ public class RatManager : MonoBehaviour
     [SerializeField] public ShooterRat shooterRatTank;
     [SerializeField] public ShooterRat shooterRatNormal;
 
-    public nBasicRatn Clone(bool tank, nBasicRatn tankRat, nBasicRatn normalRat)
+    public BasicRat Clone(bool tank, BasicRat tankRat, BasicRat normalRat)
     {
-        nBasicRatn rat = tank == true ? Instantiate(tankRat) : Instantiate(normalRat); //Si requerimos de utilizar el patrón Prototype para crear una rata tanque, tan solo debemos habilitar al clonar tank = true
+        BasicRat rat = tank == true ? Instantiate(tankRat) : Instantiate(normalRat); //Si requerimos de utilizar el patrón Prototype para crear una rata tanque, tan solo debemos habilitar al clonar tank = true
 
         return rat;
     }

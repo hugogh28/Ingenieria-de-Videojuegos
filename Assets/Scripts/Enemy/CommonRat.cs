@@ -1,28 +1,26 @@
+using System;
 using UnityEngine;
+using UnityEngine.AI;
 
-public class CommonRat : nBasicRatn
+public class CommonRat : BasicRat
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-
-    public float attackDamage = 5f;
-    //public float attackRange = 2f;
-    public float criticProbability = 0.05f;
-
-    
-
-    void Start()
+    private void Start()
     {
-        attackRange = 2f;
+        timer = 0;
+        animator = GetComponent<Animator>();
+        navAgent = GetComponent<NavMeshAgent>();
+        transform = GetComponent<Transform>();
     }
 
     public void Melee()
     {
         if (distanceToPlayer <= attackRange)
         {
-            animator.SetBool("isAttacking", true);
+            animator.SetTrigger("attack");
+            Debug.Log("meremato");
             if (RollDice(criticProbability) == true)
             {
-                float criticImpact = Random.Range(1f, 2f);
+                float criticImpact = UnityEngine.Random.Range(1f, 2f);
                 attackDamage *= criticImpact;//Añadir indicador de crítico
             }
             else attackDamage = 5f;
@@ -31,8 +29,18 @@ public class CommonRat : nBasicRatn
     }
 
     // Update is called once per frame
-    void Update()
+    public void Update()
     {
-        
+        timer += Time.deltaTime;
+
+        if (navAgent.velocity.magnitude > 0.1f)
+        {
+            animator.SetBool("isWalking", true);
+            Debug.Log("aaaaaaa");
+        }
+        else
+        {
+            animator.SetBool("isWalking", false);
+        }
     }
 }
