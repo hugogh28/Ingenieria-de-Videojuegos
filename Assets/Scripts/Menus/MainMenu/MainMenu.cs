@@ -6,6 +6,11 @@ public class MainMenu : MonoBehaviour
 {
     public Page[] pages;
     private Animator animator;
+
+    public Animator burger;
+    public Animator potato;
+    public Animator drink;
+
     public GameObject play;
 
     private int currentPage = 0;
@@ -28,6 +33,9 @@ public class MainMenu : MonoBehaviour
         isAnimating = true;
         ActivateAllCanvases();
         animator.SetTrigger("toMain");
+        if (burger.GetBool("burger")) burger.SetBool("burger", false);
+        if (potato.GetBool("potato")) potato.SetBool("potato", false);
+        if (drink.GetBool("drink")) drink.SetBool("drink", false);
         currentPage = 0;
     }
 
@@ -38,6 +46,7 @@ public class MainMenu : MonoBehaviour
         isAnimating = true;
         ActivateAllCanvases();
         animator.SetTrigger("toSettings");
+        burger.SetBool("burger", true);
         currentPage = 1;
     }
 
@@ -48,6 +57,7 @@ public class MainMenu : MonoBehaviour
         isAnimating = true;
         ActivateAllCanvases();
         animator.SetTrigger("toAchievements");
+        potato.SetBool("potato", true);
         currentPage = 2;
     }
 
@@ -58,6 +68,9 @@ public class MainMenu : MonoBehaviour
         isAnimating = true;
         ActivateAllCanvases();
         animator.SetTrigger("toExtras");
+        potato.SetBool("potato", true);
+        burger.SetBool("burger", true);
+        drink.SetBool("drink", true);
         currentPage = 3;
     }
 
