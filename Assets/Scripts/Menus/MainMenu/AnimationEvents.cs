@@ -4,16 +4,10 @@ using UnityEngine;
 
 public class AnimationEvents : MonoBehaviour
 {
-    public Animator fork;
-    public ShatterDestruction bottle;
+    public Animator camera;
 
-    public void TriggerBottleEvent()
+    public void TriggerCameraEvent()
     {
-        bottle.Shatter();
-    }
-
-    public void TriggerForkEvent()
-    {
-        fork.SetTrigger("Fork");
+        camera.SetTrigger("toCredits");
     }
 }

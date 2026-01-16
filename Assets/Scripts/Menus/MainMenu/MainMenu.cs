@@ -1,3 +1,4 @@
+using System;
 using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -72,6 +73,28 @@ public class MainMenu : MonoBehaviour
         burger.SetBool("burger", true);
         drink.SetBool("drink", true);
         currentPage = 3;
+    }
+
+    public void toCredits()
+    {
+        if (isAnimating) return;
+
+        isAnimating = true;
+        ActivateAllCanvases();
+        animator.SetTrigger("toCredits");
+        if (burger.GetBool("burger")) burger.SetBool("burger", false);
+        if (potato.GetBool("potato")) potato.SetBool("potato", false);
+        if (drink.GetBool("drink")) drink.SetBool("drink", false);
+        currentPage = 0;
+    }
+
+    public void Quit()
+    {
+        if (isAnimating) return;
+
+        isAnimating = true;
+        ActivateAllCanvases();
+        animator.SetTrigger("Quit");
     }
 
     public void ExitGame()
