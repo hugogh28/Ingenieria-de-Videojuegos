@@ -1,13 +1,13 @@
-
 using System;
 using System.Collections.Generic;
+using System.Linq;
 public class ObjectPool : IObjectPool
 {
     private IPoolableObject poolableObject;
     private readonly bool addNew;
     private List<IPoolableObject> pool;
 
-    private int activeObjects;
+    //private int activeObjects;
 
     public ObjectPool(IPoolableObject o, int n, bool add)
     {
@@ -15,7 +15,7 @@ public class ObjectPool : IObjectPool
         addNew = add;
         pool = new List<IPoolableObject>(n);
 
-        for(int i = 0; i < n; i++) 
+        for (int i = 0; i < n; i++)
         {
             pool.Add(Create());
         }
@@ -23,12 +23,12 @@ public class ObjectPool : IObjectPool
 
     public IPoolableObject Get()
     {
-        for(int i = 0;i < pool.Count; i++)
+        for (int i = 0; i < pool.Count; i++)
         {
             if (!pool[i].Active)
             {
                 pool[i].Active = true;
-                activeObjects++;
+                //activeObjects++;
                 return pool[i];
             }
         }
@@ -37,9 +37,9 @@ public class ObjectPool : IObjectPool
         {
             IPoolableObject newObject = Create();
             newObject.Active = true;
-            pool.Add( newObject );
+            pool.Add(newObject);
 
-            activeObjects++;
+            //activeObjects++;
             return newObject;
         }
 
@@ -49,7 +49,7 @@ public class ObjectPool : IObjectPool
     public void Release(IPoolableObject o)
     {
         o.Active = false;
-        activeObjects--;
+        //activeObjects--;
         o.Reset();
     }
 
@@ -64,8 +64,8 @@ public class ObjectPool : IObjectPool
         return pool.Count;
     }
 
-    public int GetActive()
+    /*public int GetActive()
     {
         return activeObjects;
-    }
+    }*/
 }
