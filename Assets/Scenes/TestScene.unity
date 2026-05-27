@@ -1145,8 +1145,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39d987444860d9a4cbf47e14b145c5cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  commonRatTank: {fileID: -3295714200156165361, guid: c8e3b82cd73f696459bd0f9b797a1675, type: 3}
-  commonRatNormal: {fileID: -3295714200156165361, guid: c8e3b82cd73f696459bd0f9b797a1675, type: 3}
+  commonRatTank: {fileID: 8430496292407625669, guid: 3df022119b0888240a95ecca861788ec, type: 3}
+  commonRatNormal: {fileID: -5512944248983678709, guid: e7cc8c61549a9244983d4f56c03869e0, type: 3}
   supportRatTank: {fileID: 4309375367813483532, guid: a5a8e96ecb4e31841847a648c741f528, type: 3}
   supportRatNormal: {fileID: 5419479553537737616, guid: f911790735bdbac4a97c8205cb5cb002, type: 3}
   shooterRatTank: {fileID: 2208513136887461129, guid: 3a86568a8b4154b4685bbde0d3bee352, type: 3}
