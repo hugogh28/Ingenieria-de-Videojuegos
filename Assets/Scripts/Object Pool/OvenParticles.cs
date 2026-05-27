@@ -14,7 +14,7 @@ public class OvenParticles : MonoBehaviour
         objectPool = new ObjectPool(particles, 200, false);
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other) //Por esto, puede ser que solo aparezcan una vez las partículas
     {
         if (other.gameObject.tag.Equals("Player"))
         {

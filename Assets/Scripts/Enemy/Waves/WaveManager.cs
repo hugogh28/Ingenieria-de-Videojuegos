@@ -9,7 +9,7 @@ public class WaveManager : MonoBehaviour
     //public WaveManager Instance {  get; set; }
     //SpawnerManager spawnerManager;
 
-    public List<BasicRat> ratsPerWave;
+    public List<nBasicRatn> ratsPerWave = new List<nBasicRatn>();
 
 
     [SerializeField] RatManager rat;
@@ -18,6 +18,14 @@ public class WaveManager : MonoBehaviour
     float supportProb;
     float commonProb;
     float tankProb;
+
+    //Estos contadores se corresponden a las posiciones del array de RatManager
+    private int commonNormal = 0;
+    private int commonTank = 50;
+    private int supportNormal = 100;
+    private int supportTank = 150;
+    private int shooterNormal = 200;
+    private int shooterTank = 250;
 
 
     int currentWave;
@@ -29,8 +37,6 @@ public class WaveManager : MonoBehaviour
 
     private void Start()
     {
-        ratsPerWave = new List<BasicRat>();
-
         currentWave = 0;
         commonProb = 1f;
         shooterProb = 0f;
@@ -61,31 +67,52 @@ public class WaveManager : MonoBehaviour
 
     public void WaveCreation() //Creación de una oleada semialeatoria, con enemigos variados y de habilidades y ataques distintos
     {
-        ratsPerWave.Clear();
-        for (int i = 0; i < numRats; i++) 
+        ResetVariables(); //Se resetean los contadores de cada tipo de rata para evitar salirse del pool
+
+        ratsPerWave.Clear(); //Se limpia la lista de ratas de la oleada
+        for (int i = 0; i < numRats; i++)  //Se llena la lista de nuevo, con las ratas del pool
         {
             random = Random.value;
-            if (random < supportProb)
+            if (random < supportProb) //Si random es menor que supportProb, se escogerá una rata support
             {
-                random = Random.value;
-                if (random <= tankProb) ratsPerWave.Add(rat.Clone(true, rat.supportRatTank, rat.supportRatNormal));
-                else ratsPerWave.Add(rat.Clone(false, rat.supportRatTank, rat.supportRatNormal));
+                AddRatToWave(tankProb, supportTank, supportNormal);
             }
-            else if (random < supportProb + shooterProb)
+            else if (random < supportProb + shooterProb) //Revisa esto, no da error, pero puede ser que genere más ratas de un tipo
             {
-                random = Random.value;
-                if (random <= tankProb) ratsPerWave.Add(rat.Clone(true, rat.shooterRatTank, rat.shooterRatNormal));
-                ratsPerWave.Add(rat.Clone(false, rat.shooterRatTank, rat.shooterRatNormal));
+                AddRatToWave(tankProb, shooterTank, shooterNormal);
             }
-            else
+            else //Si no es ni support, ni shooter, la rata será normal
             {
-                random = Random.value;
-                if (random <= tankProb) ratsPerWave.Add(rat.Clone(true, rat.commonRatTank, rat.commonRatNormal));
-                ratsPerWave.Add(rat.Clone(false, rat.commonRatTank, rat.commonRatNormal));
+                AddRatToWave(tankProb, commonTank, commonNormal);
             }
         }
         currentWave++;
         IncrementDifficulty();
+    }
+
+    private void AddRatToWave(float givenValue, int idxTank, int idxNormal)
+    {
+        random = Random.value;
+        if (random < givenValue) //Si random es menor o igual a tankProb, aparece una rata tanque
+        {
+            ratsPerWave.Add(rat.poolOfRats[idxTank]);
+            idxTank++;
+        }
+        else
+        {
+            ratsPerWave.Add(rat.poolOfRats[idxNormal]);
+            idxNormal++;
+        }
+    }
+
+    private void ResetVariables() //Para reiniciar los contadores de la lista de ratas
+    {
+        commonNormal = 0;
+        commonTank = 50;
+        supportNormal = 100;
+        supportTank = 150;
+        shooterNormal = 200;
+        shooterTank = 250;
     }
 
     private void Update()

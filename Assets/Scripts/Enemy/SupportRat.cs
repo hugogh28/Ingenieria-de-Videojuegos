@@ -5,7 +5,7 @@ using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class SupportRat : BasicRat
+public class SupportRat : nBasicRatn
 {
     /*
     public float healingRange = 20f;
@@ -47,10 +47,36 @@ public class SupportRat : BasicRat
         }
         return index;
     }
+
+        public void AddRatsToList(float detectionRange)
+    {
+        foreach (var rat in rat)
+        {
+            distanceToOtherRat = Vector3.Distance(transform.position, rat.transform.position);
+            if (distanceToOtherRat <= detectionRange && !nearRats.Contains(rat))
+            {
+                nearRats.Add(rat);
+                Debug.Log(nearRats);
+            }
+        }
+    }
+
+    public void DeleteRatsFromList(float detectionRange)
+    {
+        foreach (var rat in nearRats)
+        {
+            if (distanceToOtherRat > detectionRange || rat == null || !rat.activeInHierarchy)
+            {
+                nearRats.Remove(rat);
+                Debug.Log(nearRats);
+            }
+        }
+    }
     
     // Update is called once per frame
     /*void Update()
     {
-        
+        AddRatsToList(20f); //En una distancia de veinte unidades las ratas pueden interactuar entre ellas
+        DeleteRatsFromList(20f);
     }*/
 }

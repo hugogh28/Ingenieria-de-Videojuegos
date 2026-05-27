@@ -24,6 +24,14 @@ public class Particles : MonoBehaviour, IPoolableObject
         this.gameObject.SetActive(false);
     }
 
+    public void ResetObject()
+    {
+        this.gameObject.SetActive(false);
+        this.timeAlive = 0f;
+        this.color = new Vector3(255, Random.Range(0, 255), 0);
+        this.pos = new Vector3(Random.Range(0, 20), Random.Range(0, 2), Random.Range(0, 40));
+    }
+
     public Particles(bool active ,float YSpeed, float XSpeed, float timeAlive, Vector3 color, Vector3 pos)
     {
         this.YSpeed = YSpeed;

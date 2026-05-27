@@ -50,7 +50,7 @@ public class ObjectPool : IObjectPool
     {
         o.Active = false;
         //activeObjects--;
-        o.Reset();
+        o.ResetObject();
     }
 
     private IPoolableObject Create()
