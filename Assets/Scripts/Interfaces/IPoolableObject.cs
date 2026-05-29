@@ -1,6 +1,6 @@
 public interface IPoolableObject : IPrototype
 {
-    public bool Active //Quizás lo puedas borrar
+    public bool Active 
     {
         get;
         set;

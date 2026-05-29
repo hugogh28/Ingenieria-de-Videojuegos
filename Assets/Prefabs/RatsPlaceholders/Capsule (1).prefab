@@ -129,13 +129,12 @@ MonoBehaviour:
   initialHealth: 100
   animator: {fileID: 0}
   navAgent: {fileID: 2852258141054349889}
-  attackRange: 10
+  attackRange: 3
   timer: 0
   player: {fileID: 0}
   detectionRange: 15
   delay: 1
   nearRats: []
-  position: {fileID: 0}
   distanceToPlayer: 0
   distanceToOtherRat: 0
   attackDamage: 5

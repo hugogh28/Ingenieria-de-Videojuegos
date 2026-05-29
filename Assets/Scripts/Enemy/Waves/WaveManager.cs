@@ -96,11 +96,13 @@ public class WaveManager : MonoBehaviour
         if (random < givenValue) //Si random es menor o igual a tankProb, aparece una rata tanque
         {
             ratsPerWave.Add(rat.poolOfRats[idxTank]);
+            rat.poolOfRats[idxTank].Active = true;
             idxTank++;
         }
         else
         {
             ratsPerWave.Add(rat.poolOfRats[idxNormal]);
+            rat.poolOfRats[idxNormal].Active = true;
             idxNormal++;
         }
     }

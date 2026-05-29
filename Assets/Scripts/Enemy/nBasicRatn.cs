@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.ProBuilder.MeshOperations;
+using System.ComponentModel.Design;
 
 public class nBasicRatn : MonoBehaviour, IPoolableObject
 {
@@ -16,15 +17,10 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject
     public float timer;
 
     [HideInInspector] public GameObject player; //Habría que revisar por si fuese posible aplicar solo el transform del jugador
-    private GameObject[] rat;
     public float detectionRange = 15f;
     public float delay = 1f; //Define el delay entre una acción y la siguiente, como bien puede ser curar, atacar o recargar
     public List<GameObject> nearRats;
     
-    SpawnerManager spawnerManager;
-
-    public Transform position;
-
     [HideInInspector] public float distanceToPlayer;
     [HideInInspector] public float distanceToOtherRat;
 
@@ -34,10 +30,11 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject
         set; 
     }
 
+    
+
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player");
-        this.Active = false;
         initialHealth = health;
         nearRats.Clear();
         timer = 0;
@@ -45,12 +42,18 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject
         navAgent = GetComponent<NavMeshAgent>();
     }
 
+    private void OnEnable()
+    {
+        Awake();
+    }
+
     public void DetectPlayer()
     {
-        distanceToPlayer = Vector3.Distance(transform.position, /*spawnerManager.playerPosition*/ player.GetComponentInParent<Transform>().position);
+        distanceToPlayer = Vector3.Distance(transform.position, player.GetComponentInParent<Transform>().position);
         if (distanceToPlayer <= detectionRange)
         {
-            navAgent.SetDestination(/*spawnerManager.playerPosition*/ player.GetComponent<Transform>().position);
+            SmoothLookAt(player.transform);
+            navAgent.SetDestination(player.GetComponent<Transform>().position);
         }
         else if (distanceToPlayer > detectionRange)
         {
@@ -100,9 +103,11 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject
     {
         try
         {
+            ShouldStop();
+            DetectPlayer();
             if (navAgent.velocity.magnitude > 0.1f)
             {
-                //animator.SetBool("isWalking", true);
+                animator.SetBool("isWalking", true);
             }
             else
             {
@@ -115,11 +120,11 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject
                 return;
             }
 
-            if (ShouldStop() == true)
+            if (/*navAgent.isOnNavMesh && */ShouldStop() == true)
             {
                 navAgent.isStopped = true;
             }
-            else
+            else /*if(navAgent.isOnNavMesh)*/
             {
                 navAgent.isStopped = false;
             }
@@ -128,6 +133,13 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject
             Debug.LogError("Error en Update de " + gameObject.name + ": " + e.Message);
         }
     }
+
+    //Para testeo
+    private void OnMouseDown()
+    {
+        health -= 50;
+    }
+
     public void SmoothLookAt(Transform target)
     {
         Vector3 direction = target.position - transform.position;
