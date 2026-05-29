@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
@@ -79,10 +80,10 @@ public class SpawnerManager : MonoBehaviour
         }
     }*/
     /// <summary>
-    /// Podría hacerse el Pool no solo en las ratas, sino también, en el número de spawners activos
+    /// PodrÃ­a hacerse el Pool no solo en las ratas, sino tambiÃ©n, en el nÃºmero de spawners activos
     /// De este modo ahorraremos recursos
     /// </summary>
-    /*public void AddSpawnersToList()//Añadimos a la lista de spawners todos aquellos spawners que se encuentren activos en la escena
+    /*public void AddSpawnersToList()//AÃ±adimos a la lista de spawners todos aquellos spawners que se encuentren activos en la escena
     {
         if(spawners != null) 
         { 
@@ -103,7 +104,7 @@ public class SpawnerManager : MonoBehaviour
     {
         foreach(GameObject spawner in spawners)
         {
-            if (!spawner.activeInHierarchy) //Esto queda sujeto a revisión
+            if (!spawner.activeInHierarchy) //Esto queda sujeto a revisiÃ³n
             {
                 spawners.Remove(spawner);
                 Debug.Log(spawners);
@@ -111,7 +112,7 @@ public class SpawnerManager : MonoBehaviour
         }
     }*/
 
-    private void TakeInCountSpawner() //Cada spawner que esté activo y dentro de un radio de 50 unidades con respecto al jugador será incluido para poder instanciar ratas
+    private void TakeInCountSpawner() //Cada spawner que estÃ© activo y dentro de un radio de 50 unidades con respecto al jugador serÃ¡ incluido para poder instanciar ratas
     {
         foreach (var spawner in spawners)
         {
@@ -144,7 +145,7 @@ public class SpawnerManager : MonoBehaviour
 
         return unusedSpawners[random].gameObject;
 
-        /*if (avalaibleSpawners[random].spawnerIsActive == true) //Si no todos los spawners están activos, pero el aleatorio sí lo está se buscará en la lista al primero que no lo esté
+        /*if (avalaibleSpawners[random].spawnerIsActive == true) //Si no todos los spawners estÃ¡n activos, pero el aleatorio sÃ­ lo estÃ¡ se buscarÃ¡ en la lista al primero que no lo estÃ©
         {
             int index = avalaibleSpawners.FindIndex(s => s.spawnerIsActive == false);
             StartCoroutine(AllowSpawn(avalaibleSpawners[index], 2.5f));
@@ -166,7 +167,7 @@ public class SpawnerManager : MonoBehaviour
 
     private IEnumerator Wave() //Se organiza el spawn de las ratas
     {
-        yield return new WaitForSeconds(15f);//Antes de comenzar una oleada, el jugador tendrá 15 segundos para decidir qué puede hacer
+        yield return new WaitForSeconds(15f);//Antes de comenzar una oleada, el jugador tendrÃ¡ 15 segundos para decidir quÃ© puede hacer
         for (int i = 0; i < waveManager.ratsPerWave.Count; i++)
         {
             GameObject o = ChooseSpawner();
@@ -174,6 +175,12 @@ public class SpawnerManager : MonoBehaviour
             {
                 waveManager.ratsPerWave[i].transform.position = o.transform.position; //Si no todos los spawns se encuentran activos se elige el spawner de la rata
                 waveManager.ratsPerWave[i].gameObject.SetActive(true);
+
+                /*NavMeshHit hit;
+                if(NavMesh.SamplePosition(o.transform.position, out hit, 2f, NavMesh.AllAreas))
+                {
+                    waveManager.ratsPerWave[i].navAgent.Warp(hit.position);
+                }*/
 
                 var rat = waveManager.ratsPerWave[i];
                 Debug.Log(
@@ -192,11 +199,11 @@ public class SpawnerManager : MonoBehaviour
         waveIsActive = false;
     }
 
-    public void CheckIfWaveIsOver() //DA ERROR PARA LA PRIMERA OLEADA PORQUE LA LISTA NO ESTÁ CREADA
+    public void CheckIfWaveIsOver() //DA ERROR PARA LA PRIMERA OLEADA PORQUE LA LISTA NO ESTÃ CREADA
     {
         if (waveIsActive) return;
 
-        if (waveManager.ratsPerWave.All(r => r == null) || waveManager.ratsPerWave.Count()==0 /*CUIDADO NO SE SI DARA ERRORES*/)
+        if (waveManager.ratsPerWave.All(r => r == null || !r.gameObject.activeSelf))
         {
             waveManager.ratsPerWave.Clear();
             waveIsActive = true;

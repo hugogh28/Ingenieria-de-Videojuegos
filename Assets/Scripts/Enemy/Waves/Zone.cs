@@ -4,7 +4,6 @@ public class Zone : MonoBehaviour
 {
     public SpawnerManager wave;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
     }
@@ -17,10 +16,8 @@ public class Zone : MonoBehaviour
             if(wave.spawners != null && !wave.spawners.Contains(t.GetComponent<Spawner>()) ) wave.spawners.Add(t.GetComponent<Spawner>());
         }
         gameObject.GetComponent<BoxCollider>().enabled = false;
-        //wave.AddSpawnersToList();
     }
     
-    // Update is called once per frame
     void Update()
     {
     }

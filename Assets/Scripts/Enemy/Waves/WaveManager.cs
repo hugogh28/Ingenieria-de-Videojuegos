@@ -75,22 +75,22 @@ public class WaveManager : MonoBehaviour
             random = Random.value;
             if (random < supportProb) //Si random es menor que supportProb, se escogerá una rata support
             {
-                AddRatToWave(tankProb, supportTank, supportNormal);
+                AddRatToWave(tankProb, ref supportTank, ref supportNormal);
             }
             else if (random < supportProb + shooterProb) //Revisa esto, no da error, pero puede ser que genere más ratas de un tipo
             {
-                AddRatToWave(tankProb, shooterTank, shooterNormal);
+                AddRatToWave(tankProb, ref shooterTank, ref shooterNormal);
             }
             else //Si no es ni support, ni shooter, la rata será normal
             {
-                AddRatToWave(tankProb, commonTank, commonNormal);
+                AddRatToWave(tankProb, ref commonTank, ref commonNormal);
             }
         }
         currentWave++;
         IncrementDifficulty();
     }
 
-    private void AddRatToWave(float givenValue, int idxTank, int idxNormal)
+    private void AddRatToWave(float givenValue, ref int idxTank, ref int idxNormal) //Se pasan los valores por referencia para modificar las variables que reciba el método
     {
         random = Random.value;
         if (random < givenValue) //Si random es menor o igual a tankProb, aparece una rata tanque

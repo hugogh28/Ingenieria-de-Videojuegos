@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 8432219761387450697}
   - component: {fileID: 7812960756105710819}
   - component: {fileID: -3404328604175906699}
+  - component: {fileID: 1372364231745169573}
+  - component: {fileID: -5889415273761200972}
   m_Layer: 0
   m_Name: Cube (1)
   m_TagString: Untagged
@@ -122,17 +124,59 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   health: 100
+  initialHealth: 100
   animator: {fileID: 0}
-  navAgent: {fileID: 0}
+  navAgent: {fileID: 1372364231745169573}
   attackRange: 10
   timer: 0
+  player: {fileID: 0}
   detectionRange: 15
   delay: 1
   nearRats: []
+  position: {fileID: 0}
   distanceToPlayer: 0
   distanceToOtherRat: 0
-  shootinRange: 12
-  bulletDamage: 20
-  fireRate: 1
-  ammo: 20
-  critic: 0.01
+--- !u!195 &1372364231745169573
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 966425176629793476}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 1
+  m_BaseOffset: 0.5
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!95 &-5889415273761200972
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 966425176629793476}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

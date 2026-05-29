@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -7,26 +8,19 @@ using UnityEngine.ProBuilder.MeshOperations;
 
 public class nBasicRatn : MonoBehaviour, IPoolableObject
 {
-    [SerializeField] public float initialHealth; //Quizá sea necesario asignárselo en el start (o aquí mismo)
-    private float health;
+    [SerializeField] public float health; //Quizá sea necesario asignárselo en el start (o aquí mismo)
+    [SerializeField] private float initialHealth;
     public Animator animator;
     public NavMeshAgent navAgent;
-    //private WaveSpawner waveSpawner;
     public float attackRange = 10f;
     public float timer;
 
-    //#region IEnemyProtoype
-    //GameObject p;
-    //public Transform player;
-    //private nBasicRatn rat;
+    [HideInInspector] public GameObject player; //Habría que revisar por si fuese posible aplicar solo el transform del jugador
     private GameObject[] rat;
     public float detectionRange = 15f;
     public float delay = 1f; //Define el delay entre una acción y la siguiente, como bien puede ser curar, atacar o recargar
     public List<GameObject> nearRats;
-    //public float actionProbability = 0.5f; 
-    //public float shootingRange = 7f;
-    //public float fireRate = 1f;
-    // #endregion
+    
     SpawnerManager spawnerManager;
 
     public Transform position;
@@ -40,10 +34,11 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject
         set; 
     }
 
-    private void Start()
+    private void Awake()
     {
+        player = GameObject.FindGameObjectWithTag("Player");
         this.Active = false;
-        health = initialHealth;
+        initialHealth = health;
         nearRats.Clear();
         timer = 0;
         animator = GetComponent<Animator>();
@@ -52,11 +47,10 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject
 
     public void DetectPlayer()
     {
-        //return WaitForSeconds()
-        distanceToPlayer = Vector3.Distance(transform.position, spawnerManager.playerPosition);
+        distanceToPlayer = Vector3.Distance(transform.position, /*spawnerManager.playerPosition*/ player.GetComponentInParent<Transform>().position);
         if (distanceToPlayer <= detectionRange)
         {
-            navAgent.SetDestination(spawnerManager.playerPosition);
+            navAgent.SetDestination(/*spawnerManager.playerPosition*/ player.GetComponent<Transform>().position);
         }
         else if (distanceToPlayer > detectionRange)
         {
@@ -67,7 +61,7 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject
 
     public void TakeDamage(float dmg)
     {
-        health -= dmg;// ReactionManager.Instance.calcDamage(dmg);
+        health -= dmg;
 
         if (health <= 0)
         {
@@ -76,7 +70,7 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject
         }
         else
         {
-            animator.SetTrigger("damage");
+            //animator.SetTrigger("damage");
         }
     }
 
@@ -90,34 +84,49 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject
         else return false;//navAgent.isStopped = false;
     }
 
-    public bool RollDice(float actionProbability) //Hay que reestructurar esto, para evitar gasto computacional por timers en las ratas
+    public bool RollDice(float actionProbability)
     {
-        if (timer % 5 == 0)//Cada vez que el timer pase por múltiplos exactos de 5 se comprobará si las ratas pueden hacer una acción especial (queda sujeto a revisión)
+        if (UnityEngine.Random.value < actionProbability) //Si el valor obtenido en Random.value es menor que la probabilidad dada, se cumplirá la condición
         {
-            float random = Random.value;
-            if (random <= actionProbability) return true;
-            else return false;
+            return true;
         }
-        return false;
+        else
+        {
+            return false;
+        }   
     }
 
     public void Update()
     {
-        rat = GameObject.FindGameObjectsWithTag("Rat"); //Cambiar al Start(), esto es un gasto computacional innecesariamente grande
-        timer += Time.deltaTime;
-        if (navAgent.velocity.magnitude > 0.1f)
+        try
         {
-            animator.SetBool("isWalking", true);
-        }
-        else
+            if (navAgent.velocity.magnitude > 0.1f)
+            {
+                //animator.SetBool("isWalking", true);
+            }
+            else
+            {
+                //animator.SetBool("isWalking", false); //Habrá que sustituir aquí por la animación idle
+            }
+
+            if (health <= 0)
+            {
+                Die();
+                return;
+            }
+
+            if (ShouldStop() == true)
+            {
+                navAgent.isStopped = true;
+            }
+            else
+            {
+                navAgent.isStopped = false;
+            }
+        }catch(Exception e)
         {
-            animator.SetBool("isWalking", false);
+            Debug.LogError("Error en Update de " + gameObject.name + ": " + e.Message);
         }
-
-        if (ShouldStop() == true) navAgent.isStopped = true;
-        else navAgent.isStopped = false;
-        //<< Interface >> 
-
     }
     public void SmoothLookAt(Transform target)
     {
@@ -136,26 +145,22 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject
         Instantiate(rat);
     }
 
-    public void SetWaveSpawner(SpawnerManager spawner)
-    {
-        //Asignar aquí el spawner de la rata en función de la zona del jugador
-    }
-
     public void ResetObject()
     {
         this.Active = false;
-        this.GetComponent<GameObject>().SetActive(false);
+        this.gameObject.SetActive(false);
         this.health = initialHealth;
     }
 
     public IPoolableObject Clone()
     {
-        return Instantiate(this); //Revisa, puede ser que de problemas
+        return Instantiate(this);
     }
 
     public void Die()
     {
-        animator.SetTrigger("die");
+        Debug.Log("Die() llamado en " + gameObject.name);
+        //animator.SetTrigger("die");
         ResetObject();
     }
 }
