@@ -24,6 +24,8 @@ public class PlayerController : MonoBehaviour, IHealth
 
     public float health { get; set; }
 
+    public int points = 0;
+
     public void TakeDamage(float damage) //Si recibe un disparo, sufrirá daño
     {
         health -= damage;

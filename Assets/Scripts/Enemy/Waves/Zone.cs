@@ -4,9 +4,6 @@ public class Zone : MonoBehaviour
 {
     public SpawnerManager wave;
 
-    void Start()
-    {
-    }
     public void OnTriggerEnter(Collider other) //Detectamos si el jugador está dentro de alguna de las zonas de spawn
     {
         if (!other.CompareTag("Player")) return;
@@ -16,9 +13,5 @@ public class Zone : MonoBehaviour
             if(wave.spawners != null && !wave.spawners.Contains(t.GetComponent<Spawner>()) ) wave.spawners.Add(t.GetComponent<Spawner>());
         }
         gameObject.GetComponent<BoxCollider>().enabled = false;
-    }
-    
-    void Update()
-    {
     }
 }

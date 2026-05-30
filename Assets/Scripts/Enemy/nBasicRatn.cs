@@ -23,7 +23,9 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject, IHealth
     
     [HideInInspector] public float distanceToPlayer;
     [HideInInspector] public float distanceToOtherRat;
-    
+
+    public int pointsGivenAtDeath;
+
     public float health
     {
         get;
@@ -177,6 +179,8 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject, IHealth
 
     public void Die()
     {
+        float points = UnityEngine.Random.Range(pointsGivenAtDeath, pointsGivenAtDeath * 1.5f); //Se añade un randomizador de puntos
+        GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().points += (int)points;
         Debug.Log("Die() llamado en " + gameObject.name);
         //animator.SetTrigger("die");
         ResetObject();
