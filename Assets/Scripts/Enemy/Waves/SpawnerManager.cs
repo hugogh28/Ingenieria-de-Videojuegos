@@ -26,7 +26,6 @@ public class SpawnerManager : MonoBehaviour
     public Vector3 spawnPosition;
 
     public Vector3 playerPosition;
-    bool waveIsActive = false;
 
     float timer = 5f;
 
@@ -114,8 +113,11 @@ public class SpawnerManager : MonoBehaviour
 
     public void CheckIfWaveIsOver()
     {
-        Debug.Log($"CheckIfWaveIsOver | waveIsActive: {waveIsActive} | ratas activas: {waveManager.ratsPerWave.Count(r => r != null && r.Active)}");
+        Debug.Log($"CheckIfWaveIsOver | ratas activas: {waveManager.ratsPerWave.Count(r => r != null && r.Active)}");
 
+        //En caso de querer que las oleadas terminen en un determinado número, para dar paso a un jefe, se podrá poner aquí un 
+        //if(waveManager.currentWave == maximo número definido) return;
+        //Y luego señalizar el spawneo del jefe, si es que se mete
 
         if (waveManager.ratsPerWave.Count(r => r != null && r.Active) > 0)
         {
@@ -125,7 +127,6 @@ public class SpawnerManager : MonoBehaviour
         {
             StartCoroutine(ShowOnEndOfWave());
             waveManager.ratsPerWave.Clear();
-            waveIsActive = true;
             waveManager.WaveCreation();
             StartCoroutine(Wave());
         }

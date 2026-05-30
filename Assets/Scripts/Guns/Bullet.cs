@@ -32,7 +32,7 @@ public class Bullet : MonoBehaviour
         }
         if (collision.gameObject.CompareTag("Rat"))
         {
-            collision.gameObject.GetComponent<BasicRat>().TakeDamage(dmg);
+            collision.gameObject.GetComponent<nBasicRatn>().TakeDamage(dmg);
 
             Destroy(gameObject);
         }

@@ -3,17 +3,13 @@ using UnityEngine;
 
 public class WaveManager : MonoBehaviour
 {
-    //public WaveManager Instance {  get; set; }
-    //SpawnerManager spawnerManager;
-
     public List<nBasicRatn> ratsPerWave = new List<nBasicRatn>();
-
 
     [SerializeField] RatManager rat;
 
     float shooterProb;
     float supportProb;
-    float commonProb;
+    //float commonProb;
     float tankProb;
 
     //Estos contadores se corresponden a las posiciones del array de RatManager
@@ -35,7 +31,7 @@ public class WaveManager : MonoBehaviour
     private void Start()
     {
         currentWave = 0;
-        commonProb = 1f;
+        //commonProb = 1f;
         shooterProb = 0f;
         supportProb = 0f;
         numRats = 5;
