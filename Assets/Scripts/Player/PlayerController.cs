@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IHealth
 {
     private CharacterController controller;
-    
+
     public float speed = 12f;
     public float gravity = -9.81f * 2;
     public float jumpHeight = 3f;
@@ -21,8 +22,30 @@ public class PlayerController : MonoBehaviour
 
     private Vector3 lastPosition = new Vector3(0f,0f,0f);
 
+    public float health { get; set; }
+
+    public void TakeDamage(float damage) //Si recibe un disparo, sufrirá daño
+    {
+        health -= damage;
+
+        if(health <= 0)
+        {
+            Die();
+        }
+        else
+        {
+
+        }
+    }
+
+    public void Die() //Cuando el jugador muere, se le lleva a la pantalla de inicio
+    {
+        SceneManager.LoadScene(0);
+    }
+
     private void Start()
     {
+        health = 100;
         controller = GetComponent<CharacterController>();
     }
 

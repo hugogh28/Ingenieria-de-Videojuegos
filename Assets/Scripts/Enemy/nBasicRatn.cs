@@ -7,9 +7,9 @@ using UnityEngine.AI;
 using UnityEngine.ProBuilder.MeshOperations;
 using System.ComponentModel.Design;
 
-public class nBasicRatn : MonoBehaviour, IPoolableObject
+public class nBasicRatn : MonoBehaviour, IPoolableObject, IHealth
 {
-    [SerializeField] public float health; //Quizá sea necesario asignárselo en el start (o aquí mismo)
+    //[SerializeField] public float health; //Quizá sea necesario asignárselo en el start (o aquí mismo)
     [SerializeField] private float initialHealth;
     public Animator animator;
     public NavMeshAgent navAgent;
@@ -23,6 +23,12 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject
     
     [HideInInspector] public float distanceToPlayer;
     [HideInInspector] public float distanceToOtherRat;
+    
+    public float health
+    {
+        get;
+        set;
+    }
 
     public bool Active 
     { 
@@ -34,8 +40,8 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject
 
     private void Awake()
     {
+        health = initialHealth;
         player = GameObject.FindGameObjectWithTag("Player");
-        initialHealth = health;
         nearRats.Clear();
         timer = 0;
         animator = GetComponent<Animator>();
