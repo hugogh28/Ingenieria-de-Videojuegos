@@ -1,12 +1,8 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Rendering;
-using UnityEngine.SceneManagement;
 
 public class SpawnerManager : MonoBehaviour
 {
@@ -34,13 +30,15 @@ public class SpawnerManager : MonoBehaviour
 
     float timer = 5f;
 
+    public GameObject textEndWave;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
     {
         timer = 15f;
         player = GameObject.FindGameObjectWithTag("Player");
         spawners.Clear();
-        StartCoroutine(Wave());
+        StartCoroutine(Wave()); //La primera oleada se crea nada más inicializarse la escena
     }
 
     private void TakeInCountSpawner() //Cada spawner que esté activo y dentro de un radio de 50 unidades con respecto al jugador será incluido para poder instanciar ratas
@@ -63,13 +61,13 @@ public class SpawnerManager : MonoBehaviour
     {
         List<Spawner> unusedSpawners = avalaibleSpawners.Where(s => s.spawnerIsActive == false).ToList();
 
-        if (unusedSpawners.Count()==0) return null; //Si todos los spawners se encuentran activos se devuelve null
+        if (unusedSpawners.Count() == 0) return null; //Si todos los spawners se encuentran activos se devuelve null
 
         int random = UnityEngine.Random.Range(0, unusedSpawners.Count());
 
         unusedSpawners[random].spawnerIsActive = true;
 
-        StartCoroutine(AllowSpawn(unusedSpawners[random], 1.99f));
+        StartCoroutine(AllowSpawn(unusedSpawners[random], 1.99f)); //Se lanza una corutina como "timer" del spawner
 
         return unusedSpawners[random].gameObject;
     }
@@ -89,13 +87,10 @@ public class SpawnerManager : MonoBehaviour
             GameObject o = ChooseSpawner();
             if (o != null)
             {
-                //waveManager.ratsPerWave[i].transform.position = o.transform.position; //Si no todos los spawns se encuentran activos se elige el spawner de la rata
                 waveManager.ratsPerWave[i].gameObject.SetActive(true);
 
-                //waveManager.ratsPerWave[i].Active = true;
-
                 NavMeshHit hit;
-                if(NavMesh.SamplePosition(o.transform.position, out hit, 2f, NavMesh.AllAreas))
+                if(NavMesh.SamplePosition(o.transform.position, out hit, 2f, NavMesh.AllAreas)) //En caso de salir en un spawner que no está en una NavMesh, se buscará la posición más cercana a una, para que el component NavMeshAgent, no de errores
                 {
                     waveManager.ratsPerWave[i].navAgent.Warp(hit.position);
                 }
@@ -117,7 +112,7 @@ public class SpawnerManager : MonoBehaviour
         Debug.Log("Wave terminó de spawnear");
     }
 
-    public void CheckIfWaveIsOver() //DA ERROR PARA LA PRIMERA OLEADA PORQUE LA LISTA NO ESTÁ CREADA
+    public void CheckIfWaveIsOver()
     {
         Debug.Log($"CheckIfWaveIsOver | waveIsActive: {waveIsActive} | ratas activas: {waveManager.ratsPerWave.Count(r => r != null && r.Active)}");
 
@@ -126,13 +121,21 @@ public class SpawnerManager : MonoBehaviour
         {
             return;
         }
-        else if (/*waveManager.ratsPerWave.All(r => r == null || r.Active == false)*/waveManager.ratsPerWave.Count(r => r != null && r.Active) <= 0)
+        else if (waveManager.ratsPerWave.Count(r => r != null && r.Active) <= 0)
         {
+            StartCoroutine(ShowOnEndOfWave());
             waveManager.ratsPerWave.Clear();
             waveIsActive = true;
             waveManager.WaveCreation();
             StartCoroutine(Wave());
         }
+    }
+
+    private IEnumerator ShowOnEndOfWave() //Función, cuya finalidad es la de mostrar un letrero que indique el final de una ronda
+    {
+        textEndWave.SetActive(true);
+        yield return new WaitForSeconds(4);
+        textEndWave.SetActive(false);
     }
 
     private void Update()
@@ -141,7 +144,7 @@ public class SpawnerManager : MonoBehaviour
         {
             timer -= Time.deltaTime;
 
-            if (timer <= 0f) //Puede que haya que sacarlo del if 
+            if (timer <= 0f) 
             {
                 playerPosition = player.transform.position;
                 TakeInCountSpawner(); 

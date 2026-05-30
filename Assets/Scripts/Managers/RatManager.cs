@@ -1,6 +1,3 @@
-using NUnit.Framework;
-using System.Collections.Generic;
-using Unity.VisualScripting.Dependencies.NCalc;
 using UnityEngine;
 
 public class RatManager : MonoBehaviour

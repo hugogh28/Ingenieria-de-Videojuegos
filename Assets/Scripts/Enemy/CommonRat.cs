@@ -7,13 +7,13 @@ public class CommonRat : nBasicRatn
 {
     [SerializeField] public float attackDamage = 5f;
     [SerializeField] public float criticProbability = 0.25f;
+    [SerializeField] public int attackFrame; //Frame indicado en el editor, para que cualquiera pueda asignar un determinado frame de ataque y no depener del código
 
     private void Start()
     {
         timer = 0;
         animator = GetComponent<Animator>();
         navAgent = GetComponent<NavMeshAgent>();
-        //transform = GetComponent<Transform>();
     }
 
     public IEnumerator Melee()
@@ -22,6 +22,7 @@ public class CommonRat : nBasicRatn
         {
             //animator.SetTrigger("attack");
             Debug.Log("meremato");
+            
             if (RollDice(criticProbability) == true)
             {
                 float criticImpact = UnityEngine.Random.Range(1f, 2f);
