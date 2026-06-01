@@ -1,42 +1,32 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class ShooterRat : nBasicRatn
 {
-    /*
-    public float shootinRange = 12f;
-    public float bulletDamage = 20f;
-    public float fireRate = 1f;
-    public int ammo = 20;
-    public float critic = 0.01f;
+    private bool hasFired = false;
 
-    //Podría ser interesante hacer un ataque especial, o que se meta más daño por un crítico a la rata
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Start()
     {
-        attackRange = shootinRange;
+        timer = 0;
+        animator = GetComponent<Animator>();
+        navAgent = GetComponent<NavMeshAgent>();
     }
 
-    public void Shoot()//Añadir delay y un cargador de 20 de munición (puedes copiar el código de las armas)
+    public void Shoot()
     {
-        if (ShouldStop()==true)
+        if(RollDice(criticProbability) == true)
         {
-            animator.SetBool("isShooting", true);
-            if (RollDice(critic) == true)//Hay cierta probabilidad de recibir un daño crítico
-            {
-                float criticImpact = Random.Range(1f, 1.5f);
-                bulletDamage *= criticImpact; //Añadir indicador de crítico
-            }
-            else bulletDamage = 20f;
-            //Aplicar daño al jugador y definir el disparo mediante un rayo
+            float criticImpact = Random.Range(1f, 1.5f);
+            float dmg = attackDamage * criticImpact;
+            //GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().TakeDamage(dmg);
+            //Trazar rayo desde el arma de la rata hacia el jugador para que este pueda recibir daño
+        }
+        else
+        {
+            attackDamage = 20f;
+            //GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().TakeDamage(attackDamage);
+            //Trazar rayo desde el arma de la rata hacia el jugador para que este pueda recibir daño
         }
     }
-
-
-
-    // Update is called once per frame
-    /*void Update()
-    {
-        
-    }*/
 }

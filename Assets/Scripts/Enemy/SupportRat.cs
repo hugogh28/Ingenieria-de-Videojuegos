@@ -7,8 +7,8 @@ using UnityEngine.UIElements;
 
 public class SupportRat : nBasicRatn
 {
-    /*
-    public float healingRange = 20f;
+    
+    /*public float healingRange = 20f;
     public float healingAmount;
     public float healingProbability = 0.1f;
 
@@ -74,7 +74,7 @@ public class SupportRat : nBasicRatn
     }
     
     // Update is called once per frame
-    /*void Update()
+    void Update()
     {
         AddRatsToList(20f); //En una distancia de veinte unidades las ratas pueden interactuar entre ellas
         DeleteRatsFromList(20f);

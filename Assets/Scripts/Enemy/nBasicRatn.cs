@@ -6,25 +6,31 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.ProBuilder.MeshOperations;
 using System.ComponentModel.Design;
+using System.Collections;
 
 public class nBasicRatn : MonoBehaviour, IPoolableObject, IHealth
 {
-    //[SerializeField] public float health; //Quizá sea necesario asignárselo en el start (o aquí mismo)
-    [SerializeField] private float initialHealth;
-    public Animator animator;
-    public NavMeshAgent navAgent;
-    public float attackRange = 10f;
+    [SerializeField] private float initialHealth; //Vida con la que inicia la rata
+    public Animator animator; //Animator de la rata
+    public NavMeshAgent navAgent; //NavMeshAgent de la rata
+    public float attackRange = 10f; //Rango de ataque de la rata
     public float timer;
 
     [HideInInspector] public GameObject player; //Habría que revisar por si fuese posible aplicar solo el transform del jugador
-    public float detectionRange = 15f;
+    public float detectionRange = 15f; //Rango (en units) de detección de la rata
     public float delay = 1f; //Define el delay entre una acción y la siguiente, como bien puede ser curar, atacar o recargar
-    public List<GameObject> nearRats;
+    public bool doneSomething = false; //Define si la rata ha efectuado una acción para aplicar delay
+    //public List<GameObject> nearRats;
     
-    [HideInInspector] public float distanceToPlayer;
+    [HideInInspector] public float distanceToPlayer; //Distancia al jugador
     [HideInInspector] public float distanceToOtherRat;
 
-    public int pointsGivenAtDeath;
+    [SerializeField] public float attackDamage = 5f; //Daño base que efectúa una rata al jugador
+    [SerializeField] public float criticProbability = 0.25f; //Probabilidad de efectuar daño crítico al jugador
+
+    public int pointsGivenAtDeath; //Los puntos que otorga una rata en su muerte
+
+    public string actionNextToPlayer; //El nombre de la animación de la rata que debe efectuar al estar en un rango de ataque
 
     public float health
     {
@@ -44,7 +50,7 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject, IHealth
     {
         health = initialHealth;
         player = GameObject.FindGameObjectWithTag("Player");
-        nearRats.Clear();
+        //nearRats.Clear();
         timer = 0;
         animator = GetComponent<Animator>();
         navAgent = GetComponent<NavMeshAgent>();
@@ -107,6 +113,13 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject, IHealth
         }   
     }
 
+    public IEnumerator HasDoneSomething()
+    {
+        doneSomething = true;
+        yield return new WaitForSeconds(delay);
+        doneSomething = false;
+    }
+
     public void Update()
     {
         try
@@ -128,9 +141,10 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject, IHealth
                 return;
             }
 
-            if (/*navAgent.isOnNavMesh && */ShouldStop() == true)
+            if (/*navAgent.isOnNavMesh && */ShouldStop() == true && doneSomething != true)
             {
                 navAgent.isStopped = true;
+                animator.SetBool(actionNextToPlayer, true);
             }
             else /*if(navAgent.isOnNavMesh)*/
             {

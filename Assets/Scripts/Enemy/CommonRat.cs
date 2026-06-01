@@ -5,10 +5,6 @@ using UnityEngine.AI;
 
 public class CommonRat : nBasicRatn
 {
-    [SerializeField] public float attackDamage = 5f;
-    [SerializeField] public float criticProbability = 0.25f;
-    [SerializeField] public int attackFrame; //Frame indicado en el editor, para que cualquiera pueda asignar un determinado frame de ataque y no depener del código
-
     private void Start()
     {
         timer = 0;
@@ -16,38 +12,22 @@ public class CommonRat : nBasicRatn
         navAgent = GetComponent<NavMeshAgent>();
     }
 
-    public IEnumerator Melee()
+    public void Melee()
     {
-        if (distanceToPlayer <= attackRange)
+        if (RollDice(criticProbability) == true)
         {
-            //animator.SetTrigger("attack");
-            Debug.Log("meremato");
-            
-            if (RollDice(criticProbability) == true)
-            {
-                float criticImpact = UnityEngine.Random.Range(1f, 2f);
-                attackDamage *= criticImpact;//Añadir indicador de crítico
-            }
-            else attackDamage = 5f;
-            //Aplicar daño al jugador
-        }
-        yield return new WaitForSeconds(delay);
-    }
-
-    // Update is called once per frame
-    /*public void Update()
-    {
-        timer += Time.deltaTime;
-
-        if (navAgent.velocity.magnitude > 0.1f)
-        {
-            //animator.SetBool("isWalking", true);
-            Debug.Log("aaaaaaa");
+            float criticImpact = UnityEngine.Random.Range(1f, 2f);
+            int dmg = (int)(attackDamage * criticImpact);//Añadir indicador de crítico
+            GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().TakeDamage(dmg);
+            //Para mayor feedback, se puede añadir un temblor a la cámara del jugador
+            Debug.Log($"El jugador ha recibido {dmg} puntos de daño");
         }
         else
         {
-            //animator.SetBool("isWalking", false);
+            attackDamage = 5f;
+            GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().TakeDamage(attackDamage);
+            //Para mayor feedback, se puede añadir un temblor a la cámara del jugador
+            Debug.Log($"El jugador ha recibido {attackDamage} puntos de daño");
         }
-
-    }*/
+    }
 }

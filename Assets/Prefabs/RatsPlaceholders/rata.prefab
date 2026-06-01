@@ -114,7 +114,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8016292f6304bbf44b73c57729482038, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 100
   initialHealth: 100
   animator: {fileID: 2153031442386007618}
   navAgent: {fileID: -3984462859222148957}
@@ -126,8 +125,10 @@ MonoBehaviour:
   nearRats: []
   distanceToPlayer: 0
   distanceToOtherRat: 0
+  pointsGivenAtDeath: 0
   attackDamage: 5
   criticProbability: 0.25
+  attackFrame: 0
 --- !u!195 &-3984462859222148957
 NavMeshAgent:
   m_ObjectHideFlags: 0
