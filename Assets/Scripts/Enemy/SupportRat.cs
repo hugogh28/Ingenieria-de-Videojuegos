@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEditor.ShaderGraph.Internal;
@@ -7,76 +8,40 @@ using UnityEngine.UIElements;
 
 public class SupportRat : nBasicRatn
 {
-    
-    /*public float healingRange = 20f;
+    WaveManager waveManager;
+
+    private List<nBasicRatn> ratsToHeal;
+
+    public float healingRange = 20f;
     public float healingAmount;
-    public float healingProbability = 0.1f;
+    public float healingProbability = 0.85f;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public void Heal() //Cuando la rata realiza la animación de cura, busca una entre las cercanas, si la probabilidad está a favor de la que tenga menor vida, curará a esa, sino, escogerá una aleatoria
     {
-        cooldown = 5f;
-    }
+        ratsToHeal.Clear();
+        healingAmount = Random.Range(20, 40);
 
-    public void Heal()
-    {
-        //Definir aquí que en base a una distancia, la rata support debe curar a una aliada suya
-        if (RollDice(healingProbability) == true)
+        float healing = Mathf.Clamp(healingAmount + ratsToHeal[0].health, healingAmount, ratsToHeal[0].initialHealth);
+
+        OrderRats();
+
+        if(RollDice(healingProbability) == true)
         {
-            healingAmount = Random.Range(20, 40);
-            animator.SetBool("isHealing", true);
-            //Elige la rata con la vida más baja (pero con cierta probabilidad de escoger a otra)
-            float random = Random.value;
-            if (random <= 0.85)
-            {
-                nearRats[GetRat()].GetComponent<BasicRat>().health += healingAmount;
-            }
-            else //Con un 15% de probabilidad de elegir una rata random para curarla
-            {
-                nearRats[Random.Range(0, nearRats.Count())].GetComponent<BasicRat>().health += healingAmount;
-            }
+            ratsToHeal[0].health = healing;
         }
+
+        ratsToHeal[Random.Range(0, ratsToHeal.Count-1)].health = healing;
     }
 
-    public int GetRat()//Devuelve la rata con la menor vida
+    public void OrderRats()
     {
-        int index = 0;
-        for (int i = 0; i < nearRats.Count(); i++) 
+        foreach(var rat in waveManager.ratsPerWave) //Se buscan las ratas que tenga la support dentro de su rango de acción
         {
-            if (nearRats[i].GetComponent<BasicRat>().health < nearRats[index].GetComponent<BasicRat>().health) index = i;
-        }
-        return index;
-    }
-
-        public void AddRatsToList(float detectionRange)
-    {
-        foreach (var rat in rat)
-        {
-            distanceToOtherRat = Vector3.Distance(transform.position, rat.transform.position);
-            if (distanceToOtherRat <= detectionRange && !nearRats.Contains(rat))
+            if(Vector3.Distance(transform.position, rat.transform.position) <= actionRange)
             {
-                nearRats.Add(rat);
-                Debug.Log(nearRats);
+                ratsToHeal.Add(rat);
             }
         }
+        ratsToHeal.OrderBy(r => r.health); //Se ordenan por su vida
     }
-
-    public void DeleteRatsFromList(float detectionRange)
-    {
-        foreach (var rat in nearRats)
-        {
-            if (distanceToOtherRat > detectionRange || rat == null || !rat.activeInHierarchy)
-            {
-                nearRats.Remove(rat);
-                Debug.Log(nearRats);
-            }
-        }
-    }
-    
-    // Update is called once per frame
-    void Update()
-    {
-        AddRatsToList(20f); //En una distancia de veinte unidades las ratas pueden interactuar entre ellas
-        DeleteRatsFromList(20f);
-    }*/
 }

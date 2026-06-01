@@ -10,17 +10,16 @@ using System.Collections;
 
 public class nBasicRatn : MonoBehaviour, IPoolableObject, IHealth
 {
-    [SerializeField] private float initialHealth; //Vida con la que inicia la rata
+    [SerializeField] public float initialHealth; //Vida con la que inicia la rata
     public Animator animator; //Animator de la rata
     public NavMeshAgent navAgent; //NavMeshAgent de la rata
-    public float attackRange = 10f; //Rango de ataque de la rata
+    public float actionRange = 10f; //Rango de ataque de la rata
     public float timer;
 
     [HideInInspector] public GameObject player; //Habría que revisar por si fuese posible aplicar solo el transform del jugador
     public float detectionRange = 15f; //Rango (en units) de detección de la rata
     public float delay = 1f; //Define el delay entre una acción y la siguiente, como bien puede ser curar, atacar o recargar
     public bool doneSomething = false; //Define si la rata ha efectuado una acción para aplicar delay
-    //public List<GameObject> nearRats;
     
     [HideInInspector] public float distanceToPlayer; //Distancia al jugador
     [HideInInspector] public float distanceToOtherRat;
@@ -50,7 +49,6 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject, IHealth
     {
         health = initialHealth;
         player = GameObject.FindGameObjectWithTag("Player");
-        //nearRats.Clear();
         timer = 0;
         animator = GetComponent<Animator>();
         navAgent = GetComponent<NavMeshAgent>();
@@ -69,10 +67,10 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject, IHealth
             SmoothLookAt(player.transform);
             navAgent.SetDestination(player.GetComponent<Transform>().position);
         }
-        else if (distanceToPlayer > detectionRange)
+        /*else if (distanceToPlayer > detectionRange)
         {
             //Agregar aquí una serie de destinos que hagan a la rata divagar por la zona
-        }
+        }*/
     }
 
 
@@ -93,12 +91,11 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject, IHealth
 
     public bool ShouldStop()
     {
-        if (distanceToPlayer <= attackRange)
+        if (distanceToPlayer <= actionRange)
         {
-            //navAgent.isStopped = true;
             return true;
         }
-        else return false;//navAgent.isStopped = false;
+        else return false;
     }
 
     public bool RollDice(float actionProbability)
@@ -122,8 +119,8 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject, IHealth
 
     public void Update()
     {
-        try
-        {
+        //try
+        //{
             ShouldStop();
             DetectPlayer();
             if (navAgent.velocity.magnitude > 0.1f)
@@ -150,10 +147,10 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject, IHealth
             {
                 navAgent.isStopped = false;
             }
-        }catch(Exception e)
-        {
+        //}catch(Exception e)
+        /*{
             Debug.LogError("Error en Update de " + gameObject.name + ": " + e.Message);
-        }
+        }*/
     }
 
     //Para testeo
@@ -172,11 +169,6 @@ public class nBasicRatn : MonoBehaviour, IPoolableObject, IHealth
             Quaternion targetRotation = Quaternion.LookRotation(direction);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
         }
-    }
-
-    public void Create(nBasicRatn rat)
-    {
-        Instantiate(rat);
     }
 
     public void ResetObject()

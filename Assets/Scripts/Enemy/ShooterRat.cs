@@ -1,10 +1,13 @@
 using System.Collections;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class ShooterRat : nBasicRatn
 {
-    private bool hasFired = false;
+    public Transform shotPos;
+    public float deviationRadius = 1.5f;
+    public float maxDistanceHit = 50f;
 
     private void Start()
     {
@@ -15,18 +18,24 @@ public class ShooterRat : nBasicRatn
 
     public void Shoot()
     {
+        float dmg = attackDamage;
         if(RollDice(criticProbability) == true)
         {
-            float criticImpact = Random.Range(1f, 1.5f);
-            float dmg = attackDamage * criticImpact;
-            //GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().TakeDamage(dmg);
-            //Trazar rayo desde el arma de la rata hacia el jugador para que este pueda recibir daño
+            float criticImpact = UnityEngine.Random.Range(1f, 1.5f);
+            dmg *= criticImpact;
         }
-        else
+
+        //Trazamos una dirección para que la rata dispare dentro de un rango aleatorio al jugador
+        Vector2 deviationCircle = UnityEngine.Random.insideUnitCircle * deviationRadius;
+        Vector3 target = player.transform.position + shotPos.right * deviationCircle.x + shotPos.up * deviationCircle.y;
+        Vector3 direction = (target - shotPos.position).normalized;
+
+        if (Physics.Raycast(shotPos.position, direction, out RaycastHit hit, maxDistanceHit))
         {
-            attackDamage = 20f;
-            //GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().TakeDamage(attackDamage);
-            //Trazar rayo desde el arma de la rata hacia el jugador para que este pueda recibir daño
+            if (hit.collider.CompareTag("Player"))
+            {
+                GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().TakeDamage(dmg);
+            }
         }
     }
 }

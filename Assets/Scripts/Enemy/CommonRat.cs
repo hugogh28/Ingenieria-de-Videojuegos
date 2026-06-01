@@ -14,20 +14,12 @@ public class CommonRat : nBasicRatn
 
     public void Melee()
     {
+        float dmg = attackDamage;
         if (RollDice(criticProbability) == true)
         {
             float criticImpact = UnityEngine.Random.Range(1f, 2f);
-            int dmg = (int)(attackDamage * criticImpact);//Añadir indicador de crítico
-            GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().TakeDamage(dmg);
-            //Para mayor feedback, se puede añadir un temblor a la cámara del jugador
-            Debug.Log($"El jugador ha recibido {dmg} puntos de daño");
+            dmg = attackDamage * criticImpact;//Añadir indicador de crítico
         }
-        else
-        {
-            attackDamage = 5f;
-            GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().TakeDamage(attackDamage);
-            //Para mayor feedback, se puede añadir un temblor a la cámara del jugador
-            Debug.Log($"El jugador ha recibido {attackDamage} puntos de daño");
-        }
+        GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().TakeDamage(dmg);
     }
 }
