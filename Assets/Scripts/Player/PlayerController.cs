@@ -28,6 +28,7 @@ public class PlayerController : MonoBehaviour, IHealth
 
     public void TakeDamage(float damage) //Si recibe un disparo, sufrirá daño
     {
+        Debug.Log($"El jugador ha recibido {damage} puntos de daño");
         health -= damage;
 
         if(health <= 0)

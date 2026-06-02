@@ -119,7 +119,7 @@ public class SpawnerManager : MonoBehaviour
         //if(waveManager.currentWave == maximo número definido) return;
         //Y luego señalizar el spawneo del jefe, si es que se mete
 
-        if (waveManager.ratsPerWave.Count(r => r != null && r.Active) > 0)
+        /*if (waveManager.ratsPerWave.Count(r => r != null && r.Active) > 0)
         {
             return;
         }
@@ -129,7 +129,23 @@ public class SpawnerManager : MonoBehaviour
             waveManager.ratsPerWave.Clear();
             waveManager.WaveCreation();
             StartCoroutine(Wave());
+        }*/
+
+        if (!waveManager.waveDirtyFlag)
+        {
+            return;
         }
+        waveManager.ResetDirtyFlag();
+
+        if(waveManager.activeRats > 0)
+        {
+            return;
+        }
+
+        StartCoroutine(ShowOnEndOfWave());
+        waveManager.ratsPerWave.Clear();
+        waveManager.WaveCreation();
+        StartCoroutine(Wave());
     }
 
     private IEnumerator ShowOnEndOfWave() //Función, cuya finalidad es la de mostrar un letrero que indique el final de una ronda

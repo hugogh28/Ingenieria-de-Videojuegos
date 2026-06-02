@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class WaveManager : MonoBehaviour
 {
-    public List<nBasicRatn> ratsPerWave = new List<nBasicRatn>();
+    public List<BasicRat> ratsPerWave = new List<BasicRat>();
 
     [SerializeField] RatManager rat;
 
@@ -27,6 +27,9 @@ public class WaveManager : MonoBehaviour
     int increment;
     [SerializeField] float incrementMultiplier = 1.8f; //Multiplicador del incremento
     [SerializeField] int maxRatsPerWave = 50;//Número máximo de ratas que puede haber por oleada
+
+    public int activeRats { get; private set; }
+    public bool waveDirtyFlag { get; private set; }
 
     private void Start()
     {
@@ -63,6 +66,10 @@ public class WaveManager : MonoBehaviour
         ResetVariables(); //Se resetean los contadores de cada tipo de rata para evitar salirse del pool
 
         ratsPerWave.Clear(); //Se limpia la lista de ratas de la oleada
+
+        activeRats = 0;
+        waveDirtyFlag = true;
+
         for (int i = 0; i < numRats; i++)  //Se llena la lista de nuevo, con las ratas del pool
         {
             random = Random.value;
@@ -98,6 +105,25 @@ public class WaveManager : MonoBehaviour
             rat.poolOfRats[idxNormal].Active = true;
             idxNormal++;
         }
+        activeRats++;
+        waveDirtyFlag = true;
+    }
+
+    public void NotifyRatDied(BasicRat rat)
+    {
+        if(rat.Active != true)
+        {
+            return;
+        }
+
+        rat.Active = false;
+        activeRats--;
+        waveDirtyFlag = true;
+    }
+
+    public void ResetDirtyFlag()
+    {
+        waveDirtyFlag = false;
     }
 
     private void ResetVariables() //Para reiniciar los contadores de la lista de ratas

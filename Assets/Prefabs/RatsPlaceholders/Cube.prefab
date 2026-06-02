@@ -123,19 +123,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5275b6160aa4f6a48acc40386eb8a73f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 100
   initialHealth: 200
   animator: {fileID: 0}
   navAgent: {fileID: 7180775579446228854}
-  attackRange: 8
-  timer: 0
+  actionRange: 10
   player: {fileID: 0}
   detectionRange: 20
   delay: 1
-  nearRats: []
-  position: {fileID: 0}
+  doneSomething: 0
   distanceToPlayer: 0
   distanceToOtherRat: 0
+  attackDamage: 5
+  criticProbability: 0.25
+  pointsGivenAtDeath: 0
+  actionNextToPlayer: 
+  waveManager: {fileID: 0}
+  shotPos: {fileID: 0}
+  deviationRadius: 1.5
+  maxDistanceHit: 50
 --- !u!195 &7180775579446228854
 NavMeshAgent:
   m_ObjectHideFlags: 0

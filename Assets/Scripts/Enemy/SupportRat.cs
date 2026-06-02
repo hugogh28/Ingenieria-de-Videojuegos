@@ -6,11 +6,11 @@ using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class SupportRat : nBasicRatn
+public class SupportRat : BasicRat
 {
-    WaveManager waveManager;
+    //WaveManager waveManager;
 
-    private List<nBasicRatn> ratsToHeal;
+    private List<BasicRat> ratsToHeal;
 
     public float healingRange = 20f;
     public float healingAmount;

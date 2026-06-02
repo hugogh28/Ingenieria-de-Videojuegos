@@ -3,15 +3,8 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class CommonRat : nBasicRatn
+public class CommonRat : BasicRat
 {
-    private void Start()
-    {
-        timer = 0;
-        animator = GetComponent<Animator>();
-        navAgent = GetComponent<NavMeshAgent>();
-    }
-
     public void Melee()
     {
         float dmg = attackDamage;

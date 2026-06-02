@@ -9,7 +9,7 @@ public class RatManager : MonoBehaviour
     public int nShooterRatNormal = 50;
     public int nShooterRatTank = 50;
 
-    public nBasicRatn[] poolOfRats = new nBasicRatn[300];
+    public BasicRat[] poolOfRats = new BasicRat[300];
 
     //Se pasan los prefabs al manager para hacer el pool con los 3 tipos de ratas (y sus variaciones normal y tanque)
 

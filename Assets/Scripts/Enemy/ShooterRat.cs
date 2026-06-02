@@ -3,18 +3,11 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class ShooterRat : nBasicRatn
+public class ShooterRat : BasicRat
 {
     public Transform shotPos;
     public float deviationRadius = 1.5f;
     public float maxDistanceHit = 50f;
-
-    private void Start()
-    {
-        timer = 0;
-        animator = GetComponent<Animator>();
-        navAgent = GetComponent<NavMeshAgent>();
-    }
 
     public void Shoot()
     {
@@ -32,6 +25,7 @@ public class ShooterRat : nBasicRatn
 
         if (Physics.Raycast(shotPos.position, direction, out RaycastHit hit, maxDistanceHit))
         {
+            Debug.DrawRay(shotPos.position,direction);
             if (hit.collider.CompareTag("Player"))
             {
                 GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().TakeDamage(dmg);
