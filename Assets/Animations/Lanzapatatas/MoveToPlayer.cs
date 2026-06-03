@@ -16,7 +16,7 @@ public class MoveToPlayer : MonoBehaviour
     {
         navAgent = GetComponent<NavMeshAgent>();
         transform = navAgent.transform;
-        attackRange = GetComponent<BasicRat>().actionRange;
+        attackRange = GetComponent<BasicRat>().data.ActionRange;
     }
 
     void Update()

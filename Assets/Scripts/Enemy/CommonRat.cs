@@ -7,11 +7,11 @@ public class CommonRat : BasicRat
 {
     public void Melee()
     {
-        float dmg = attackDamage;
-        if (RollDice(criticProbability) == true)
+        float dmg = data.AttackDamage;
+        if (RollDice(data.CriticProbability) == true)
         {
             float criticImpact = UnityEngine.Random.Range(1f, 2f);
-            dmg = attackDamage * criticImpact;//Añadir indicador de crítico
+            dmg = data.AttackDamage * criticImpact;//Añadir indicador de crítico
         }
         GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().TakeDamage(dmg);
     }

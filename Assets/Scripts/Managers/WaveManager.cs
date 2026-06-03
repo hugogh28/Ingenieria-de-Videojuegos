@@ -77,7 +77,7 @@ public class WaveManager : MonoBehaviour
             {
                 AddRatToWave(tankProb, ref supportTank, ref supportNormal);
             }
-            else if (random < supportProb + shooterProb) //Revisa esto, no da error, pero puede ser que genere más ratas de un tipo
+            else if (random < supportProb + shooterProb) //Si random es menor a supportProb + shooterProb, se escogerá una rata shooter
             {
                 AddRatToWave(tankProb, ref shooterTank, ref shooterNormal);
             }

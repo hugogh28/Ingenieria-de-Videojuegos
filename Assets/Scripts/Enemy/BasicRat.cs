@@ -10,26 +10,32 @@ using System.Collections;
 
 public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
 {
-    [SerializeField] public float initialHealth; //Vida con la que inicia la rata
+    [Header("Rat Type")]
+    [SerializeField] private RatType type;
+    [SerializeField] private RatSubType subType;
+
+    public RatData data;
+
+    //[SerializeField] public float initialHealth; //Vida con la que inicia la rata
     [HideInInspector] public Animator animator; //Animator de la rata
     [HideInInspector] public NavMeshAgent navAgent; //NavMeshAgent de la rata
-    public float actionRange = 10f; //Rango de ataque de la rata
+    //public float actionRange = 10f; //Rango de ataque de la rata
     //public float timer;
 
     [HideInInspector] public GameObject player; //Habría que revisar por si fuese posible aplicar solo el transform del jugador
-    public float detectionRange = 15f; //Rango (en units) de detección de la rata
-    public float delay = 1f; //Define el delay entre una acción y la siguiente, como bien puede ser curar, atacar o recargar
+    //public float detectionRange = 15f; //Rango (en units) de detección de la rata
+    //public float delay = 1f; //Define el delay entre una acción y la siguiente, como bien puede ser curar, atacar o recargar
     [HideInInspector] public bool doneSomething = false; //Define si la rata ha efectuado una acción para aplicar delay
     
     [HideInInspector] public float distanceToPlayer; //Distancia al jugador
-    [HideInInspector] public float distanceToOtherRat;
+    //[HideInInspector] public float distanceToOtherRat;
 
-    [SerializeField] public float attackDamage = 5f; //Daño base que efectúa una rata al jugador
-    [SerializeField] public float criticProbability = 0.25f; //Probabilidad de efectuar daño crítico al jugador
+    //[SerializeField] public float attackDamage = 5f; //Daño base que efectúa una rata al jugador
+    //[SerializeField] public float criticProbability = 0.25f; //Probabilidad de efectuar daño crítico al jugador
 
-    public int pointsGivenAtDeath; //Los puntos que otorga una rata en su muerte
+    //public int pointsGivenAtDeath; //Los puntos que otorga una rata en su muerte
 
-    public string actionNextToPlayer; //El nombre de la animación de la rata que debe efectuar al estar en un rango de ataque
+    //public string actionNextToPlayer; //El nombre de la animación de la rata que debe efectuar al estar en un rango de ataque
 
     [HideInInspector] public WaveManager waveManager;
 
@@ -45,11 +51,11 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
         set; 
     }
 
-
-
     private void Awake()
     {
-        health = initialHealth;
+        data = RatDataFactory.GetRatData(type, subType);
+
+        health = data.InitialHealth;
         player = GameObject.FindGameObjectWithTag("Player");
         //timer = 0;
         animator = GetComponent<Animator>();
@@ -59,12 +65,20 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
     private void OnEnable()
     {
         Awake();
+
+        if (data == null)
+        {
+            data = RatDataFactory.GetRatData(type, subType);
+        }
+
+        health = data.InitialHealth;
+        doneSomething = false;
     }
 
     public void DetectPlayer()
     {
         distanceToPlayer = Vector3.Distance(transform.position, player.GetComponentInParent<Transform>().position);
-        if (distanceToPlayer <= detectionRange)
+        if (distanceToPlayer <= data.DetectionRange)
         {
             SmoothLookAt(player.transform);
             navAgent.SetDestination(player.GetComponent<Transform>().position);
@@ -82,7 +96,6 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
 
         if (health <= 0)
         {
-            
             Die();
         }
         else
@@ -93,7 +106,7 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
 
     public bool ShouldStop()
     {
-        if (distanceToPlayer <= actionRange)
+        if (distanceToPlayer <= data.ActionRange)
         {
             return true;
         }
@@ -115,7 +128,7 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
     public IEnumerator HasDoneSomething()
     {
         doneSomething = true;
-        yield return new WaitForSeconds(delay);
+        yield return new WaitForSeconds(data.Delay);
         doneSomething = false;
     }
 
@@ -131,15 +144,15 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
             }
             else
             {
-                //animator.SetBool("isWalking", false); //Habrá que sustituir aquí por la animación idle
+                //animator.SetBool("idle", false); //Habrá que sustituir aquí por la animación idle
             }
 
-            if (/*navAgent.isOnNavMesh && */ShouldStop() == true && doneSomething != true)
+            if (ShouldStop() == true && doneSomething != true)
             {
                 navAgent.isStopped = true;
-                animator.SetBool(actionNextToPlayer, true);
+                animator.SetBool(data.ActionNextToPlayer, true);
             }
-            else /*if(navAgent.isOnNavMesh)*/
+            else
             {
                 navAgent.isStopped = false;
             }
@@ -172,7 +185,7 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
     {
         //this.Active = false;
         this.gameObject.SetActive(false);
-        this.health = initialHealth;
+        this.health = data.InitialHealth;
     }
 
     public IPoolableObject Clone()
@@ -182,7 +195,7 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
 
     public void Die()
     {
-        float points = UnityEngine.Random.Range(pointsGivenAtDeath, pointsGivenAtDeath * 1.5f); //Se añade un randomizador de puntos
+        float points = UnityEngine.Random.Range(data.PointsGivenAtDeath, data.PointsGivenAtDeath * 1.5f); //Se añade un randomizador de puntos
         player.GetComponent<PlayerController>().points += (int)points;
 
         waveManager.NotifyRatDied(this);

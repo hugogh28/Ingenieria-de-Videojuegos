@@ -11,8 +11,8 @@ public class ShooterRat : BasicRat
 
     public void Shoot()
     {
-        float dmg = attackDamage;
-        if(RollDice(criticProbability) == true)
+        float dmg = data.AttackDamage;
+        if(RollDice(data.CriticProbability) == true)
         {
             float criticImpact = UnityEngine.Random.Range(1f, 1.5f);
             dmg *= criticImpact;

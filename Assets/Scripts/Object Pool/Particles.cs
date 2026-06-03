@@ -57,7 +57,7 @@ public class Particles : MonoBehaviour, IPoolableObject
 
     public IPoolableObject Clone()
     {
-        return new Particles(Active, XSpeed, YSpeed, timeAlive, color, pos);
+        return Instantiate(this);
     }
 
     // Update is called once per frame

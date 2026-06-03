@@ -8,8 +8,6 @@ using UnityEngine.UIElements;
 
 public class SupportRat : BasicRat
 {
-    //WaveManager waveManager;
-
     private List<BasicRat> ratsToHeal;
 
     public float healingRange = 20f;
@@ -21,7 +19,7 @@ public class SupportRat : BasicRat
         ratsToHeal.Clear();
         healingAmount = Random.Range(20, 40);
 
-        float healing = Mathf.Clamp(healingAmount + ratsToHeal[0].health, healingAmount, ratsToHeal[0].initialHealth);
+        float healing = Mathf.Clamp(healingAmount + ratsToHeal[0].health, healingAmount, ratsToHeal[0].data.InitialHealth);
 
         OrderRats();
 
@@ -37,7 +35,7 @@ public class SupportRat : BasicRat
     {
         foreach(var rat in waveManager.ratsPerWave) //Se buscan las ratas que tenga la support dentro de su rango de acción
         {
-            if(Vector3.Distance(transform.position, rat.transform.position) <= actionRange)
+            if(Vector3.Distance(transform.position, rat.transform.position) <= data.ActionRange)
             {
                 ratsToHeal.Add(rat);
             }
