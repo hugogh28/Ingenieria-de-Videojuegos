@@ -182,7 +182,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &75000568
 Transform:
   m_ObjectHideFlags: 0
@@ -692,7 +692,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &287281404
 Transform:
   m_ObjectHideFlags: 0
@@ -828,7 +828,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!65 &324889214
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1957,7 +1957,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &647162475
 Transform:
   m_ObjectHideFlags: 0
@@ -3173,7 +3173,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!65 &1147290625
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3281,7 +3281,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!65 &1175822879
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4550,7 +4550,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2108244623
 Transform:
   m_ObjectHideFlags: 0
@@ -15125,20 +15125,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8016292f6304bbf44b73c57729482038, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialHealth: 0
+  type: 0
+  subType: 0
   animator: {fileID: 1851615940451191747}
   navAgent: {fileID: 0}
-  actionRange: 10
   player: {fileID: 0}
-  detectionRange: 15
-  delay: 1
   doneSomething: 0
   distanceToPlayer: 0
-  distanceToOtherRat: 0
-  attackDamage: 5
-  criticProbability: 0.05
-  pointsGivenAtDeath: 0
-  actionNextToPlayer: 
   waveManager: {fileID: 0}
 --- !u!114 &1851615940451191753
 MonoBehaviour:
@@ -25827,7 +25820,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3441771275496401097, guid: 01ecd7b6a4d39084b8f211a2cf1cb444, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4998502398806183124, guid: 01ecd7b6a4d39084b8f211a2cf1cb444, type: 3}
       propertyPath: m_LocalPosition.x
@@ -30211,7 +30204,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8669142087888371228, guid: ea704efdb7a63e544a4c6453c8f440ae, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
