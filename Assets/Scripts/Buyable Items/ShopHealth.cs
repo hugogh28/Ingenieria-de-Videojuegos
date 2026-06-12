@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ShopHealth : ShopItem, IUnlockableObject
 {
-    public float givenHealth; //Vida que proporciona el objeto comprable
+    public float givenHealth; // Vida que proporciona el objeto comprable
 
     public void OnMouseDown()
     {
@@ -11,11 +11,13 @@ public class ShopHealth : ShopItem, IUnlockableObject
 
     public void Unlock()
     {
-        if(GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().points >= pointsNeeded)
+        PlayerController player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+
+        if (player.points >= pointsNeeded)
         {
-            GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().points -= pointsNeeded;
-            GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().health += givenHealth;
-            //Si es un objeto que debe desaparecer, se usar· gameObject.SetActive(false);
+            player.points -= pointsNeeded;
+            player.Heal(givenHealth);
+            // Si es un objeto que debe desaparecer, se usar√° gameObject.SetActive(false);
         }
     }
 }

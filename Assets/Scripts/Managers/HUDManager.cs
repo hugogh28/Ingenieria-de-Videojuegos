@@ -82,7 +82,7 @@ public class HUDManager : MonoBehaviour
         switch (model)
         {
             case Weapon.WeaponModel.Lanzapatatas:
-                return Instantiate(Resources.Load<GameObject>("LanzaPatatas_Ammo")).GetComponent<SpriteRenderer>().sprite;
+                return Resources.Load<GameObject>("LanzaPatatas_Ammo").GetComponent<SpriteRenderer>().sprite;
             /*
             case Weapon.WeaponModel.CañonSalado:
                 return Instantiate(Resources.Load<GameObject>("CañonSalado_Ammo")).GetComponent<SpriteRenderer>().sprite;
@@ -100,7 +100,7 @@ public class HUDManager : MonoBehaviour
         switch (model)
         {
             case Weapon.WeaponModel.Lanzapatatas:
-                return Instantiate(Resources.Load<GameObject>("LanzaPatatas_Weapon")).GetComponent<SpriteRenderer>().sprite;
+                return Resources.Load<GameObject>("LanzaPatatas_Weapon").GetComponent<SpriteRenderer>().sprite;
             /*
             case Weapon.WeaponModel.CañonSalado:
                 return Instantiate(Resources.Load<GameObject>("CañonSalado_Weapon")).GetComponent<SpriteRenderer>().sprite;
@@ -118,7 +118,7 @@ public class HUDManager : MonoBehaviour
         switch (model)
         {
             case Weapon.WeaponModel.Lanzapatatas:
-                return Instantiate(Resources.Load<GameObject>("LanzaPatatas_Type")).GetComponent<SpriteRenderer>().sprite;
+                return Resources.Load<GameObject>("LanzaPatatas_Type").GetComponent<SpriteRenderer>().sprite;
             /*
             case Weapon.WeaponModel.CañonSalado:
                 return Instantiate(Resources.Load<GameObject>("CañonSalado_Type")).GetComponent<SpriteRenderer>().sprite;
