@@ -93,6 +93,10 @@ public class Weapon : MonoBehaviour
             foreach (Transform child in transform)
             {
                 child.gameObject.layer = LayerMask.NameToLayer("WeaponRender");
+                foreach (Transform child2 in child)
+                {
+                    child2.gameObject.layer = LayerMask.NameToLayer("WeaponRender");
+                }
             }
 
             GetComponent<Outline>().enabled = false;

@@ -150,7 +150,7 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
             if (ShouldStop() == true && doneSomething != true)
             {
                 navAgent.isStopped = true;
-                animator.SetBool(data.ActionNextToPlayer, true);
+                animator.SetTrigger(data.ActionNextToPlayer);
             }
             else
             {
@@ -163,12 +163,13 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
     }
 
     //Para testeo
+    /*
     private void OnMouseDown()
     {
         health -= 50;
         if (health <= 0) Die();
     }
-
+    */
     public void SmoothLookAt(Transform target)
     {
         Vector3 direction = target.position - transform.position;
