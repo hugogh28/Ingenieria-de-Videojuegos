@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,24 +22,31 @@ public class HUDManager : MonoBehaviour
 
     [Header("Other")]
     public Sprite emptySlot;
-    
-    void Awake()
+
+    private readonly Dictionary<string, Sprite> spriteCache = new Dictionary<string, Sprite>();
+
+    private void Awake()
     {
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
-        else
-        {
-            Instance = this;
-        }
+
+        Instance = this;
     }
 
-    void Update()
+    private void Update()
     {
+        if (WeaponManager.Instance == null || WeaponManager.Instance.activeWeaponSlot == null)
+        {
+            ClearWeaponUI();
+            return;
+        }
+
         Weapon activeWeapon = WeaponManager.Instance.activeWeaponSlot.GetComponentInChildren<Weapon>();
 
-        if (activeWeapon)
+        if (activeWeapon != null)
         {
             magazineAmmoUI.text = $"{activeWeapon.bulletsLeft / activeWeapon.bulletsPerBurst}";
             totalAmmoUI.text = $"{activeWeapon.magazineSize / activeWeapon.bulletsPerBurst}";
@@ -53,15 +61,19 @@ public class HUDManager : MonoBehaviour
         }
         else
         {
-            magazineAmmoUI.text = "";
-            totalAmmoUI.text = "";
-            weaponNameUI.text = "";
-
-            weaponIconUI.sprite = emptySlot;
-            
-            ammoTypeUI.sprite = emptySlot;
-            ammoIconUI.sprite = emptySlot;
+            ClearWeaponUI();
         }
+    }
+
+    private void ClearWeaponUI()
+    {
+        magazineAmmoUI.text = "";
+        totalAmmoUI.text = "";
+        weaponNameUI.text = "";
+
+        weaponIconUI.sprite = emptySlot;
+        ammoTypeUI.sprite = emptySlot;
+        ammoIconUI.sprite = emptySlot;
     }
 
     private string GetWeaponName(Weapon.WeaponModel model)
@@ -72,26 +84,19 @@ public class HUDManager : MonoBehaviour
                 return "Lanzapatatas";
 
             default:
-                return null;
+                return "";
         }
     }
-
 
     private Sprite GetAmmoSprite(Weapon.WeaponModel model)
     {
         switch (model)
         {
             case Weapon.WeaponModel.Lanzapatatas:
-                return Resources.Load<GameObject>("LanzaPatatas_Ammo").GetComponent<SpriteRenderer>().sprite;
-            /*
-            case Weapon.WeaponModel.CañonSalado:
-                return Instantiate(Resources.Load<GameObject>("CañonSalado_Ammo")).GetComponent<SpriteRenderer>().sprite;
+                return LoadSpriteFromPrefab("LanzaPatatas_Ammo");
 
-            case Weapon.WeaponModel.FuriaFrijol:
-                return Instantiate(Resources.Load<GameObject>("FuriaFrijol_Ammo")).GetComponent<SpriteRenderer>().sprite;
-            */
             default:
-                return null;
+                return emptySlot;
         }
     }
 
@@ -100,16 +105,10 @@ public class HUDManager : MonoBehaviour
         switch (model)
         {
             case Weapon.WeaponModel.Lanzapatatas:
-                return Resources.Load<GameObject>("LanzaPatatas_Weapon").GetComponent<SpriteRenderer>().sprite;
-            /*
-            case Weapon.WeaponModel.CañonSalado:
-                return Instantiate(Resources.Load<GameObject>("CañonSalado_Weapon")).GetComponent<SpriteRenderer>().sprite;
+                return LoadSpriteFromPrefab("LanzaPatatas_Weapon");
 
-            case Weapon.WeaponModel.FuriaFrijol:
-                return Instantiate(Resources.Load<GameObject>("FuriaFrijol_Weapon")).GetComponent<SpriteRenderer>().sprite;
-            */
             default:
-                return null;
+                return emptySlot;
         }
     }
 
@@ -118,16 +117,37 @@ public class HUDManager : MonoBehaviour
         switch (model)
         {
             case Weapon.WeaponModel.Lanzapatatas:
-                return Resources.Load<GameObject>("LanzaPatatas_Type").GetComponent<SpriteRenderer>().sprite;
-            /*
-            case Weapon.WeaponModel.CañonSalado:
-                return Instantiate(Resources.Load<GameObject>("CañonSalado_Type")).GetComponent<SpriteRenderer>().sprite;
+                return LoadSpriteFromPrefab("LanzaPatatas_Type");
 
-            case Weapon.WeaponModel.FuriaFrijol:
-                return Instantiate(Resources.Load<GameObject>("FuriaFrijol_Type")).GetComponent<SpriteRenderer>().sprite;
-            */
             default:
-                return null;
+                return emptySlot;
         }
+    }
+
+    private Sprite LoadSpriteFromPrefab(string resourceName)
+    {
+        if (spriteCache.TryGetValue(resourceName, out Sprite cachedSprite))
+        {
+            return cachedSprite;
+        }
+
+        GameObject prefab = Resources.Load<GameObject>(resourceName);
+
+        if (prefab == null)
+        {
+            Debug.LogWarning($"No existe el prefab Resources/{resourceName}.", this);
+            return emptySlot;
+        }
+
+        SpriteRenderer spriteRenderer = prefab.GetComponent<SpriteRenderer>();
+
+        if (spriteRenderer == null)
+        {
+            Debug.LogWarning($"El prefab Resources/{resourceName} no tiene SpriteRenderer.", this);
+            return emptySlot;
+        }
+
+        spriteCache[resourceName] = spriteRenderer.sprite;
+        return spriteRenderer.sprite;
     }
 }

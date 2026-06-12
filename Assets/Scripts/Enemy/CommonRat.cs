@@ -1,18 +1,28 @@
-using System;
-using System.Collections;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class CommonRat : BasicRat
 {
+    public override void PerformAction()
+    {
+        float damage = data.AttackDamage;
+
+        if (RollDice(data.CriticProbability))
+        {
+            float criticImpact = Random.Range(1f, 2f);
+            damage *= criticImpact;
+        }
+
+        bool damageApplied = TryDamageObservedPlayer(damage, requireActionRange: true);
+
+        if (DebugCombat && damageApplied)
+        {
+            Debug.Log($"{name}: da√±o cuerpo a cuerpo aplicado al PlayerController: {damage}. El observer de vida queda notificado por PlayerController.HealthChanged.", this);
+        }
+    }
+
+    // Animation Event opcional. Solo hace da√±o si "Action From Animation Event" est√° activado en el inspector.
     public void Melee()
     {
-        float dmg = data.AttackDamage;
-        if (RollDice(data.CriticProbability) == true)
-        {
-            float criticImpact = UnityEngine.Random.Range(1f, 2f);
-            dmg = data.AttackDamage * criticImpact;//AÒadir indicador de crÌtico
-        }
-        GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().TakeDamage(dmg);
+        PerformActionFromAnimationEvent();
     }
 }

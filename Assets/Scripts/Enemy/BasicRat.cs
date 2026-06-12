@@ -1,12 +1,7 @@
-using System.Collections.Generic;
 using System;
-using System.Linq;
-using Unity.VisualScripting;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.ProBuilder.MeshOperations;
-using System.ComponentModel.Design;
-using System.Collections;
 
 public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
 {
@@ -14,117 +9,233 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
     [SerializeField] private RatType type;
     [SerializeField] private RatSubType subType;
 
+    [Header("Combat")]
+    [Tooltip("Si estÃ¡ desactivado, el daÃ±o/curaciÃ³n se ejecuta desde el State Pattern. Si estÃ¡ activado, se espera a un Animation Event.")]
+    [SerializeField] private bool actionFromAnimationEvent = false;
+
+    [Tooltip("Retraso opcional entre lanzar la animaciÃ³n y aplicar el daÃ±o cuando no se usan Animation Events.")]
+    [SerializeField] [Min(0f)] private float stateActionImpactDelay = 0.15f;
+
+    [SerializeField] private bool debugCombat = false;
+
     public RatData data;
 
-    //[SerializeField] public float initialHealth; //Vida con la que inicia la rata
-    [HideInInspector] public Animator animator; //Animator de la rata
-    [HideInInspector] public NavMeshAgent navAgent; //NavMeshAgent de la rata
-    //public float actionRange = 10f; //Rango de ataque de la rata
-    //public float timer;
-
-    [HideInInspector] public GameObject player; //Habría que revisar por si fuese posible aplicar solo el transform del jugador
-    //public float detectionRange = 15f; //Rango (en units) de detección de la rata
-    //public float delay = 1f; //Define el delay entre una acción y la siguiente, como bien puede ser curar, atacar o recargar
-    [HideInInspector] public bool doneSomething = false; //Define si la rata ha efectuado una acción para aplicar delay
-    
-    [HideInInspector] public float distanceToPlayer; //Distancia al jugador
-    //[HideInInspector] public float distanceToOtherRat;
-
-    //[SerializeField] public float attackDamage = 5f; //Daño base que efectúa una rata al jugador
-    //[SerializeField] public float criticProbability = 0.25f; //Probabilidad de efectuar daño crítico al jugador
-
-    //public int pointsGivenAtDeath; //Los puntos que otorga una rata en su muerte
-
-    //public string actionNextToPlayer; //El nombre de la animación de la rata que debe efectuar al estar en un rango de ataque
-
+    [HideInInspector] public Animator animator;
+    [HideInInspector] public NavMeshAgent navAgent;
+    [HideInInspector] public GameObject player;
+    [HideInInspector] public bool doneSomething = false;
+    [HideInInspector] public float distanceToPlayer;
     [HideInInspector] public WaveManager waveManager;
 
-    public float health
-    {
-        get;
-        set;
-    }
+    private PlayerController playerController;
+    private RatStateMachine stateMachine;
+    private Coroutine pendingStateActionCoroutine;
 
-    public bool Active 
-    { 
-        get; 
-        set; 
-    }
+    public float health { get; set; }
+    public bool Active { get; set; }
+
+    public IRatState IdleState { get; private set; }
+    public IRatState ChaseState { get; private set; }
+    public IRatState AttackState { get; private set; }
+
+    public bool ActionFromAnimationEvent => actionFromAnimationEvent;
+    public bool DebugCombat => debugCombat;
+
+    public string CurrentStateName => stateMachine?.CurrentState == null
+        ? "None"
+        : stateMachine.CurrentState.GetType().Name;
+
+    public bool IsPlayerDetected => playerController != null && data != null && distanceToPlayer <= data.DetectionRange;
+    public bool IsPlayerInActionRange => playerController != null && data != null && distanceToPlayer <= data.ActionRange;
 
     private void Awake()
     {
-        data = RatDataFactory.GetRatData(type, subType);
-
-        health = data.InitialHealth;
-        player = GameObject.FindGameObjectWithTag("Player");
-        //timer = 0;
-        animator = GetComponent<Animator>();
-        navAgent = GetComponent<NavMeshAgent>();
-        waveManager = FindFirstObjectByType<WaveManager>();
+        CacheReferences();
+        CreateStates();
+        ResetRatState();
     }
+
     private void OnEnable()
     {
-        Awake();
+        CacheReferences();
+        CreateStates();
+        ResetRatState();
+        ChangeState(IdleState);
+    }
 
+    private void OnDisable()
+    {
+        CancelPendingStateAction();
+        stateMachine?.Clear(this);
+    }
+
+    private void Update()
+    {
+        try
+        {
+            if (!HasRequiredReferences())
+            {
+                CacheReferences();
+                return;
+            }
+
+            stateMachine.Tick(this);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Error en Update de " + gameObject.name + ": " + e.Message, this);
+        }
+    }
+
+    private void CacheReferences()
+    {
         if (data == null)
         {
             data = RatDataFactory.GetRatData(type, subType);
         }
 
-        health = data.InitialHealth;
-        doneSomething = false;
+        if (animator == null)
+        {
+            animator = GetComponent<Animator>();
+
+            if (animator == null)
+            {
+                animator = GetComponentInChildren<Animator>();
+            }
+        }
+
+        if (navAgent == null)
+        {
+            navAgent = GetComponent<NavMeshAgent>();
+        }
+
+        if (waveManager == null)
+        {
+            waveManager = FindFirstObjectByType<WaveManager>();
+        }
+
+        CachePlayerReference();
     }
 
+    private void CachePlayerReference()
+    {
+        if (playerController != null)
+        {
+            player = playerController.gameObject;
+            return;
+        }
+
+        GameObject taggedPlayer = GameObject.FindGameObjectWithTag("Player");
+
+        if (taggedPlayer == null)
+        {
+            player = null;
+            playerController = null;
+            return;
+        }
+
+        playerController = taggedPlayer.GetComponent<PlayerController>();
+
+        if (playerController == null)
+        {
+            playerController = taggedPlayer.GetComponentInParent<PlayerController>();
+        }
+
+        if (playerController == null)
+        {
+            playerController = taggedPlayer.GetComponentInChildren<PlayerController>();
+        }
+
+        player = playerController != null ? playerController.gameObject : taggedPlayer;
+    }
+
+    private bool HasRequiredReferences()
+    {
+        return data != null
+            && playerController != null
+            && navAgent != null
+            && stateMachine != null;
+    }
+
+    private void CreateStates()
+    {
+        if (stateMachine != null)
+        {
+            return;
+        }
+
+        stateMachine = new RatStateMachine();
+        IdleState = new RatIdleState();
+        ChaseState = new RatChaseState();
+        AttackState = new RatAttackState();
+    }
+
+    private void ResetRatState()
+    {
+        if (data != null)
+        {
+            health = data.InitialHealth;
+        }
+
+        Active = true;
+        doneSomething = false;
+        distanceToPlayer = float.MaxValue;
+        CancelPendingStateAction();
+        SetWalkingAnimation(false);
+        SetAgentStopped(false);
+    }
+
+    public void ChangeState(IRatState nextState)
+    {
+        stateMachine.ChangeState(this, nextState);
+    }
+
+    public PlayerController GetPlayerController()
+    {
+        if (playerController == null)
+        {
+            CachePlayerReference();
+        }
+
+        return playerController;
+    }
+
+    public void UpdateSensing()
+    {
+        PlayerController targetPlayer = GetPlayerController();
+
+        if (targetPlayer == null)
+        {
+            distanceToPlayer = float.MaxValue;
+            return;
+        }
+
+        distanceToPlayer = Vector3.Distance(transform.position, targetPlayer.transform.position);
+    }
+
+    // Se conserva por compatibilidad con el cÃ³digo anterior.
     public void DetectPlayer()
     {
-        distanceToPlayer = Vector3.Distance(transform.position, player.GetComponentInParent<Transform>().position);
-        if (distanceToPlayer <= data.DetectionRange)
-        {
-            SmoothLookAt(player.transform);
-            navAgent.SetDestination(player.GetComponent<Transform>().position);
-        }
-        /*else if (distanceToPlayer > detectionRange)
-        {
-            //Agregar aquí una serie de destinos que hagan a la rata divagar por la zona
-        }*/
-    }
+        UpdateSensing();
 
-
-    public void TakeDamage(float dmg)
-    {
-        health -= dmg;
-
-        if (health <= 0)
+        if (IsPlayerDetected)
         {
-            Die();
-        }
-        else
-        {
-            //animator.SetTrigger("damage");
+            FacePlayer();
+
+            if (!IsPlayerInActionRange)
+            {
+                MoveToPlayer();
+            }
         }
     }
 
+    // Se conserva por compatibilidad con el cÃ³digo anterior.
     public bool ShouldStop()
     {
-        if (distanceToPlayer <= data.ActionRange)
-        {
-            return true;
-        }
-        else return false;
+        return IsPlayerInActionRange;
     }
 
-    public bool RollDice(float actionProbability)
-    {
-        if (UnityEngine.Random.value < actionProbability) //Si el valor obtenido en Random.value es menor que la probabilidad dada, se cumplirá la condición
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }   
-    }
-
+    // Se conserva por compatibilidad con el cÃ³digo anterior.
     public IEnumerator HasDoneSomething()
     {
         doneSomething = true;
@@ -132,48 +243,198 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
         doneSomething = false;
     }
 
-    public void Update()
+    public void SetWalkingAnimation(bool isWalking)
     {
-        try
+        if (animator == null)
         {
-            ShouldStop();
-            DetectPlayer();
-            if (navAgent.velocity.magnitude > 0.1f)
+            return;
+        }
+
+        animator.SetBool("isWalking", isWalking);
+    }
+
+    public void TriggerActionAnimation()
+    {
+        if (animator == null || data == null || string.IsNullOrWhiteSpace(data.ActionNextToPlayer))
+        {
+            return;
+        }
+
+        animator.ResetTrigger(data.ActionNextToPlayer);
+        animator.SetTrigger(data.ActionNextToPlayer);
+    }
+
+    public void PerformActionFromState()
+    {
+        if (actionFromAnimationEvent)
+        {
+            if (debugCombat)
             {
-                animator.SetBool("isWalking", true);
-            }
-            else
-            {
-                //animator.SetBool("idle", false); //Habrá que sustituir aquí por la animación idle
+                Debug.Log($"{name}: esperando Animation Event para ejecutar la acciÃ³n.", this);
             }
 
-            if (ShouldStop() == true && doneSomething != true)
-            {
-                navAgent.isStopped = true;
-                animator.SetTrigger(data.ActionNextToPlayer);
-            }
-            else
-            {
-                navAgent.isStopped = false;
-            }
-        }catch(Exception e)
+            return;
+        }
+
+        CancelPendingStateAction();
+
+        if (stateActionImpactDelay <= 0f)
         {
-            Debug.LogError("Error en Update de " + gameObject.name + ": " + e.Message);
+            PerformAction();
+            return;
+        }
+
+        pendingStateActionCoroutine = StartCoroutine(PerformStateActionAfterDelay());
+    }
+
+    public void PerformActionFromAnimationEvent()
+    {
+        if (!actionFromAnimationEvent)
+        {
+            return;
+        }
+
+        PerformAction();
+    }
+
+    private IEnumerator PerformStateActionAfterDelay()
+    {
+        yield return new WaitForSeconds(stateActionImpactDelay);
+        pendingStateActionCoroutine = null;
+        PerformAction();
+    }
+
+    private void CancelPendingStateAction()
+    {
+        if (pendingStateActionCoroutine == null)
+        {
+            return;
+        }
+
+        StopCoroutine(pendingStateActionCoroutine);
+        pendingStateActionCoroutine = null;
+    }
+
+    public bool TryDamageObservedPlayer(float damage, bool requireActionRange = true)
+    {
+        PlayerController targetPlayer = GetPlayerController();
+
+        if (targetPlayer == null)
+        {
+            if (debugCombat)
+            {
+                Debug.LogWarning($"{name}: no se puede daÃ±ar porque no se encontrÃ³ PlayerController.", this);
+            }
+
+            return false;
+        }
+
+        UpdateSensing();
+
+        if (requireActionRange && !IsPlayerInActionRange)
+        {
+            if (debugCombat)
+            {
+                Debug.Log($"{name}: daÃ±o cancelado. Jugador fuera de rango de acciÃ³n.", this);
+            }
+
+            return false;
+        }
+
+        // Punto Ãºnico de integraciÃ³n con el Observer de vida:
+        // la rata NO modifica la HUD y NO resta currentHealth directamente.
+        // Siempre llama al Subject PlayerController.TakeDamage(), que lanza HealthChanged.
+        targetPlayer.TakeDamage(damage);
+        return true;
+    }
+
+    public virtual void PerformAction()
+    {
+        if (debugCombat)
+        {
+            Debug.Log($"{name}: BasicRat.PerformAction no tiene efecto. Usa CommonRat, ShooterRat o SupportRat.", this);
         }
     }
 
-    //Para testeo
-    /*
-    private void OnMouseDown()
+    public void SetAgentStopped(bool stopped)
     {
-        health -= 50;
-        if (health <= 0) Die();
+        if (!CanUseNavAgent())
+        {
+            return;
+        }
+
+        navAgent.isStopped = stopped;
+
+        if (stopped)
+        {
+            navAgent.ResetPath();
+        }
     }
-    */
+
+    public void MoveToPlayer()
+    {
+        if (!CanUseNavAgent())
+        {
+            return;
+        }
+
+        PlayerController targetPlayer = GetPlayerController();
+
+        if (targetPlayer == null)
+        {
+            return;
+        }
+
+        navAgent.isStopped = false;
+        navAgent.SetDestination(targetPlayer.transform.position);
+    }
+
+    public void FacePlayer()
+    {
+        PlayerController targetPlayer = GetPlayerController();
+
+        if (targetPlayer == null)
+        {
+            return;
+        }
+
+        SmoothLookAt(targetPlayer.transform);
+    }
+
+    private bool CanUseNavAgent()
+    {
+        return navAgent != null && navAgent.enabled && navAgent.isOnNavMesh;
+    }
+
+    public void TakeDamage(float dmg)
+    {
+        if (dmg <= 0f)
+        {
+            return;
+        }
+
+        health -= dmg;
+
+        if (health <= 0f)
+        {
+            Die();
+        }
+    }
+
+    public bool RollDice(float actionProbability)
+    {
+        return UnityEngine.Random.value < actionProbability;
+    }
+
     public void SmoothLookAt(Transform target)
     {
+        if (target == null)
+        {
+            return;
+        }
+
         Vector3 direction = target.position - transform.position;
-        direction.y = 0;
+        direction.y = 0f;
 
         if (direction != Vector3.zero)
         {
@@ -184,9 +445,9 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
 
     public void ResetObject()
     {
-        //this.Active = false;
-        this.gameObject.SetActive(false);
-        this.health = data.InitialHealth;
+        Active = false;
+        gameObject.SetActive(false);
+        ResetRatState();
     }
 
     public IPoolableObject Clone()
@@ -196,13 +457,35 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
 
     public void Die()
     {
-        float points = UnityEngine.Random.Range(data.PointsGivenAtDeath, data.PointsGivenAtDeath * 1.5f); //Se añade un randomizador de puntos
-        player.GetComponent<PlayerController>().points += (int)points;
+        PlayerController targetPlayer = GetPlayerController();
 
-        waveManager.NotifyRatDied(this);
+        if (targetPlayer != null && data != null)
+        {
+            int minimumPoints = Mathf.Max(0, data.PointsGivenAtDeath);
+            int maximumPoints = Mathf.Max(minimumPoints, Mathf.RoundToInt(data.PointsGivenAtDeath * 1.5f));
+            int pointsToGive = UnityEngine.Random.Range(minimumPoints, maximumPoints + 1);
 
-        Debug.Log("Die() llamado en " + gameObject.name);
-        //animator.SetTrigger("die");
+            // Punto Ãºnico de integraciÃ³n con el Observer de puntos:
+            // la rata NO modifica la HUD y NO escribe directamente en un texto.
+            // Siempre llama al Subject PlayerController.AddPoints(), que lanza PointsChanged.
+            targetPlayer.AddPoints(pointsToGive);
+
+            if (debugCombat)
+            {
+                Debug.Log($"{name}: otorga {pointsToGive} puntos al jugador. Observer de puntos notificado desde PlayerController.", this);
+            }
+        }
+
+        if (waveManager != null)
+        {
+            waveManager.NotifyRatDied(this);
+        }
+
+        if (debugCombat)
+        {
+            Debug.Log("Die() llamado en " + gameObject.name, this);
+        }
+
         ResetObject();
     }
 }

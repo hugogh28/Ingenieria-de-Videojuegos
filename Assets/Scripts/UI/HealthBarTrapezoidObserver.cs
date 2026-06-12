@@ -1,36 +1,41 @@
 using UnityEngine;
 
+/// <summary>
+/// Observer for PlayerController.HealthChanged.
+/// It updates a procedural slanted fill without changing RectTransform width.
+/// </summary>
 public sealed class HealthBarTrapezoidObserver : MonoBehaviour
 {
     [Header("Observed Subject")]
     [SerializeField] private PlayerController observedPlayer;
-    [SerializeField] private bool findPlayerByTagIfEmpty = true;
 
     [Header("UI References")]
-    [SerializeField] private RectTransform maskRect;
-    [SerializeField] private RectTransform fillRect;
+    [SerializeField] private SlantedHealthFillGraphic fillGraphic;
 
     [Header("Animation")]
     [SerializeField] private bool animate = true;
-    [SerializeField] [Min(0.1f)] private float animationSpeed = 4f;
+    [SerializeField, Min(0.1f)] private float animationSpeed = 4f;
 
-    private float fullWidth;
+    [Header("Debug")]
+    [SerializeField] private bool debugObserver;
+
     private float currentFill01 = 1f;
     private float targetFill01 = 1f;
-    private bool initialized;
 
     private void Awake()
     {
-        InitializeWidth();
+        if (fillGraphic != null)
+        {
+            currentFill01 = fillGraphic.FillAmount;
+            targetFill01 = currentFill01;
+        }
     }
 
     private void OnEnable()
     {
-        ResolveObservedPlayer();
-
         if (observedPlayer == null)
         {
-            Debug.LogWarning($"{nameof(HealthBarTrapezoidObserver)} no tiene PlayerController asignado.", this);
+            Debug.LogWarning($"{nameof(HealthBarTrapezoidObserver)}: observedPlayer is not assigned.", this);
             return;
         }
 
@@ -40,23 +45,19 @@ public sealed class HealthBarTrapezoidObserver : MonoBehaviour
 
     private void OnDisable()
     {
-        if (observedPlayer != null)
-        {
-            observedPlayer.HealthChanged -= OnHealthChanged;
-        }
+        if (observedPlayer == null)
+            return;
+
+        observedPlayer.HealthChanged -= OnHealthChanged;
     }
 
     private void Update()
     {
         if (!animate)
-        {
             return;
-        }
 
         if (Mathf.Approximately(currentFill01, targetFill01))
-        {
             return;
-        }
 
         currentFill01 = Mathf.MoveTowards(
             currentFill01,
@@ -67,60 +68,14 @@ public sealed class HealthBarTrapezoidObserver : MonoBehaviour
         ApplyFill(currentFill01);
     }
 
-    private void ResolveObservedPlayer()
-    {
-        if (observedPlayer != null || !findPlayerByTagIfEmpty)
-        {
-            return;
-        }
-
-        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-
-        if (playerObject != null)
-        {
-            observedPlayer = playerObject.GetComponent<PlayerController>();
-        }
-    }
-
-    private void InitializeWidth()
-    {
-        if (initialized)
-        {
-            return;
-        }
-
-        if (fillRect == null)
-        {
-            return;
-        }
-
-        Canvas.ForceUpdateCanvases();
-
-        if (maskRect != null && maskRect.rect.width > 0f)
-        {
-            fullWidth = maskRect.rect.width;
-        }
-        else
-        {
-            fullWidth = fillRect.rect.width;
-        }
-
-        if (fullWidth <= 0f)
-        {
-            return;
-        }
-
-        fillRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, fullWidth);
-        initialized = true;
-    }
-
     private void OnHealthChanged(float currentHealth, float maxHealth)
     {
-        InitializeWidth();
-
         targetFill01 = maxHealth <= 0f
             ? 0f
             : Mathf.Clamp01(currentHealth / maxHealth);
+
+        if (debugObserver)
+            Debug.Log($"HealthBar observer: {currentHealth}/{maxHealth} -> {targetFill01:0.00}", this);
 
         if (!animate)
         {
@@ -129,16 +84,11 @@ public sealed class HealthBarTrapezoidObserver : MonoBehaviour
         }
     }
 
-    private void ApplyFill(float fill01)
+    private void ApplyFill(float value)
     {
-        if (fillRect == null)
-        {
+        if (fillGraphic == null)
             return;
-        }
 
-        InitializeWidth();
-
-        float newWidth = fullWidth * Mathf.Clamp01(fill01);
-        fillRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, newWidth);
+        fillGraphic.FillAmount = Mathf.Clamp01(value);
     }
 }

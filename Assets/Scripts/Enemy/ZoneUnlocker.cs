@@ -4,22 +4,25 @@ public class ZoneUnlocker : MonoBehaviour, IUnlockableObject
 {
     [SerializeField] public int pointToUnlock;
 
-    private void Start()
-    {
-        
-    }
-
-    private void OnMouseDown() //Cuando el jugador haga click en pantalla sobre el obstáculo, si este tiene puntos suficientes, podrá desbloquear la nueva zona
+    private void OnMouseDown()
     {
         Unlock();
     }
 
     public void Unlock()
     {
-        if(GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().points >= pointToUnlock)
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObject == null || !playerObject.TryGetComponent(out PlayerController player))
         {
-            GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().points -= pointToUnlock;
-            gameObject.SetActive(false);
+            return;
         }
+
+        if (!player.TrySpendPoints(pointToUnlock))
+        {
+            return;
+        }
+
+        gameObject.SetActive(false);
     }
 }

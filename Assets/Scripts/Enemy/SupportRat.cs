@@ -1,45 +1,72 @@
-using NUnit.Framework;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class SupportRat : BasicRat
 {
-    private List<BasicRat> ratsToHeal;
+    private readonly List<BasicRat> ratsToHeal = new List<BasicRat>();
 
-    public float healingRange = 20f;
     public float healingAmount;
     public float healingProbability = 0.85f;
 
-    public void Heal() //Cuando la rata realiza la animación de cura, busca una entre las cercanas, si la probabilidad está a favor de la que tenga menor vida, curará a esa, sino, escogerá una aleatoria
+    public override void PerformAction()
     {
-        ratsToHeal.Clear();
-        healingAmount = Random.Range(20, 40);
-
-        float healing = Mathf.Clamp(healingAmount + ratsToHeal[0].health, healingAmount, ratsToHeal[0].data.InitialHealth);
-
-        OrderRats();
-
-        if(RollDice(healingProbability) == true)
-        {
-            ratsToHeal[0].health = healing;
-        }
-
-        ratsToHeal[Random.Range(0, ratsToHeal.Count-1)].health = healing;
+        HealNearestRat();
     }
 
-    public void OrderRats()
+    // Animation Event opcional. Solo cura si "Action From Animation Event" estÃ¡ activado en el inspector.
+    public void Heal()
     {
-        foreach(var rat in waveManager.ratsPerWave) //Se buscan las ratas que tenga la support dentro de su rango de acción
+        PerformActionFromAnimationEvent();
+    }
+
+    private void HealNearestRat()
+    {
+        ratsToHeal.Clear();
+        OrderRatsByLowestHealth();
+
+        if (ratsToHeal.Count == 0)
         {
-            if(Vector3.Distance(transform.position, rat.transform.position) <= data.ActionRange)
+            return;
+        }
+
+        healingAmount = Random.Range(20f, 40f);
+
+        BasicRat target = RollDice(healingProbability)
+            ? ratsToHeal[0]
+            : ratsToHeal[Random.Range(0, ratsToHeal.Count)];
+
+        target.health = Mathf.Clamp(
+            target.health + healingAmount,
+            0f,
+            target.data.InitialHealth
+        );
+
+        if (DebugCombat)
+        {
+            Debug.Log($"{name}: cura aplicada a {target.name}: +{healingAmount}.", this);
+        }
+    }
+
+    private void OrderRatsByLowestHealth()
+    {
+        if (waveManager == null || waveManager.ratsPerWave == null)
+        {
+            return;
+        }
+
+        foreach (BasicRat rat in waveManager.ratsPerWave)
+        {
+            if (rat == null || rat == this || !rat.gameObject.activeInHierarchy || rat.health <= 0f)
+            {
+                continue;
+            }
+
+            if (Vector3.Distance(transform.position, rat.transform.position) <= data.ActionRange)
             {
                 ratsToHeal.Add(rat);
             }
         }
-        ratsToHeal.OrderBy(r => r.health); //Se ordenan por su vida
+
+        ratsToHeal.Sort((a, b) => a.health.CompareTo(b.health));
     }
 }

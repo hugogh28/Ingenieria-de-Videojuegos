@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -17,54 +15,74 @@ public class PlayerController : MonoBehaviour, IHealth
     public LayerMask groundMask;
 
     private Vector3 velocity;
-
     private bool isGrounded;
     private bool isMoving;
-
-    private Vector3 lastPosition = new Vector3(0f, 0f, 0f);
+    private Vector3 lastPosition = Vector3.zero;
 
     [Header("Health")]
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float currentHealth = 100f;
+    [SerializeField] private bool debugHealthObserver = false;
 
+    [Header("Points")]
+    [SerializeField] private int currentPoints = 0;
+    [SerializeField] private bool debugPointsObserver = false;
+
+    // SUBJECT del patrón Observer para la vida.
     public event Action<float, float> HealthChanged;
+
+    // SUBJECT del patrón Observer para los puntos.
+    // Primer parámetro: puntos actuales.
+    // Segundo parámetro: diferencia aplicada. Positivo al ganar, negativo al gastar.
+    public event Action<int, int> PointsChanged;
 
     public float MaxHealth => maxHealth;
     public float CurrentHealth => currentHealth;
+    public float Health01 => maxHealth <= 0f ? 0f : Mathf.Clamp01(currentHealth / maxHealth);
 
-    // Mantengo esta propiedad porque tu interfaz IHealth la exige.
-    // Cualquier script que haga player.health = X actualizará también la UI.
+    public int CurrentPoints => currentPoints;
+
+    // Compatibilidad con IHealth y con scripts antiguos que todavía usen player.health.
+    // Pasar por esta propiedad también notifica al Observer de vida.
     public float health
     {
         get => currentHealth;
-        set
-        {
-            SetHealth(value);
-
-            if (currentHealth <= 0f)
-            {
-                Die();
-            }
-        }
+        set => SetHealth(value);
     }
 
-    public int points = 0;
+    // Compatibilidad con scripts antiguos que todavía usen player.points += X o player.points -= X.
+    // Importante: al ser propiedad, cualquier cambio dispara PointsChanged.
+    public int points
+    {
+        get => currentPoints;
+        set => SetPoints(value);
+    }
+
+    private void Awake()
+    {
+        controller = GetComponent<CharacterController>();
+
+        maxHealth = Mathf.Max(1f, maxHealth);
+        currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
+        currentPoints = Mathf.Max(0, currentPoints);
+    }
 
     private void Start()
     {
-        maxHealth = Mathf.Max(1f, maxHealth);
-        currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
-
-        controller = GetComponent<CharacterController>();
-
         NotifyHealthChanged();
+        NotifyPointsChanged(0);
     }
 
     private void Update()
     {
+        if (groundCheck == null || controller == null)
+        {
+            return;
+        }
+
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
 
-        if (isGrounded && velocity.y < 0)
+        if (isGrounded && velocity.y < 0f)
         {
             velocity.y = -2f;
         }
@@ -73,7 +91,6 @@ public class PlayerController : MonoBehaviour, IHealth
         float z = Input.GetAxis("Vertical");
 
         Vector3 move = transform.right * x + transform.forward * z;
-
         controller.Move(move * speed * Time.deltaTime);
 
         if (Input.GetButtonDown("Jump") && isGrounded)
@@ -82,19 +99,10 @@ public class PlayerController : MonoBehaviour, IHealth
         }
 
         velocity.y += gravity * Time.deltaTime;
-
         controller.Move(velocity * Time.deltaTime);
 
-        if (lastPosition != gameObject.transform.position && isGrounded == true)
-        {
-            isMoving = true;
-        }
-        else
-        {
-            isMoving = false;
-        }
-
-        lastPosition = gameObject.transform.position;
+        isMoving = lastPosition != transform.position && isGrounded;
+        lastPosition = transform.position;
     }
 
     public void TakeDamage(float damage)
@@ -104,9 +112,12 @@ public class PlayerController : MonoBehaviour, IHealth
             return;
         }
 
-        Debug.Log($"El jugador ha recibido {damage} puntos de daño");
-
         SetHealth(currentHealth - damage);
+
+        if (debugHealthObserver)
+        {
+            Debug.Log($"PlayerController.TakeDamage({damage}) -> {currentHealth}/{maxHealth}. Observer de vida notificado.", this);
+        }
 
         if (currentHealth <= 0f)
         {
@@ -142,7 +153,6 @@ public class PlayerController : MonoBehaviour, IHealth
         float previousPercentage = maxHealth > 0f ? currentHealth / maxHealth : 1f;
 
         maxHealth = Mathf.Max(1f, newMaxHealth);
-
         currentHealth = keepCurrentPercentage
             ? maxHealth * previousPercentage
             : Mathf.Clamp(currentHealth, 0f, maxHealth);
@@ -150,9 +160,74 @@ public class PlayerController : MonoBehaviour, IHealth
         NotifyHealthChanged();
     }
 
+    public void AddPoints(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        SetPoints(currentPoints + amount);
+    }
+
+    public bool TrySpendPoints(int amount)
+    {
+        if (amount < 0)
+        {
+            return false;
+        }
+
+        if (currentPoints < amount)
+        {
+            return false;
+        }
+
+        SetPoints(currentPoints - amount);
+        return true;
+    }
+
+    public bool HasEnoughPoints(int amount)
+    {
+        return currentPoints >= amount;
+    }
+
+    public void SetPoints(int newPoints)
+    {
+        int clampedPoints = Mathf.Max(0, newPoints);
+
+        if (currentPoints == clampedPoints)
+        {
+            return;
+        }
+
+        int delta = clampedPoints - currentPoints;
+        currentPoints = clampedPoints;
+        NotifyPointsChanged(delta);
+    }
+
+    public void ForceNotifyHealthChanged()
+    {
+        NotifyHealthChanged();
+    }
+
+    public void ForceNotifyPointsChanged()
+    {
+        NotifyPointsChanged(0);
+    }
+
     private void NotifyHealthChanged()
     {
         HealthChanged?.Invoke(currentHealth, maxHealth);
+    }
+
+    private void NotifyPointsChanged(int delta)
+    {
+        PointsChanged?.Invoke(currentPoints, delta);
+
+        if (debugPointsObserver)
+        {
+            Debug.Log($"PlayerController.PointsChanged -> puntos: {currentPoints}, delta: {delta}.", this);
+        }
     }
 
     public void Die()
@@ -165,6 +240,7 @@ public class PlayerController : MonoBehaviour, IHealth
     {
         maxHealth = Mathf.Max(1f, maxHealth);
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
+        currentPoints = Mathf.Max(0, currentPoints);
     }
 #endif
 }

@@ -11,13 +11,37 @@ public class ShopAmmo : ShopItem, IUnlockableObject
 
     public void Unlock()
     {
-        if (GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().points >= pointsNeeded)
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObject == null || !playerObject.TryGetComponent(out PlayerController player))
         {
-            GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().points -= pointsNeeded;
-            //Se indica que la nueva municiÛn debe ser como m·ximo, la capacidad m·xima
-            int ammo = Mathf.Clamp(givenAmmo + WeaponManager.Instance.activeWeaponSlot.transform.GetChild(0).GetComponent<Weapon>().bulletsLeft, givenAmmo, WeaponManager.Instance.activeWeaponSlot.transform.GetChild(0).GetComponent<Weapon>().magazineSize);
-            WeaponManager.Instance.activeWeaponSlot.transform.GetChild(0).GetComponent<Weapon>().bulletsLeft = ammo;
-            //Si es un objeto que debe desaparecer se usar· gameObject.SetActive(false);
+            return;
         }
+
+        if (!player.TrySpendPoints(pointsNeeded))
+        {
+            return;
+        }
+
+        if (WeaponManager.Instance == null || WeaponManager.Instance.activeWeaponSlot == null)
+        {
+            return;
+        }
+
+        Weapon activeWeapon = WeaponManager.Instance.activeWeaponSlot.GetComponentInChildren<Weapon>();
+
+        if (activeWeapon == null)
+        {
+            return;
+        }
+
+        // Se indica que la nueva munici√≥n debe ser como m√°ximo la capacidad m√°xima.
+        int ammo = Mathf.Clamp(
+            givenAmmo + activeWeapon.bulletsLeft,
+            givenAmmo,
+            activeWeapon.magazineSize
+        );
+
+        activeWeapon.bulletsLeft = ammo;
     }
 }
