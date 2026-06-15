@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,10 +27,12 @@ public class WaveManager : MonoBehaviour
     int numRats;
     int increment;
     [SerializeField] float incrementMultiplier = 1.8f; //Multiplicador del incremento
-    [SerializeField] int maxRatsPerWave = 50;//Número máximo de ratas que puede haber por oleada
+    [SerializeField] int maxRatsPerWave = 50;//NÃºmero mÃ¡ximo de ratas que puede haber por oleada
 
     public int activeRats { get; private set; }
+    public int CurrentWave => currentWave;
     public bool waveDirtyFlag { get; private set; }
+    public event Action<int> WaveChanged;
 
     private void Start()
     {
@@ -57,11 +60,11 @@ public class WaveManager : MonoBehaviour
         tankProb = 0.05f * currentWave; //Se aumenta la probabilidad de spawn de ratas tanque un 5% por cada oleada
         tankProb = Mathf.Clamp(tankProb, 0f, 1f); //Se limita a un 100% la probabilidad de spawn de ratas tanque
 
-        increment = Mathf.RoundToInt(currentWave * incrementMultiplier); //Se incrementa el número de ratas que aparecen por cada oleada
-        numRats = Mathf.Clamp(increment,5,maxRatsPerWave); //Se limita el número de ratas que pueden aparecer a un máximo de 50
+        increment = Mathf.RoundToInt(currentWave * incrementMultiplier); //Se incrementa el nÃºmero de ratas que aparecen por cada oleada
+        numRats = Mathf.Clamp(increment,5,maxRatsPerWave); //Se limita el nÃºmero de ratas que pueden aparecer a un mÃ¡ximo de 50
     }
 
-    public void WaveCreation() //Creación de una oleada semialeatoria, con enemigos variados y de habilidades y ataques distintos
+    public void WaveCreation() //CreaciÃ³n de una oleada semialeatoria, con enemigos variados y de habilidades y ataques distintos
     {
         ResetVariables(); //Se resetean los contadores de cada tipo de rata para evitar salirse del pool
 
@@ -72,27 +75,28 @@ public class WaveManager : MonoBehaviour
 
         for (int i = 0; i < numRats; i++)  //Se llena la lista de nuevo, con las ratas del pool
         {
-            random = Random.value;
-            if (random < supportProb) //Si random es menor que supportProb, se escogerá una rata support
+            random = UnityEngine.Random.value;
+            if (random < supportProb) //Si random es menor que supportProb, se escogerÃ¡ una rata support
             {
                 AddRatToWave(tankProb, ref supportTank, ref supportNormal);
             }
-            else if (random < supportProb + shooterProb) //Si random es menor a supportProb + shooterProb, se escogerá una rata shooter
+            else if (random < supportProb + shooterProb) //Si random es menor a supportProb + shooterProb, se escogerÃ¡ una rata shooter
             {
                 AddRatToWave(tankProb, ref shooterTank, ref shooterNormal);
             }
-            else //Si no es ni support, ni shooter, la rata será normal
+            else //Si no es ni support, ni shooter, la rata serÃ¡ normal
             {
                 AddRatToWave(tankProb, ref commonTank, ref commonNormal);
             }
         }
         currentWave++;
+        WaveChanged?.Invoke(currentWave);
         IncrementDifficulty();
     }
 
-    private void AddRatToWave(float givenValue, ref int idxTank, ref int idxNormal) //Se pasan los valores por referencia para modificar las variables que reciba el método
+    private void AddRatToWave(float givenValue, ref int idxTank, ref int idxNormal) //Se pasan los valores por referencia para modificar las variables que reciba el mÃ©todo
     {
-        random = Random.value;
+        random = UnityEngine.Random.value;
         if (random < givenValue) //Si random es menor o igual a tankProb, aparece una rata tanque
         {
             ratsPerWave.Add(rat.poolOfRats[idxTank]);

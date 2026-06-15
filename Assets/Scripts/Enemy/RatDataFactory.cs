@@ -30,8 +30,8 @@ public static class RatDataFactory
                     attackDamage: 5f,
                     criticProbability: 0.25f,
                     pointsGivenAtDeath: 5,
-                    actionRange: 10f,
-                    detectionRange: 15f,
+                    actionRange: 3f,
+                    detectionRange: 1000f,
                     delay: 1f,
                     actionNextToPlayer: "attack"
                     );

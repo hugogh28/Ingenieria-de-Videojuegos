@@ -5,9 +5,27 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     public float dmg;
+    public float criticalChance;
+    public float criticalMultiplier = 1.75f;
 
     private void OnCollisionEnter(Collision collision)
     {
+        BasicRat rat = collision.gameObject.GetComponentInParent<BasicRat>();
+
+        if (rat != null)
+        {
+            bool isCritical = Random.value < criticalChance;
+            float finalDamage = isCritical ? dmg * criticalMultiplier : dmg;
+            Vector3 hitPoint = collision.contacts.Length > 0
+                ? collision.contacts[0].point
+                : collision.transform.position;
+
+            rat.TakeDamage(finalDamage, isCritical, hitPoint);
+
+            Destroy(gameObject);
+            return;
+        }
+
         if (collision.gameObject.CompareTag("Target"))
         {
             print("hit " + collision.gameObject.name + "!");
@@ -15,6 +33,7 @@ public class Bullet : MonoBehaviour
             createBulletImpactEffect(collision);
 
             Destroy(gameObject);
+            return;
         }
         if (collision.gameObject.CompareTag("Wall"))
         {
@@ -23,16 +42,13 @@ public class Bullet : MonoBehaviour
             createBulletImpactEffect(collision);
 
             Destroy(gameObject);
+            return;
         }
         if (collision.gameObject.CompareTag("Bottle"))
         {
             print("Hit a Bottle");
 
             collision.gameObject.GetComponent<ShatterDestruction>().Shatter();
-        }
-        if (collision.gameObject.CompareTag("Rat"))
-        {
-            collision.gameObject.GetComponent<BasicRat>().TakeDamage(dmg);
 
             Destroy(gameObject);
         }

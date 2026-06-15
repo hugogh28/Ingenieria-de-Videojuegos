@@ -10,6 +10,8 @@ public class Weapon : MonoBehaviour
 
     [Header("Gun Properties")]
     public float weaponDamage = 20;
+    [Range(0f, 1f)] public float criticalChance = 0.15f;
+    [Min(1f)] public float criticalMultiplier = 1.75f;
     public float shootingDelay = 2f;
     public int bulletsPerBurst = 1;
     public float spreadIntensity;
@@ -36,7 +38,7 @@ public class Weapon : MonoBehaviour
     public enum WeaponModel
     {
         Lanzapatatas,
-        CañonSalado,
+        CaÃ±onSalado,
         FuriaFrijol,
         DulceFuria,
         Rociasalsa,
@@ -143,12 +145,13 @@ public class Weapon : MonoBehaviour
 
         animator.SetTrigger("recoil");
 
-        if (weaponModel == WeaponModel.Lanzapatatas || weaponModel == WeaponModel.CañonSalado)
+        if (weaponModel == WeaponModel.Lanzapatatas || weaponModel == WeaponModel.CaÃ±onSalado)
         {
             DrainPotatos();
         }
 
         SoundManager.Instance.PlayShootingSound(weaponModel);
+        GameFeelManager.Instance.PlayShotFeedback();
 
         readyToShoot = false;
 
@@ -158,6 +161,8 @@ public class Weapon : MonoBehaviour
 
         Bullet bul = bullet.GetComponent<Bullet>();
         bul.dmg = weaponDamage;
+        bul.criticalChance = criticalChance;
+        bul.criticalMultiplier = criticalMultiplier;
 
         bullet.transform.forward = shootingDirection;
 
@@ -185,7 +190,7 @@ public class Weapon : MonoBehaviour
 
         animator.SetTrigger("reload");
 
-        if (weaponModel == WeaponModel.Lanzapatatas || weaponModel == WeaponModel.CañonSalado)
+        if (weaponModel == WeaponModel.Lanzapatatas || weaponModel == WeaponModel.CaÃ±onSalado)
         {
             ReloadPotatos();
         }

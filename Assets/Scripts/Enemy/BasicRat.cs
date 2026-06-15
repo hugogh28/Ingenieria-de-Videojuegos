@@ -408,12 +408,18 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
 
     public void TakeDamage(float dmg)
     {
+        TakeDamage(dmg, false, transform.position + Vector3.up);
+    }
+
+    public void TakeDamage(float dmg, bool isCritical, Vector3 hitPoint)
+    {
         if (dmg <= 0f)
         {
             return;
         }
 
         health -= dmg;
+        GameFeelManager.Instance?.PlayRatHitFeedback(hitPoint, dmg, isCritical);
 
         if (health <= 0f)
         {
@@ -457,6 +463,8 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
 
     public void Die()
     {
+        Vector3 deathPosition = transform.position + Vector3.up * 0.6f;
+
         PlayerController targetPlayer = GetPlayerController();
 
         if (targetPlayer != null && data != null)
@@ -486,6 +494,7 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
             Debug.Log("Die() llamado en " + gameObject.name, this);
         }
 
+        GameFeelManager.Instance?.PlayRatDeathFeedback(deathPosition);
         ResetObject();
     }
 }

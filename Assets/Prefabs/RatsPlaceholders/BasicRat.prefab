@@ -17270,7 +17270,6 @@ GameObject:
   - component: {fileID: 9217241862619593826}
   - component: {fileID: 8810463674539052735}
   - component: {fileID: 1541082441987213170}
-  - component: {fileID: 3952507576643929889}
   m_Layer: 0
   m_Name: BasicRat
   m_TagString: Rat
@@ -17287,8 +17286,8 @@ Transform:
   m_GameObject: {fileID: 7842887330614641275}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -11.43}
-  m_LocalScale: {x: 0.86, y: 0.86, z: 0.86}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8757992903432645627}
@@ -17331,6 +17330,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 0
   subType: 0
+  actionFromAnimationEvent: 0
+  stateActionImpactDelay: 0.15
+  debugCombat: 0
   animator: {fileID: 7283925041470391480}
   navAgent: {fileID: 9217241862619593826}
   player: {fileID: 0}
@@ -17347,8 +17349,8 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
-  m_Acceleration: 8
+  m_Speed: 6
+  m_Acceleration: 10
   avoidancePriority: 50
   m_AngularSpeed: 120
   m_StoppingDistance: 0
@@ -17405,29 +17407,6 @@ CapsuleCollider:
   m_Height: 1.7144198
   m_Direction: 2
   m_Center: {x: 0, y: 2.3357527, z: 1.0168777}
---- !u!136 &3952507576643929889
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7842887330614641275}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 1
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7852823347656483049
 GameObject:
   m_ObjectHideFlags: 0
