@@ -16,8 +16,11 @@ public class PlayerController : MonoBehaviour, IHealth
 
     private Vector3 velocity;
     private bool isGrounded;
+    private bool wasGrounded;
     private bool isMoving;
     private Vector3 lastPosition = Vector3.zero;
+    private PlayerCameraMotion cameraMotion;
+    private float lastAirVerticalVelocity;
 
     [Header("Health")]
     [SerializeField] private float maxHealth = 100f;
@@ -69,6 +72,18 @@ public class PlayerController : MonoBehaviour, IHealth
 
     private void Start()
     {
+        Camera mainCamera = Camera.main;
+
+        if (mainCamera != null)
+        {
+            cameraMotion = mainCamera.GetComponent<PlayerCameraMotion>();
+
+            if (cameraMotion == null)
+            {
+                cameraMotion = mainCamera.gameObject.AddComponent<PlayerCameraMotion>();
+            }
+        }
+
         NotifyHealthChanged();
         NotifyPointsChanged(0);
     }
@@ -80,7 +95,18 @@ public class PlayerController : MonoBehaviour, IHealth
             return;
         }
 
+        wasGrounded = isGrounded;
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+
+        if (isGrounded && !wasGrounded)
+        {
+            cameraMotion?.PlayLandImpulse(Mathf.Abs(lastAirVerticalVelocity));
+        }
+
+        if (!isGrounded)
+        {
+            lastAirVerticalVelocity = velocity.y;
+        }
 
         if (isGrounded && velocity.y < 0f)
         {
@@ -96,6 +122,7 @@ public class PlayerController : MonoBehaviour, IHealth
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            cameraMotion?.PlayJumpImpulse();
         }
 
         velocity.y += gravity * Time.deltaTime;
@@ -103,6 +130,9 @@ public class PlayerController : MonoBehaviour, IHealth
 
         isMoving = lastPosition != transform.position && isGrounded;
         lastPosition = transform.position;
+
+        float movementAmount = Mathf.Clamp01(new Vector2(x, z).magnitude);
+        cameraMotion?.SetMovementState(isGrounded, isMoving, velocity.y, movementAmount);
     }
 
     public void TakeDamage(float damage)
@@ -112,7 +142,14 @@ public class PlayerController : MonoBehaviour, IHealth
             return;
         }
 
+        float previousHealth = currentHealth;
         SetHealth(currentHealth - damage);
+
+        if (currentHealth < previousHealth)
+        {
+            GameFeelManager.Instance.PlayPlayerDamageFeedback(damage);
+            cameraMotion?.PlayDamageImpulse();
+        }
 
         if (debugHealthObserver)
         {

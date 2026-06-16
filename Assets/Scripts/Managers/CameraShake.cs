@@ -18,6 +18,14 @@ public class CameraShake : MonoBehaviour
             return;
         }
 
+        PlayerCameraMotion cameraMotion = GetComponent<PlayerCameraMotion>();
+
+        if (cameraMotion != null)
+        {
+            cameraMotion.PlayShake(intensity, duration);
+            return;
+        }
+
         if (shakeRoutine != null)
         {
             StopCoroutine(shakeRoutine);

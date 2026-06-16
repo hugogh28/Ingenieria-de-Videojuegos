@@ -14,10 +14,21 @@ public class MouseMovement : MonoBehaviour
 
     float topClamp = -90f;
     float botClamp = 90f;
+    private PlayerCameraMotion cameraMotion;
 
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+
+        if (camera != null)
+        {
+            cameraMotion = camera.GetComponent<PlayerCameraMotion>();
+
+            if (cameraMotion == null)
+            {
+                cameraMotion = camera.gameObject.AddComponent<PlayerCameraMotion>();
+            }
+        }
     }
 
     // Update is called once per frame
@@ -34,6 +45,13 @@ public class MouseMovement : MonoBehaviour
 
         transform.localRotation = Quaternion.Euler(0f, yRotation, 0f);
 
-        camera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        Quaternion cameraRotation = Quaternion.Euler(xRotation, 0f, 0f);
+
+        if (cameraMotion != null)
+        {
+            cameraRotation = cameraMotion.ApplyAnimatedRotation(cameraRotation);
+        }
+
+        camera.transform.localRotation = cameraRotation;
     }
 }

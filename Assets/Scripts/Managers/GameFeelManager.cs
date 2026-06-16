@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameFeelManager : MonoBehaviour
 {
@@ -56,10 +57,19 @@ public class GameFeelManager : MonoBehaviour
     [SerializeField] private List<AudioClip> ratHitClips = new List<AudioClip>();
     [SerializeField] private List<AudioClip> ratCriticalClips = new List<AudioClip>();
     [SerializeField] private List<AudioClip> ratDeathClips = new List<AudioClip>();
+    [SerializeField] private List<AudioClip> playerClawDamageClips = new List<AudioClip>();
     [SerializeField] private float normalHitPitch = 1f;
     [SerializeField] private float criticalHitPitch = 1.18f;
     [SerializeField] private float deathPitch = 0.9f;
+    [SerializeField] private float playerClawPitch = 1f;
     [SerializeField] private bool useProceduralFallbackSounds = true;
+
+    [Header("Player Damage Feedback")]
+    [SerializeField] private Color playerDamageOverlayColor = new Color(1f, 0f, 0f, 0.28f);
+    [SerializeField] private float playerDamageOverlayFadeIn = 0.04f;
+    [SerializeField] private float playerDamageOverlayFadeOut = 0.32f;
+    [SerializeField] private float playerDamageShakeIntensity = 0.065f;
+    [SerializeField] private float playerDamageShakeDuration = 0.12f;
 
     [Header("Death Explosion")]
     [SerializeField] private ParticleSystem ratDeathExplosionPrefab;
@@ -72,6 +82,9 @@ public class GameFeelManager : MonoBehaviour
     private AudioClip fallbackHitClip;
     private AudioClip fallbackCriticalClip;
     private AudioClip fallbackDeathClip;
+    private AudioClip fallbackPlayerClawClip;
+    private Image playerDamageOverlay;
+    private Coroutine playerDamageOverlayRoutine;
 
     private void Awake()
     {
@@ -110,6 +123,13 @@ public class GameFeelManager : MonoBehaviour
         ShakeCamera(deathShakeIntensity, deathShakeDuration);
         PlayRandomClip(ratDeathClips, deathPitch, fallbackDeathClip);
         SpawnRatDeathExplosion(deathPosition);
+    }
+
+    public void PlayPlayerDamageFeedback(float damage)
+    {
+        ShakeCamera(playerDamageShakeIntensity, playerDamageShakeDuration);
+        PlayRandomClip(playerClawDamageClips, playerClawPitch, fallbackPlayerClawClip);
+        FlashPlayerDamageOverlay();
     }
 
     private void ResolveReferences()
@@ -151,7 +171,87 @@ public class GameFeelManager : MonoBehaviour
             fallbackHitClip = CreateProceduralClip("Rat Hit Pop", 520f, 180f, 0.08f, 0.35f);
             fallbackCriticalClip = CreateProceduralClip("Rat Critical Crack", 920f, 260f, 0.11f, 0.45f);
             fallbackDeathClip = CreateProceduralClip("Rat Death Burst", 180f, 55f, 0.18f, 0.55f);
+            fallbackPlayerClawClip = CreateProceduralScratchClip("Player Claw Scratch", 0.18f, 0.42f);
         }
+    }
+
+    private void FlashPlayerDamageOverlay()
+    {
+        if (playerDamageOverlay == null)
+        {
+            playerDamageOverlay = CreatePlayerDamageOverlay();
+        }
+
+        if (playerDamageOverlay == null)
+        {
+            return;
+        }
+
+        if (playerDamageOverlayRoutine != null)
+        {
+            StopCoroutine(playerDamageOverlayRoutine);
+        }
+
+        playerDamageOverlayRoutine = StartCoroutine(PlayerDamageOverlayRoutine());
+    }
+
+    private Image CreatePlayerDamageOverlay()
+    {
+        GameObject canvasObject = new GameObject("Player Damage Overlay Canvas");
+        Canvas canvas = canvasObject.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 500;
+
+        CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+
+        canvasObject.AddComponent<GraphicRaycaster>();
+
+        GameObject overlayObject = new GameObject("Player Damage Overlay");
+        overlayObject.transform.SetParent(canvasObject.transform, false);
+
+        Image overlay = overlayObject.AddComponent<Image>();
+        overlay.raycastTarget = false;
+
+        RectTransform rect = overlay.rectTransform;
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+
+        Color color = playerDamageOverlayColor;
+        color.a = 0f;
+        overlay.color = color;
+
+        return overlay;
+    }
+
+    private IEnumerator PlayerDamageOverlayRoutine()
+    {
+        yield return FadePlayerDamageOverlay(0f, playerDamageOverlayColor.a, playerDamageOverlayFadeIn);
+        yield return FadePlayerDamageOverlay(playerDamageOverlayColor.a, 0f, playerDamageOverlayFadeOut);
+        playerDamageOverlayRoutine = null;
+    }
+
+    private IEnumerator FadePlayerDamageOverlay(float fromAlpha, float toAlpha, float duration)
+    {
+        float elapsed = 0f;
+        duration = Mathf.Max(0.001f, duration);
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            Color color = playerDamageOverlayColor;
+            color.a = Mathf.Lerp(fromAlpha, toAlpha, t);
+            playerDamageOverlay.color = color;
+            yield return null;
+        }
+
+        Color finalColor = playerDamageOverlayColor;
+        finalColor.a = toAlpha;
+        playerDamageOverlay.color = finalColor;
     }
 
     private void SpawnDamageNumber(Vector3 hitPoint, float damage, bool isCritical)
@@ -269,6 +369,30 @@ public class GameFeelManager : MonoBehaviour
             float envelope = Mathf.Pow(1f - t, 2f);
             phase += Mathf.PI * 2f * frequency / sampleRate;
             data[i] = Mathf.Sin(phase) * envelope * volume;
+        }
+
+        AudioClip clip = AudioClip.Create(clipName, samples, 1, sampleRate, false);
+        clip.SetData(data, 0);
+        return clip;
+    }
+
+    private AudioClip CreateProceduralScratchClip(string clipName, float duration, float volume)
+    {
+        int sampleRate = 44100;
+        int samples = Mathf.Max(1, Mathf.RoundToInt(sampleRate * duration));
+        float[] data = new float[samples];
+        float phase = 0f;
+
+        for (int i = 0; i < samples; i++)
+        {
+            float t = samples <= 1 ? 1f : i / (samples - 1f);
+            float envelope = Mathf.Pow(1f - t, 1.8f);
+            float descendingTone = Mathf.Lerp(1400f, 180f, t);
+            phase += Mathf.PI * 2f * descendingTone / sampleRate;
+
+            float noise = Random.Range(-1f, 1f);
+            float scrape = Mathf.Sin(phase) * 0.35f + noise * 0.65f;
+            data[i] = scrape * envelope * volume;
         }
 
         AudioClip clip = AudioClip.Create(clipName, samples, 1, sampleRate, false);
