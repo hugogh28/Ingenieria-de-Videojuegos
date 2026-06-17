@@ -7,6 +7,7 @@ public class Bullet : MonoBehaviour
     public float dmg;
     public float criticalChance;
     public float criticalMultiplier = 1.75f;
+    public int pointsGivenOnRatHit = 10;
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -21,6 +22,7 @@ public class Bullet : MonoBehaviour
                 : collision.transform.position;
 
             rat.TakeDamage(finalDamage, isCritical, hitPoint);
+            GivePointsForRatHit();
 
             Destroy(gameObject);
             return;
@@ -51,6 +53,38 @@ public class Bullet : MonoBehaviour
             collision.gameObject.GetComponent<ShatterDestruction>().Shatter();
 
             Destroy(gameObject);
+        }
+    }
+
+    private void GivePointsForRatHit()
+    {
+        if (pointsGivenOnRatHit <= 0)
+        {
+            return;
+        }
+
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObject == null)
+        {
+            return;
+        }
+
+        PlayerController player = playerObject.GetComponent<PlayerController>();
+
+        if (player == null)
+        {
+            player = playerObject.GetComponentInParent<PlayerController>();
+        }
+
+        if (player == null)
+        {
+            player = playerObject.GetComponentInChildren<PlayerController>();
+        }
+
+        if (player != null)
+        {
+            player.AddPoints(pointsGivenOnRatHit);
         }
     }
 

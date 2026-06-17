@@ -1,9 +1,18 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 public static class RatDataFactory
 {
+    public const float GlobalDetectionRange = 10000f;
+
+    private const float CommonNormalActionRange = 2.2f;
+    private const float CommonTankActionRange = 2.8f;
+
+    private const int CommonPoints = 100;
+    private const int TankPoints = 200;
+    private const int SpecialPoints = 150;
+    private const int SpecialTankPoints = 300;
+
     private static readonly Dictionary<(RatType, RatSubType), RatData> cache = new();
 
     public static RatData GetRatData(RatType type,  RatSubType subtype)
@@ -29,9 +38,9 @@ public static class RatDataFactory
                     initialHealth: 100f,
                     attackDamage: 5f,
                     criticProbability: 0.25f,
-                    pointsGivenAtDeath: 5,
-                    actionRange: 3f, 
-                    detectionRange: 1000f,
+                    pointsGivenAtDeath: CommonPoints,
+                    actionRange: CommonNormalActionRange,
+                    detectionRange: GlobalDetectionRange,
                     delay: 1f,
                     actionNextToPlayer: "attack"
                     );
@@ -42,9 +51,9 @@ public static class RatDataFactory
                     initialHealth: 200f,
                     attackDamage: 10f,
                     criticProbability: 0.25f,
-                    pointsGivenAtDeath: 10,
-                    actionRange: 4f,
-                    detectionRange: 1000f,
+                    pointsGivenAtDeath: TankPoints,
+                    actionRange: CommonTankActionRange,
+                    detectionRange: GlobalDetectionRange,
                     delay: 1.2f,
                     actionNextToPlayer: "attack"
                     );
@@ -55,9 +64,9 @@ public static class RatDataFactory
                     initialHealth: 100f,
                     attackDamage: 15f,
                     criticProbability: 0.25f,
-                    pointsGivenAtDeath: 20,
-                    actionRange: 14f,
-                    detectionRange: 20f,
+                    pointsGivenAtDeath: SpecialPoints,
+                    actionRange: CommonNormalActionRange,
+                    detectionRange: GlobalDetectionRange,
                     delay: 2f,
                     actionNextToPlayer: "shoot"
                     );
@@ -68,9 +77,9 @@ public static class RatDataFactory
                     initialHealth: 200f,
                     attackDamage: 20f,
                     criticProbability: 0.25f,
-                    pointsGivenAtDeath: 40,
-                    actionRange: 14f,
-                    detectionRange: 22f,
+                    pointsGivenAtDeath: SpecialTankPoints,
+                    actionRange: CommonTankActionRange,
+                    detectionRange: GlobalDetectionRange,
                     delay: 2.5f,
                     actionNextToPlayer: "shoot"
                     );
@@ -82,9 +91,9 @@ public static class RatDataFactory
                     initialHealth: 100f,
                     attackDamage: 20f,
                     criticProbability: 0.25f,
-                    pointsGivenAtDeath: 35,
-                    actionRange: 12f,
-                    detectionRange: 10f,
+                    pointsGivenAtDeath: SpecialPoints,
+                    actionRange: CommonNormalActionRange,
+                    detectionRange: GlobalDetectionRange,
                     delay: 4f,
                     actionNextToPlayer: "heal"
                     );
@@ -96,9 +105,9 @@ public static class RatDataFactory
                     initialHealth: 200f,
                     attackDamage: 30f,
                     criticProbability: 0.25f,
-                    pointsGivenAtDeath: 75,
-                    actionRange: 14f,
-                    detectionRange: 15f,
+                    pointsGivenAtDeath: SpecialTankPoints,
+                    actionRange: CommonTankActionRange,
+                    detectionRange: GlobalDetectionRange,
                     delay: 6f,
                     actionNextToPlayer: "heal"
                     );

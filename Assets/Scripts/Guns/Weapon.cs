@@ -4,7 +4,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Weapon : MonoBehaviour
+public class Weapon : MonoBehaviour, IInteractable
 {
     public bool isActiveWeapon;
 
@@ -12,6 +12,7 @@ public class Weapon : MonoBehaviour
     public float weaponDamage = 20;
     [Range(0f, 1f)] public float criticalChance = 0.15f;
     [Min(1f)] public float criticalMultiplier = 1.75f;
+    public int pointsGivenOnRatHit = 10;
     public float shootingDelay = 2f;
     public int bulletsPerBurst = 1;
     public float spreadIntensity;
@@ -69,6 +70,8 @@ public class Weapon : MonoBehaviour
     public int burstBulletsLeft;
     public Transform potatoAmmo;
 
+    public string InteractionActionText => $"recoger {GetInteractionWeaponName()}";
+
     private void Awake()
     {
         readyToShoot = true;
@@ -101,7 +104,12 @@ public class Weapon : MonoBehaviour
                 }
             }
 
-            GetComponent<Outline>().enabled = false;
+            Outline outline = GetComponent<Outline>();
+
+            if (outline != null)
+            {
+                outline.enabled = false;
+            }
 
             if (currentShootingMode == ShootingMode.Auto)
             {
@@ -137,6 +145,50 @@ public class Weapon : MonoBehaviour
         }
     }
 
+    public bool CanInteract(PlayerController player)
+    {
+        return !isActiveWeapon && WeaponManager.Instance != null;
+    }
+
+    public void Interact(PlayerController player)
+    {
+        if (!CanInteract(player))
+        {
+            return;
+        }
+
+        WeaponManager.Instance.PickupWeapon(gameObject);
+    }
+
+    private string GetInteractionWeaponName()
+    {
+        switch (weaponModel)
+        {
+            case WeaponModel.Lanzapatatas:
+                return "Lanzapatatas";
+            case WeaponModel.CañonSalado:
+                return "Cañon Salado";
+            case WeaponModel.FuriaFrijol:
+                return "Furia Frijol";
+            case WeaponModel.DulceFuria:
+                return "Dulce Furia";
+            case WeaponModel.Rociasalsa:
+                return "Rociasalsa";
+            case WeaponModel.TorrenteAgrio:
+                return "Torrente Agrio";
+            case WeaponModel.Cruzadientes:
+                return "Cruzadientes";
+            case WeaponModel.Picaflechas:
+                return "Picaflechas";
+            case WeaponModel.Aguarrafaga:
+                return "Aguarrafaga";
+            case WeaponModel.Nitrosifon:
+                return "Nitrosifon";
+            default:
+                return "arma";
+        }
+    }
+
     private void FireWeapon()
     {
         bulletsLeft--;
@@ -163,6 +215,7 @@ public class Weapon : MonoBehaviour
         bul.dmg = weaponDamage;
         bul.criticalChance = criticalChance;
         bul.criticalMultiplier = criticalMultiplier;
+        bul.pointsGivenOnRatHit = pointsGivenOnRatHit;
 
         bullet.transform.forward = shootingDirection;
 

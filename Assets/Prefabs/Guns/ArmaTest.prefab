@@ -47,7 +47,7 @@ GameObject:
   - component: {fileID: 5054150706273849503}
   m_Layer: 6
   m_Name: ArmaTest
-  m_TagString: Untagged
+  m_TagString: Interactable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -83,6 +83,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isActiveWeapon: 0
   weaponDamage: 10
+  criticalChance: 0.15
+  criticalMultiplier: 1.75
+  pointsGivenOnRatHit: 10
   shootingDelay: 0.15
   bulletsPerBurst: 1
   spreadIntensity: 0

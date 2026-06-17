@@ -10,6 +10,7 @@ TagManager:
   - Rat
   - Spawner
   - Zone
+  - Interactable
   layers:
   - Default
   - TransparentFX

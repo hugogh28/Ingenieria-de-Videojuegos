@@ -5226,7 +5226,7 @@ GameObject:
   - component: {fileID: 1239016997090172485}
   m_Layer: 6
   m_Name: Lanzapatatas
-  m_TagString: Untagged
+  m_TagString: Interactable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5264,6 +5264,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isActiveWeapon: 0
   weaponDamage: 35
+  criticalChance: 0.15
+  criticalMultiplier: 1.75
+  pointsGivenOnRatHit: 10
   shootingDelay: 0.5
   bulletsPerBurst: 1
   spreadIntensity: 0

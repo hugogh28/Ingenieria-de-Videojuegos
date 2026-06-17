@@ -18,6 +18,13 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
 
     [SerializeField] private bool debugCombat = false;
 
+    [Header("Animation")]
+    [SerializeField] private Animator animatorOverride;
+    [SerializeField] private string walkingParameter = "isWalking";
+    [SerializeField] private string actionTriggerOverride = "";
+    [SerializeField] private bool forceAlwaysAnimate = true;
+    [SerializeField] private bool debugAnimation = false;
+
     public RatData data;
 
     [HideInInspector] public Animator animator;
@@ -30,6 +37,7 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
     private PlayerController playerController;
     private RatStateMachine stateMachine;
     private Coroutine pendingStateActionCoroutine;
+    private bool warnedMissingSkinnedMesh;
 
     public float health { get; set; }
     public bool Active { get; set; }
@@ -96,13 +104,15 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
 
         if (animator == null)
         {
-            animator = GetComponent<Animator>();
+            animator = animatorOverride != null ? animatorOverride : GetComponent<Animator>();
 
             if (animator == null)
             {
                 animator = GetComponentInChildren<Animator>();
             }
         }
+
+        ConfigureAnimator();
 
         if (navAgent == null)
         {
@@ -250,18 +260,102 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
             return;
         }
 
-        animator.SetBool("isWalking", isWalking);
+        if (!HasAnimatorParameter(walkingParameter, AnimatorControllerParameterType.Bool))
+        {
+            if (debugAnimation)
+            {
+                Debug.LogWarning($"{name}: el Animator no tiene un bool llamado '{walkingParameter}'. No se puede activar/desactivar la animacion de correr.", this);
+            }
+
+            return;
+        }
+
+        animator.SetBool(walkingParameter, isWalking);
+
+        if (debugAnimation)
+        {
+            Debug.Log($"{name}: Animator bool '{walkingParameter}' = {isWalking}.", this);
+        }
     }
 
     public void TriggerActionAnimation()
     {
-        if (animator == null || data == null || string.IsNullOrWhiteSpace(data.ActionNextToPlayer))
+        string actionTrigger = GetActionTriggerName();
+
+        if (animator == null || string.IsNullOrWhiteSpace(actionTrigger))
         {
             return;
         }
 
-        animator.ResetTrigger(data.ActionNextToPlayer);
-        animator.SetTrigger(data.ActionNextToPlayer);
+        if (!HasAnimatorParameter(actionTrigger, AnimatorControllerParameterType.Trigger))
+        {
+            if (debugAnimation)
+            {
+                Debug.LogWarning($"{name}: el Animator no tiene un trigger llamado '{actionTrigger}'. No se puede lanzar la animacion de accion.", this);
+            }
+
+            return;
+        }
+
+        animator.ResetTrigger(actionTrigger);
+        animator.SetTrigger(actionTrigger);
+
+        if (debugAnimation)
+        {
+            Debug.Log($"{name}: Animator trigger '{actionTrigger}' lanzado.", this);
+        }
+    }
+
+    private string GetActionTriggerName()
+    {
+        if (!string.IsNullOrWhiteSpace(actionTriggerOverride))
+        {
+            return actionTriggerOverride;
+        }
+
+        return data != null ? data.ActionNextToPlayer : "";
+    }
+
+    private void ConfigureAnimator()
+    {
+        if (animator == null)
+        {
+            return;
+        }
+
+        if (forceAlwaysAnimate)
+        {
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+        }
+
+        if (!debugAnimation || warnedMissingSkinnedMesh)
+        {
+            return;
+        }
+
+        if (animator.GetComponentsInChildren<SkinnedMeshRenderer>().Length == 0)
+        {
+            warnedMissingSkinnedMesh = true;
+            Debug.LogWarning($"{name}: el Animator cambia estados, pero no hay ningun SkinnedMeshRenderer debajo. Si el modelo tiene solo Mesh Renderer, el rig no puede deformar el mesh y parecera que no se anima.", this);
+        }
+    }
+
+    private bool HasAnimatorParameter(string parameterName, AnimatorControllerParameterType expectedType)
+    {
+        if (animator == null || string.IsNullOrWhiteSpace(parameterName))
+        {
+            return false;
+        }
+
+        foreach (AnimatorControllerParameter parameter in animator.parameters)
+        {
+            if (parameter.name == parameterName && parameter.type == expectedType)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void PerformActionFromState()
@@ -469,8 +563,9 @@ public class BasicRat : MonoBehaviour, IPoolableObject, IHealth
 
         if (targetPlayer != null && data != null)
         {
-            int minimumPoints = Mathf.Max(0, data.PointsGivenAtDeath);
-            int maximumPoints = Mathf.Max(minimumPoints, Mathf.RoundToInt(data.PointsGivenAtDeath * 1.5f));
+            int basePoints = Mathf.Max(0, data.PointsGivenAtDeath);
+            int minimumPoints = Mathf.RoundToInt(basePoints * 0.8f);
+            int maximumPoints = Mathf.RoundToInt(basePoints * 1.2f);
             int pointsToGive = UnityEngine.Random.Range(minimumPoints, maximumPoints + 1);
 
             // Punto único de integración con el Observer de puntos:
