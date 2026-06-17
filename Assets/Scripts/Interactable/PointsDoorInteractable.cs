@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(Collider))]
 public class PointsDoorInteractable : MonoBehaviour, IInteractable
@@ -93,6 +94,11 @@ public class PointsDoorInteractable : MonoBehaviour, IInteractable
 
     private void DisableDoor()
     {
+        foreach (NavMeshObstacle obstacle in GetComponentsInChildren<NavMeshObstacle>())
+        {
+            obstacle.enabled = false;
+        }
+
         foreach (Renderer doorRenderer in GetComponentsInChildren<Renderer>())
         {
             doorRenderer.enabled = false;

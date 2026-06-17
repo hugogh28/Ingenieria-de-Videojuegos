@@ -104,7 +104,12 @@ public class MainMenu : MonoBehaviour
 
     public void StartGame()
     {
-        SceneManager.LoadScene("TestScene");
+        SceneManager.LoadScene("GameScene");
+    }
+
+    public void StartTutorial()
+    {
+        SceneManager.LoadScene("TutorialScene");
     }
 
     public void OnPageAnimationFinished()

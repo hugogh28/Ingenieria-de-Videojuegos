@@ -14,7 +14,8 @@ GameObject:
   - component: {fileID: 3691913677995892514}
   - component: {fileID: 942353608789293655}
   - component: {fileID: 1811317363614378818}
-  m_Layer: 3
+  - component: {fileID: 7318979606638682028}
+  m_Layer: 9
   m_Name: Door
   m_TagString: Interactable
   m_Icon: {fileID: 0}
@@ -29,9 +30,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6127649503585832478}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.8057067, z: -0, w: 0.5923148}
+  m_LocalRotation: {x: 0, y: 0.805706, z: 0, w: 0.5923156}
   m_LocalPosition: {x: -32.72118, y: 180.35, z: 105.35132}
-  m_LocalScale: {x: 0.60791206, y: 1.2348517, z: 0.607912}
+  m_LocalScale: {x: 0.8558185, y: 1.2348517, z: 0.607912}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -148,3 +149,19 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!208 &7318979606638682028
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6127649503585832478}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 7.6210003, y: 5.2780004, z: 7.4470005}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0.216, y: -0.35700002, z: 0.071}
+  m_TimeToStationary: 0.5

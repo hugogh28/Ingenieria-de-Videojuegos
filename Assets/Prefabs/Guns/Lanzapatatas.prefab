@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1209714390197672788}
   - component: {fileID: 8880327806751894346}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: tubo.base
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -113,7 +113,7 @@ GameObject:
   - component: {fileID: 3121956410364530837}
   - component: {fileID: 5832195657710598743}
   - component: {fileID: 6223844534278661958}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Canon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -197,7 +197,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 303835066742732541}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: BulletSpawnP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -231,7 +231,7 @@ GameObject:
   - component: {fileID: 2702787003560262676}
   - component: {fileID: 3897931076344834617}
   - component: {fileID: 6348004346496111514}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Potatos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -315,7 +315,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8461544697667683276}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -350,7 +350,7 @@ GameObject:
   - component: {fileID: 7127842467807268060}
   - component: {fileID: 584912198642794840}
   - component: {fileID: 811366154199895791}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: patata
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -436,7 +436,7 @@ GameObject:
   - component: {fileID: 4868401552010656251}
   - component: {fileID: 5675615922747689269}
   - component: {fileID: 3419857864128095087}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: MuzzleFlashEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5224,7 +5224,7 @@ GameObject:
   - component: {fileID: 6324342223034953377}
   - component: {fileID: 6970214431042824682}
   - component: {fileID: 1239016997090172485}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Lanzapatatas
   m_TagString: Interactable
   m_Icon: {fileID: 0}
