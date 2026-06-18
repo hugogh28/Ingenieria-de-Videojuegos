@@ -22,6 +22,9 @@ public class PlayerController : MonoBehaviour, IHealth
     private PlayerCameraMotion cameraMotion;
     private float lastAirVerticalVelocity;
 
+    [Header("SceneChange")]
+    public FadeSceneLoader fadeSceneLoader;
+
     [Header("Health")]
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float currentHealth = 100f;
@@ -45,7 +48,6 @@ public class PlayerController : MonoBehaviour, IHealth
 
     public int CurrentPoints => currentPoints;
 
-    // Compatibilidad con IHealth y con scripts antiguos que todavía usen player.health.
     // Pasar por esta propiedad también notifica al Observer de vida.
     public float health
     {
@@ -53,8 +55,7 @@ public class PlayerController : MonoBehaviour, IHealth
         set => SetHealth(value);
     }
 
-    // Compatibilidad con scripts antiguos que todavía usen player.points += X o player.points -= X.
-    // Importante: al ser propiedad, cualquier cambio dispara PointsChanged.
+    // Cualquier cambio dispara PointsChanged.
     public int points
     {
         get => currentPoints;
@@ -269,7 +270,8 @@ public class PlayerController : MonoBehaviour, IHealth
 
     public void Die()
     {
-        SceneManager.LoadScene(0);
+        fadeSceneLoader.sceneName = "DeathScene";
+        fadeSceneLoader.FadeAndLoadScene();
     }
 
 #if UNITY_EDITOR

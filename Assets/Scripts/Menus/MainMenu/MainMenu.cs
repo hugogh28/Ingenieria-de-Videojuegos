@@ -14,12 +14,16 @@ public class MainMenu : MonoBehaviour
 
     public GameObject play;
 
+    public AudioClip paperSound;
+    public AudioSource audioSource;
+
     private int currentPage = 0;
     private bool isAnimating = false;
 
     void Start()
     {
         animator = GetComponent<Animator>();
+        audioSource.clip = paperSound;
     }
 
     private void Update()
@@ -38,6 +42,11 @@ public class MainMenu : MonoBehaviour
         if (potato.GetBool("potato")) potato.SetBool("potato", false);
         if (drink.GetBool("drink")) drink.SetBool("drink", false);
         currentPage = 0;
+    }
+
+    public void PlayPaperSound()
+    {
+        audioSource.PlayOneShot(paperSound);
     }
 
     public void SettingsPage()

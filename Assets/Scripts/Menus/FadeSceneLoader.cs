@@ -7,7 +7,7 @@ public class FadeSceneLoader : MonoBehaviour
 {
     [SerializeField] private CanvasGroup fadeCanvasGroup;
     [SerializeField] private Button button;
-    [SerializeField] private string sceneName;
+    [SerializeField] public string sceneName;
     [SerializeField] private float fadeDuration = 1f;
     [SerializeField] private bool fadeInOnStart = true;
 
