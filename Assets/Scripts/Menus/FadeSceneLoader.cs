@@ -11,33 +11,60 @@ public class FadeSceneLoader : MonoBehaviour
     [SerializeField] private float fadeDuration = 1f;
     [SerializeField] private bool fadeInOnStart = true;
 
-    private bool _isChangingScene;
+    private bool isChangingScene;
 
     private void Awake()
     {
+        if (fadeCanvasGroup == null)
+        {
+            return;
+        }
+
         if (fadeInOnStart)
         {
-            fadeCanvasGroup.alpha = 1;
+            fadeCanvasGroup.alpha = 1f;
             fadeCanvasGroup.blocksRaycasts = true;
         }
         else
         {
-            fadeCanvasGroup.alpha = 0;
+            fadeCanvasGroup.alpha = 0f;
             fadeCanvasGroup.blocksRaycasts = false;
         }
     }
 
     private void Start()
     {
-        if (fadeInOnStart) StartCoroutine(FadeFromBlack());
+        if (fadeInOnStart && fadeCanvasGroup != null)
+        {
+            StartCoroutine(FadeFromBlack());
+        }
     }
 
     public void FadeAndLoadScene()
     {
-        if (_isChangingScene) return;
-        _isChangingScene = true;
+        FadeAndLoadScene(sceneName);
+    }
 
-        if (button != null) button.interactable = false;
+    public void FadeAndLoadScene(string targetSceneName)
+    {
+        if (isChangingScene)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(targetSceneName))
+        {
+            Debug.LogWarning("No se ha asignado ninguna escena para cargar.", this);
+            return;
+        }
+
+        sceneName = targetSceneName;
+        isChangingScene = true;
+
+        if (button != null)
+        {
+            button.interactable = false;
+        }
 
         StartCoroutine(FadeToBlack());
     }
@@ -59,18 +86,29 @@ public class FadeSceneLoader : MonoBehaviour
 
     private IEnumerator FadeToBlack()
     {
-        fadeCanvasGroup.blocksRaycasts = true;
+        if (fadeCanvasGroup != null)
+        {
+            fadeCanvasGroup.blocksRaycasts = true;
+        }
 
         float timer = 0f;
 
-        while (timer < fadeDuration) 
+        while (timer < fadeDuration)
         {
             timer += Time.deltaTime;
-            fadeCanvasGroup.alpha = Mathf.Clamp01(timer / fadeDuration);
+
+            if (fadeCanvasGroup != null)
+            {
+                fadeCanvasGroup.alpha = Mathf.Clamp01(timer / fadeDuration);
+            }
+
             yield return null;
         }
 
-        fadeCanvasGroup.alpha = 1f;
+        if (fadeCanvasGroup != null)
+        {
+            fadeCanvasGroup.alpha = 1f;
+        }
 
         SceneManager.LoadScene(sceneName);
     }

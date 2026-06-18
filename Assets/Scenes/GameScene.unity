@@ -527,6 +527,7 @@ GameObject:
   - component: {fileID: 79781927}
   - component: {fileID: 79781930}
   - component: {fileID: 79781931}
+  - component: {fileID: 79781932}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -617,6 +618,103 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mouseSensitivity: 500
   camera: {fileID: 330585545}
+--- !u!82 &79781932
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 79781924}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 701219dd28f7f9740a4cbd61a1267aac, type: 3}
+  m_PlayOnAwake: 1
+  m_Volume: 0.1
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &105048523
 GameObject:
   m_ObjectHideFlags: 0
@@ -1199,6 +1297,11 @@ MonoBehaviour:
   spawnPosition: {x: 0, y: 0, z: 0}
   playerPosition: {x: 0, y: 0, z: 0}
   textEndWave: {fileID: 755964129}
+  progressWarning: {fileID: 189607808282377275}
+  victoryMessage: "La cocina est\xE1 LIMPIA!"
+  victoryMessageTime: 2
+  fadeSceneLoader: {fileID: 706451448}
+  victorySceneName: VictoryScene
 --- !u!4 &133579869
 Transform:
   m_ObjectHideFlags: 0
@@ -16706,6 +16809,7 @@ MonoBehaviour:
   rat: {fileID: 367677062}
   incrementMultiplier: 1.8
   maxRatsPerWave: 50
+  wavesToWin: 2
 --- !u!1 &1643778618 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7119553889160283206, guid: 507be897e1af5eb4f939ec009324e856, type: 3}
@@ -21952,6 +22056,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8650901270763598234, guid: 124bb7689e7ca82489eac8c0535a2478, type: 3}
   m_PrefabInstance: {fileID: 189607808282377272}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &189607808282377275 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7984525561507846922, guid: 124bb7689e7ca82489eac8c0535a2478, type: 3}
+  m_PrefabInstance: {fileID: 189607808282377272}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 755964129}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &193650479518532099
 MonoBehaviour:
   m_ObjectHideFlags: 0

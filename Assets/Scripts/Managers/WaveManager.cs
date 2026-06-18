@@ -28,11 +28,15 @@ public class WaveManager : MonoBehaviour
     int increment;
     [SerializeField] float incrementMultiplier = 1.8f; //Multiplicador del incremento
     [SerializeField] int maxRatsPerWave = 50;//Número máximo de ratas que puede haber por oleada
+    [SerializeField] int wavesToWin = 10; //Número de oleadas que hay que superar para ganar
 
     public int activeRats { get; private set; }
     public int CurrentWave => currentWave;
+    public int WavesToWin => wavesToWin;
+    public bool VictoryReached { get; private set; }
     public bool waveDirtyFlag { get; private set; }
     public event Action<int> WaveChanged;
+    public event Action VictoryReachedEvent;
 
     private void Start()
     {
@@ -123,6 +127,23 @@ public class WaveManager : MonoBehaviour
         rat.Active = false;
         activeRats--;
         waveDirtyFlag = true;
+    }
+
+    public bool CanTriggerVictory()
+    {
+        return !VictoryReached && currentWave >= wavesToWin && activeRats <= 0;
+    }
+
+    public void TriggerVictory()
+    {
+        if (VictoryReached)
+        {
+            return;
+        }
+
+        VictoryReached = true;
+        waveDirtyFlag = true;
+        VictoryReachedEvent?.Invoke();
     }
 
     public void ResetDirtyFlag()

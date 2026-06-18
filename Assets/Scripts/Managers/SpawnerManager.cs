@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 
 public class SpawnerManager : MonoBehaviour
 {
@@ -30,6 +32,13 @@ public class SpawnerManager : MonoBehaviour
     float timer = 5f;
 
     public GameObject textEndWave;
+    [SerializeField] private TextMeshProUGUI progressWarning;
+    [SerializeField] private string victoryMessage = "VICTORIA";
+    [SerializeField] private float victoryMessageTime = 2f;
+    [SerializeField] private FadeSceneLoader fadeSceneLoader;
+    [SerializeField] private string victorySceneName = "VictoryScene";
+
+    private bool gameFinished;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
@@ -113,6 +122,11 @@ public class SpawnerManager : MonoBehaviour
 
     public void CheckIfWaveIsOver()
     {
+        if (gameFinished)
+        {
+            return;
+        }
+
         Debug.Log($"CheckIfWaveIsOver | ratas activas: {waveManager.ratsPerWave.Count(r => r != null && r.Active)}");
 
         //En caso de querer que las oleadas terminen en un determinado número, para dar paso a un jefe, se podrá poner aquí un 
@@ -142,10 +156,45 @@ public class SpawnerManager : MonoBehaviour
             return;
         }
 
+        if (waveManager.CanTriggerVictory())
+        {
+            gameFinished = true;
+            waveManager.TriggerVictory();
+            StartCoroutine(ShowVictoryAndLoadScene());
+            return;
+        }
+
         StartCoroutine(ShowOnEndOfWave());
         waveManager.ratsPerWave.Clear();
         waveManager.WaveCreation();
         StartCoroutine(Wave());
+    }
+
+    private IEnumerator ShowVictoryAndLoadScene()
+    {
+        if (textEndWave != null)
+        {
+            textEndWave.SetActive(false);
+        }
+
+        if (progressWarning != null)
+        {
+            progressWarning.gameObject.SetActive(true);
+            progressWarning.text = victoryMessage;
+        }
+
+        Debug.Log("Victoria: se han completado todas las oleadas.");
+
+        yield return new WaitForSeconds(victoryMessageTime);
+
+        if (fadeSceneLoader != null)
+        {
+            fadeSceneLoader.FadeAndLoadScene(victorySceneName);
+        }
+        else
+        {
+            SceneManager.LoadScene(victorySceneName);
+        }
     }
 
     private IEnumerator ShowOnEndOfWave() //Función, cuya finalidad es la de mostrar un letrero que indique el final de una ronda
@@ -157,6 +206,11 @@ public class SpawnerManager : MonoBehaviour
 
     private void Update()
     {
+        if (gameFinished)
+        {
+            return;
+        }
+
         if (timer > 0f)
         {
             timer -= Time.deltaTime;
