@@ -16451,7 +16451,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.12, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5920780595524939978}
@@ -16497,6 +16497,11 @@ MonoBehaviour:
   actionFromAnimationEvent: 0
   stateActionImpactDelay: 0.15
   debugCombat: 0
+  animatorOverride: {fileID: 0}
+  walkingParameter: isWalking
+  actionTriggerOverride: 
+  forceAlwaysAnimate: 1
+  debugAnimation: 0
   animator: {fileID: 0}
   navAgent: {fileID: 526593760803244666}
   player: {fileID: 0}
