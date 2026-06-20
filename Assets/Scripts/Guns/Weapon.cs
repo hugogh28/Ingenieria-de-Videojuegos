@@ -1,7 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Weapon : MonoBehaviour, IInteractable
@@ -26,10 +24,18 @@ public class Weapon : MonoBehaviour, IInteractable
     [Header("Visuals")]
     public GameObject muzzleEffect;
     internal Animator animator;
+    [SerializeField] private string shootTriggerName = "Shoot";
+    [SerializeField] private string reloadTriggerName = "Reload";
+    [SerializeField] private string handsShootTriggerName = "Shoot";
+    [SerializeField] private string handsReloadTriggerName = "Reload";
+    private PlayerController playerController;
 
     [Header("Reload")]
     public float reloadTime;
     public int magazineSize, bulletsLeft;
+
+    [Header("Reload Bucket")]
+    [SerializeField] private Renderer[] bucketRenderers;
     
     private float minAmmoLevel, maxAmmoLevel, currentPotatoLevel, drainPerBullet;
     private Coroutine reloadRoutine;
@@ -70,6 +76,17 @@ public class Weapon : MonoBehaviour, IInteractable
     public int burstBulletsLeft;
     public Transform potatoAmmo;
 
+    [Header("Animation Event Particles")]
+    [SerializeField] private Transform smokeSpawnPoint;
+    [SerializeField] private GameObject smokePrefab;
+    [SerializeField] private ParticleSystem potatosParticleSystem;
+
+    [Header("Sounds")]
+    [SerializeField] private List<AudioClip> moveWeaponSounds;
+    [SerializeField] private AudioClip potatoRefillSound;
+    [SerializeField] private AudioClip pressureSound;
+    private AudioSource _source;
+
     public string InteractionActionText => $"recoger {GetInteractionWeaponName()}";
 
     private void Awake()
@@ -77,6 +94,8 @@ public class Weapon : MonoBehaviour, IInteractable
         readyToShoot = true;
         burstBulletsLeft = bulletsPerBurst;
         animator = GetComponent<Animator>();
+        playerController = FindFirstObjectByType<PlayerController>();
+        _source = GetComponent<AudioSource>();
 
         bulletsLeft = magazineSize;
 
@@ -88,6 +107,8 @@ public class Weapon : MonoBehaviour, IInteractable
             currentPotatoLevel = maxAmmoLevel;
             drainPerBullet = (maxAmmoLevel - minAmmoLevel) / magazineSize;
         }
+
+        HideBucket();
         // SoundManager.Instance.PlayIdleSound(weaponModel);
     }
 
@@ -101,6 +122,18 @@ public class Weapon : MonoBehaviour, IInteractable
                 foreach (Transform child2 in child)
                 {
                     child2.gameObject.layer = LayerMask.NameToLayer("WeaponRender");
+                    foreach (Transform child3 in child2)
+                    {
+                        child3.gameObject.layer = LayerMask.NameToLayer("WeaponRender");
+                        foreach (Transform child4 in child3)
+                        {
+                            child4.gameObject.layer = LayerMask.NameToLayer("WeaponRender");
+                            foreach (Transform child5 in child4)
+                            {
+                                child5.gameObject.layer = LayerMask.NameToLayer("WeaponRender");
+                            }
+                        }
+                    }
                 }
             }
 
@@ -192,18 +225,14 @@ public class Weapon : MonoBehaviour, IInteractable
     private void FireWeapon()
     {
         bulletsLeft--;
-        
-        muzzleEffect.GetComponent<ParticleSystem>().Play();
 
-        animator.SetTrigger("recoil");
+        SetAnimatorTrigger(animator, shootTriggerName);
+        playerController?.TriggerHandsAnimation(handsShootTriggerName);
 
         if (weaponModel == WeaponModel.Lanzapatatas || weaponModel == WeaponModel.CañonSalado)
         {
             DrainPotatos();
         }
-
-        SoundManager.Instance.PlayShootingSound(weaponModel);
-        GameFeelManager.Instance.PlayShotFeedback();
 
         readyToShoot = false;
 
@@ -241,7 +270,9 @@ public class Weapon : MonoBehaviour, IInteractable
         isReloading = true;
         SoundManager.Instance.PlayReloadSound(weaponModel);
 
-        animator.SetTrigger("reload");
+        ShowBucket();
+        SetAnimatorTrigger(animator, reloadTriggerName);
+        playerController?.TriggerHandsAnimation(handsReloadTriggerName);
 
         if (weaponModel == WeaponModel.Lanzapatatas || weaponModel == WeaponModel.CañonSalado)
         {
@@ -255,6 +286,7 @@ public class Weapon : MonoBehaviour, IInteractable
     {
         bulletsLeft = magazineSize;
         isReloading = false;
+        HideBucket();
     }
 
     private void ResetShot()
@@ -329,5 +361,102 @@ public class Weapon : MonoBehaviour, IInteractable
     {
         yield return new WaitForSeconds(delay);
         Destroy(bullet);
+    }
+
+    public void ShowBucket()
+    {
+        SetBucketVisible(true);
+    }
+
+    public void HideBucket()
+    {
+        SetBucketVisible(false);
+    }
+
+    private void SetBucketVisible(bool visible)
+    {
+        if (bucketRenderers == null)
+        {
+            return;
+        }
+
+        foreach (Renderer bucketRenderer in bucketRenderers)
+        {
+            if (bucketRenderer != null)
+            {
+                bucketRenderer.enabled = visible;
+            }
+        }
+    }
+
+    public void SpawnFireSmokeParticles()
+    {
+        SpawnSmokePrefabAtTransform(smokePrefab, smokeSpawnPoint);
+    }
+    
+    public void SpawnReloadPotatoParticles()
+    {
+        if (potatosParticleSystem == null) GetComponentInChildren<ParticleSystem>().Play();
+        else potatosParticleSystem.Play();
+    }
+
+    public void SpawnMuzzleFlash()
+    {
+        SpawnSmokePrefabAtTransform(muzzleEffect, bulletSpawn);
+    }
+
+    public void PlayShootSound()
+    {
+        SoundManager.Instance.PlayShootingSound(weaponModel);
+        GameFeelManager.Instance.PlayShotFeedback();
+    }
+
+    public void PlayPotatoSound()
+    {
+        if (_source == null) return;
+        _source.PlayOneShot(potatoRefillSound);
+    }
+
+    public void PlayWeaponMoveSound()
+    {
+        if (_source == null) return;
+        int rnd = Random.Range(0, moveWeaponSounds.Count - 1);
+        _source.PlayOneShot(moveWeaponSounds[rnd]);
+    }
+
+    public void PlayPressureSound()
+    {
+        if (_source == null) return;
+        _source.PlayOneShot(pressureSound);
+    }
+
+    private void SpawnSmokePrefabAtTransform(GameObject smokePrefab, Transform spawnPoint)
+    {
+        if (smokePrefab == null || spawnPoint == null)
+        {
+            return;
+        }
+
+        GameObject particleInstance = Instantiate(smokePrefab, spawnPoint.position, spawnPoint.rotation);
+        ParticleSystem particleSystem = particleInstance.GetComponentInChildren<ParticleSystem>();
+
+        if (particleSystem == null)
+        {
+            Destroy(particleInstance, 5f);
+            return;
+        }
+
+        ParticleSystem.MainModule main = particleSystem.main;
+        Destroy(particleInstance, main.duration + main.startLifetime.constantMax);
+    }
+
+    private void SetAnimatorTrigger(Animator targetAnimator, string triggerName)
+    {
+        if (targetAnimator == null || string.IsNullOrEmpty(triggerName))
+        {
+            return;
+        }
+
+        targetAnimator.SetTrigger(triggerName);
     }
 }

@@ -22,6 +22,18 @@ public class PlayerController : MonoBehaviour, IHealth
     private PlayerCameraMotion cameraMotion;
     private float lastAirVerticalVelocity;
 
+    [Header("Weapon Animation")]
+    [SerializeField] private Animator handsAnimator;
+    [SerializeField] private bool syncActiveWeaponAnimator = true;
+    [SerializeField] private float lookAnimationSensitivity = 0.08f;
+    [SerializeField] private float lookAnimationReturnSpeed = 8f;
+    [SerializeField] private string hasWeaponParameter = "HasWeapon";
+    [SerializeField] private string groundedParameter = "Grounded";
+    [SerializeField] private string speedParameter = "Speed";
+    [SerializeField] private string verticalSpeedParameter = "VerticalSpeed";
+    [SerializeField] private string lookXParameter = "LookX";
+    private float lookX;
+
     [Header("SceneChange")]
     public FadeSceneLoader fadeSceneLoader;
 
@@ -134,6 +146,7 @@ public class PlayerController : MonoBehaviour, IHealth
 
         float movementAmount = Mathf.Clamp01(new Vector2(x, z).magnitude);
         cameraMotion?.SetMovementState(isGrounded, isMoving, velocity.y, movementAmount);
+        UpdateWeaponAnimationParameters(movementAmount);
     }
 
     public void TakeDamage(float damage)
@@ -272,6 +285,79 @@ public class PlayerController : MonoBehaviour, IHealth
     {
         fadeSceneLoader.sceneName = "DeathScene";
         fadeSceneLoader.FadeAndLoadScene();
+    }
+
+    public void TriggerHandsAnimation(string triggerName)
+    {
+        if (handsAnimator == null || string.IsNullOrEmpty(triggerName))
+        {
+            return;
+        }
+
+        handsAnimator.SetTrigger(triggerName);
+    }
+
+    private void UpdateWeaponAnimationParameters(float movementAmount)
+    {
+        Weapon activeWeapon = GetActiveWeapon();
+        Animator activeWeaponAnimator = syncActiveWeaponAnimator && activeWeapon != null ? activeWeapon.animator : null;
+        bool hasWeapon = activeWeapon != null && activeWeapon.isActiveWeapon;
+
+        float mouseX = Input.GetAxis("Mouse X");
+        float targetLookX = Mathf.Abs(mouseX) < 0.01f
+            ? 0f
+            : Mathf.Clamp(mouseX * lookAnimationSensitivity, -1f, 1f);
+
+        lookX = Mathf.Lerp(lookX, targetLookX, Time.deltaTime * lookAnimationReturnSpeed);
+
+        SetAnimatorBool(handsAnimator, hasWeaponParameter, hasWeapon);
+        SetAnimatorBool(handsAnimator, groundedParameter, isGrounded);
+        SetAnimatorFloat(handsAnimator, speedParameter, movementAmount);
+        SetAnimatorFloat(handsAnimator, verticalSpeedParameter, velocity.y);
+        SetAnimatorFloat(handsAnimator, lookXParameter, lookX);
+
+        SetAnimatorBool(activeWeaponAnimator, hasWeaponParameter, hasWeapon);
+        SetAnimatorBool(activeWeaponAnimator, groundedParameter, isGrounded);
+        SetAnimatorFloat(activeWeaponAnimator, speedParameter, movementAmount);
+        SetAnimatorFloat(activeWeaponAnimator, verticalSpeedParameter, velocity.y);
+        SetAnimatorFloat(activeWeaponAnimator, lookXParameter, lookX);
+    }
+
+    private Weapon GetActiveWeapon()
+    {
+        if (WeaponManager.Instance == null || WeaponManager.Instance.activeWeaponSlot == null)
+        {
+            return null;
+        }
+
+        Transform activeSlot = WeaponManager.Instance.activeWeaponSlot.transform;
+
+        if (activeSlot.childCount <= 0)
+        {
+            return null;
+        }
+
+        return activeSlot.GetChild(0).GetComponent<Weapon>();
+    }
+
+    private void SetAnimatorBool(Animator targetAnimator, string parameterName, bool value)
+    {
+        if (targetAnimator == null || string.IsNullOrEmpty(parameterName))
+        {
+            return;
+        }
+
+        targetAnimator.SetBool(parameterName, value);
+    }
+
+    private void SetAnimatorFloat(Animator targetAnimator, string parameterName, float value)
+    {
+        if (targetAnimator == null || string.IsNullOrEmpty(parameterName))
+        {
+            return;
+        }
+
+        targetAnimator.SetFloat(parameterName, value);
     }
 
 #if UNITY_EDITOR
