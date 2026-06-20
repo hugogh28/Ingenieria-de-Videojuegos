@@ -32602,6 +32602,14 @@ MonoBehaviour:
   shootingDelay: 0.8
   bulletsPerBurst: 1
   spreadIntensity: 0
+  fireDelay: 0.1
+  shotMask:
+    serializedVersion: 2
+    m_Bits: 863
+  shotRange: 100
+  shotTriggerInteraction: 1
+  debugShotRay: 0
+  spawnRaycastImpact: 0
   bulletPrefab: {fileID: 7986737223097620403, guid: 4c3c8fa4a804f9441bad9d0d07183454, type: 3}
   bulletSpawn: {fileID: 303835067906941950}
   bulletVelocity: 500

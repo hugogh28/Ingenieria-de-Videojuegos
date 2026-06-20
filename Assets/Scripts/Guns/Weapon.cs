@@ -1,5 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Weapon : MonoBehaviour, IInteractable
@@ -14,6 +17,16 @@ public class Weapon : MonoBehaviour, IInteractable
     public float shootingDelay = 2f;
     public int bulletsPerBurst = 1;
     public float spreadIntensity;
+
+    [Header("Fire Delay")]
+    [SerializeField, Min(0f)] private float fireDelay = 0f;
+
+    [Header("Raycast Damage")]
+    [SerializeField] private LayerMask shotMask = ~0;
+    [SerializeField] private float shotRange = 100f;
+    [SerializeField] private QueryTriggerInteraction shotTriggerInteraction = QueryTriggerInteraction.Ignore;
+    [SerializeField] private bool debugShotRay = false;
+    [SerializeField] private bool spawnRaycastImpact = false;
 
     [Header("Bullet Properties")]
     public GameObject bulletPrefab;
@@ -36,9 +49,10 @@ public class Weapon : MonoBehaviour, IInteractable
 
     [Header("Reload Bucket")]
     [SerializeField] private Renderer[] bucketRenderers;
-    
+
     private float minAmmoLevel, maxAmmoLevel, currentPotatoLevel, drainPerBullet;
     private Coroutine reloadRoutine;
+    private Coroutine fireRoutine;
 
     [Header("Weapon Type")]
     public WeaponModel weaponModel;
@@ -82,10 +96,10 @@ public class Weapon : MonoBehaviour, IInteractable
     [SerializeField] private ParticleSystem potatosParticleSystem;
 
     [Header("Sounds")]
+    private AudioSource _source;
     [SerializeField] private List<AudioClip> moveWeaponSounds;
     [SerializeField] private AudioClip potatoRefillSound;
     [SerializeField] private AudioClip pressureSound;
-    private AudioSource _source;
 
     public string InteractionActionText => $"recoger {GetInteractionWeaponName()}";
 
@@ -122,18 +136,6 @@ public class Weapon : MonoBehaviour, IInteractable
                 foreach (Transform child2 in child)
                 {
                     child2.gameObject.layer = LayerMask.NameToLayer("WeaponRender");
-                    foreach (Transform child3 in child2)
-                    {
-                        child3.gameObject.layer = LayerMask.NameToLayer("WeaponRender");
-                        foreach (Transform child4 in child3)
-                        {
-                            child4.gameObject.layer = LayerMask.NameToLayer("WeaponRender");
-                            foreach (Transform child5 in child4)
-                            {
-                                child5.gameObject.layer = LayerMask.NameToLayer("WeaponRender");
-                            }
-                        }
-                    }
                 }
             }
 
@@ -153,7 +155,7 @@ public class Weapon : MonoBehaviour, IInteractable
                 isShooting = Input.GetKeyDown(KeyCode.Mouse0);
             }
 
-            if (Input.GetKeyDown(KeyCode.R) && bulletsLeft < magazineSize && isReloading == false)
+            if (Input.GetKeyDown(KeyCode.R) && bulletsLeft < magazineSize && isReloading == false && readyToShoot)
             {
                 Reload();
             }
@@ -224,49 +226,286 @@ public class Weapon : MonoBehaviour, IInteractable
 
     private void FireWeapon()
     {
-        bulletsLeft--;
+        if (!CanStartFireSequence())
+        {
+            return;
+        }
 
-        SetAnimatorTrigger(animator, shootTriggerName);
-        playerController?.TriggerHandsAnimation(handsShootTriggerName);
+        if (fireRoutine != null)
+        {
+            StopCoroutine(fireRoutine);
+        }
+
+        fireRoutine = StartCoroutine(FireSequenceRoutine());
+    }
+
+    private IEnumerator FireSequenceRoutine()
+    {
+        readyToShoot = false;
+        allowReset = false;
+
+        int shotsToFire = currentShootingMode == ShootingMode.Burst
+            ? Mathf.Max(1, bulletsPerBurst)
+            : 1;
+
+        burstBulletsLeft = shotsToFire;
+
+        for (int i = 0; i < shotsToFire; i++)
+        {
+            if (!CanPerformShot())
+            {
+                break;
+            }
+
+            SetAnimatorTrigger(animator, shootTriggerName);
+            playerController?.TriggerHandsAnimation(handsShootTriggerName);
+
+            if (fireDelay > 0f)
+            {
+                yield return new WaitForSeconds(fireDelay);
+            }
+
+            if (!CanPerformShot())
+            {
+                break;
+            }
+
+            PerformShot();
+            burstBulletsLeft = Mathf.Max(0, burstBulletsLeft - 1);
+
+            bool shouldContinueBurst = currentShootingMode == ShootingMode.Burst
+                && i < shotsToFire - 1
+                && bulletsLeft > 0;
+
+            if (!shouldContinueBurst)
+            {
+                break;
+            }
+
+            float timeUntilNextTrigger = Mathf.Max(0f, shootingDelay - fireDelay);
+
+            if (timeUntilNextTrigger > 0f)
+            {
+                yield return new WaitForSeconds(timeUntilNextTrigger);
+            }
+        }
+
+        float resetDelay = Mathf.Max(0f, shootingDelay - fireDelay);
+
+        if (resetDelay > 0f)
+        {
+            yield return new WaitForSeconds(resetDelay);
+        }
+
+        ResetShot();
+        fireRoutine = null;
+    }
+
+    private bool CanStartFireSequence()
+    {
+        return isActiveWeapon
+            && readyToShoot
+            && !isReloading
+            && bulletsLeft > 0
+            && bulletSpawn != null;
+    }
+
+    private bool CanPerformShot()
+    {
+        return isActiveWeapon
+            && !isReloading
+            && bulletsLeft > 0
+            && bulletSpawn != null;
+    }
+
+    private void PerformShot()
+    {
+        bulletsLeft--;
 
         if (weaponModel == WeaponModel.Lanzapatatas || weaponModel == WeaponModel.CañonSalado)
         {
             DrainPotatos();
         }
 
-        readyToShoot = false;
-
         Vector3 shootingDirection = CalculateDirectionAndSpread().normalized;
-        
-        GameObject bullet = Instantiate(bulletPrefab, bulletSpawn.position, Quaternion.identity);
 
-        Bullet bul = bullet.GetComponent<Bullet>();
-        bul.dmg = weaponDamage;
-        bul.criticalChance = criticalChance;
-        bul.criticalMultiplier = criticalMultiplier;
-        bul.pointsGivenOnRatHit = pointsGivenOnRatHit;
+        ApplyRaycastDamage(shootingDirection);
+        SpawnVisualBullet(shootingDirection);
+    }
 
-        bullet.transform.forward = shootingDirection;
+    private void ApplyRaycastDamage(Vector3 shootingDirection)
+    {
+        if (bulletSpawn == null)
+        {
+            return;
+        }
 
-        bullet.GetComponent<Rigidbody>().AddForce(shootingDirection * bulletVelocity, ForceMode.Impulse);
+        RaycastHit[] hits = Physics.RaycastAll(
+            bulletSpawn.position,
+            shootingDirection,
+            shotRange,
+            shotMask,
+            shotTriggerInteraction
+        );
+
+        Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (RaycastHit hit in hits)
+        {
+            if (ShouldIgnoreHit(hit.collider))
+            {
+                continue;
+            }
+
+            if (debugShotRay)
+            {
+                Debug.DrawLine(bulletSpawn.position, hit.point, Color.red, 1f);
+            }
+
+            BasicRat rat = hit.collider.GetComponentInParent<BasicRat>();
+
+            if (rat != null)
+            {
+                bool isCritical = UnityEngine.Random.value < criticalChance;
+                float finalDamage = isCritical ? weaponDamage * criticalMultiplier : weaponDamage;
+
+                rat.TakeDamage(finalDamage, isCritical, hit.point);
+                GivePointsForRatHit();
+                return;
+            }
+
+            ShatterDestruction shatter = hit.collider.GetComponentInParent<ShatterDestruction>();
+
+            if (shatter != null)
+            {
+                shatter.Shatter();
+            }
+
+            if (spawnRaycastImpact)
+            {
+                CreateRaycastImpactEffect(hit);
+            }
+
+            return;
+        }
+
+        if (debugShotRay)
+        {
+            Debug.DrawRay(bulletSpawn.position, shootingDirection * shotRange, Color.red, 1f);
+        }
+    }
+
+    private void SpawnVisualBullet(Vector3 shootingDirection)
+    {
+        if (bulletPrefab == null || bulletSpawn == null)
+        {
+            return;
+        }
+
+        GameObject bullet = Instantiate(
+            bulletPrefab,
+            bulletSpawn.position,
+            Quaternion.LookRotation(shootingDirection)
+        );
+
+        Bullet bulletDamage = bullet.GetComponent<Bullet>();
+
+        if (bulletDamage != null)
+        {
+            bulletDamage.dmg = 0f;
+            bulletDamage.criticalChance = 0f;
+            bulletDamage.criticalMultiplier = 1f;
+            bulletDamage.pointsGivenOnRatHit = 0;
+        }
+
+        Rigidbody rb = bullet.GetComponent<Rigidbody>();
+
+        if (rb != null)
+        {
+            rb.AddForce(shootingDirection * bulletVelocity, ForceMode.Impulse);
+        }
 
         StartCoroutine(DestroyBulletAfterTime(bullet, bulletPrefabLifeTime));
+    }
 
-        if (allowReset)
+    private void GivePointsForRatHit()
+    {
+        if (pointsGivenOnRatHit <= 0)
         {
-            Invoke("ResetShot", shootingDelay);
-            allowReset = false;
+            return;
         }
 
-        if (currentShootingMode == ShootingMode.Burst && burstBulletsLeft > 1)
+        PlayerController player = playerController;
+
+        if (player == null)
         {
-            burstBulletsLeft--;
-            Invoke("FireWeapon", shootingDelay);
+            GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+
+            if (playerObject != null)
+            {
+                player = playerObject.GetComponent<PlayerController>();
+
+                if (player == null)
+                {
+                    player = playerObject.GetComponentInParent<PlayerController>();
+                }
+
+                if (player == null)
+                {
+                    player = playerObject.GetComponentInChildren<PlayerController>();
+                }
+            }
         }
+
+        if (player != null)
+        {
+            player.AddPoints(pointsGivenOnRatHit);
+        }
+    }
+
+    private void CreateRaycastImpactEffect(RaycastHit hit)
+    {
+        if (GlobalReferences.Instance == null || GlobalReferences.Instance.bulletImpactEffectPrefab == null)
+        {
+            return;
+        }
+
+        GameObject hole = Instantiate(
+            GlobalReferences.Instance.bulletImpactEffectPrefab,
+            hit.point,
+            Quaternion.LookRotation(hit.normal)
+        );
+
+        hole.transform.SetParent(hit.collider.transform);
+    }
+
+    private bool ShouldIgnoreHit(Collider hitCollider)
+    {
+        if (hitCollider == null)
+        {
+            return true;
+        }
+
+        if (hitCollider.transform.IsChildOf(transform))
+        {
+            return true;
+        }
+
+        if (playerController != null && hitCollider.transform.IsChildOf(playerController.transform))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private void Reload()
     {
+        if (!readyToShoot || isReloading)
+        {
+            return;
+        }
+
         isReloading = true;
         SoundManager.Instance.PlayReloadSound(weaponModel);
 
@@ -336,17 +575,28 @@ public class Weapon : MonoBehaviour, IInteractable
 
     public Vector3 CalculateDirectionAndSpread()
     {
-        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        RaycastHit hit;
+        Camera mainCamera = Camera.main;
 
-        Vector3 targetPoint;
-        if (Physics.Raycast(ray, out hit))
+        if (mainCamera == null || bulletSpawn == null)
         {
-            targetPoint = hit.point;
+            return transform.forward;
         }
-        else
+
+        Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        RaycastHit[] hits = Physics.RaycastAll(ray, shotRange, shotMask, shotTriggerInteraction);
+        Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        Vector3 targetPoint = ray.GetPoint(shotRange);
+
+        foreach (RaycastHit hit in hits)
         {
-            targetPoint = ray.GetPoint(100);
+            if (ShouldIgnoreHit(hit.collider))
+            {
+                continue;
+            }
+
+            targetPoint = hit.point;
+            break;
         }
 
         Vector3 direction = targetPoint - bulletSpawn.position;
@@ -354,13 +604,19 @@ public class Weapon : MonoBehaviour, IInteractable
         float x = UnityEngine.Random.Range(-spreadIntensity, spreadIntensity);
         float y = UnityEngine.Random.Range(-spreadIntensity, spreadIntensity);
 
-        return direction + new Vector3(x, y, 0);
+        Vector3 spread = mainCamera.transform.right * x + mainCamera.transform.up * y;
+
+        return direction + spread;
     }
 
     private IEnumerator DestroyBulletAfterTime(GameObject bullet, float delay)
     {
         yield return new WaitForSeconds(delay);
-        Destroy(bullet);
+
+        if (bullet != null)
+        {
+            Destroy(bullet);
+        }
     }
 
     public void ShowBucket()
@@ -393,11 +649,20 @@ public class Weapon : MonoBehaviour, IInteractable
     {
         SpawnSmokePrefabAtTransform(smokePrefab, smokeSpawnPoint);
     }
-    
+
     public void SpawnReloadPotatoParticles()
     {
-        if (potatosParticleSystem == null) GetComponentInChildren<ParticleSystem>().Play();
-        else potatosParticleSystem.Play();
+        ParticleSystem particleSystem = potatosParticleSystem;
+
+        if (particleSystem == null)
+        {
+            particleSystem = GetComponentInChildren<ParticleSystem>();
+        }
+
+        if (particleSystem != null)
+        {
+            particleSystem.Play();
+        }
     }
 
     public void SpawnMuzzleFlash()
@@ -413,20 +678,32 @@ public class Weapon : MonoBehaviour, IInteractable
 
     public void PlayPotatoSound()
     {
-        if (_source == null) return;
+        if (_source == null || potatoRefillSound == null)
+        {
+            return;
+        }
+
         _source.PlayOneShot(potatoRefillSound);
     }
 
     public void PlayWeaponMoveSound()
     {
-        if (_source == null) return;
-        int rnd = Random.Range(0, moveWeaponSounds.Count - 1);
+        if (_source == null || moveWeaponSounds == null || moveWeaponSounds.Count == 0)
+        {
+            return;
+        }
+
+        int rnd = UnityEngine.Random.Range(0, moveWeaponSounds.Count);
         _source.PlayOneShot(moveWeaponSounds[rnd]);
     }
 
     public void PlayPressureSound()
     {
-        if (_source == null) return;
+        if (_source == null || pressureSound == null)
+        {
+            return;
+        }
+
         _source.PlayOneShot(pressureSound);
     }
 
