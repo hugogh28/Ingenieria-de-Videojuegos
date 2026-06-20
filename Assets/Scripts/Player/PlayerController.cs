@@ -134,6 +134,11 @@ public class PlayerController : MonoBehaviour, IHealth
 
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
+            handsAnimator.SetTrigger("Jump");
+            if (GetActiveWeapon() != null)
+            {
+                GetActiveWeapon().animator.SetTrigger("Jump");
+            }
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
             cameraMotion?.PlayJumpImpulse();
         }
