@@ -1,0 +1,362 @@
+fileFormatVersion: 2
+guid: 1a76c3ae489abb74eb397713f87ef116
+ModelImporter:
+  serializedVersion: 22200
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: LOGO.001
+    second: {fileID: 2100000, guid: 1546b579ff67e7d44b945c58a8e50a8b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material
+    second: {fileID: 2100000, guid: 52e086026eb58d94e979c532f4ebffa9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PUERTA
+    second: {fileID: 2100000, guid: 33ab6010701bb47449127cd1a72c452a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: mesa
+    second: {fileID: 2100000, guid: fed7adb3f3fd7a643903278e0251008d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: metal
+    second: {fileID: 2100000, guid: 24af37e84e732134b81285015760c029, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: pantalla
+    second: {fileID: 2100000, guid: bf5279016b6013a4590e67af9cca0a59, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: paredessotano
+    second: {fileID: 2100000, guid: 259ae7caaa379a245a75c8e368032a5d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: silla2
+    second: {fileID: 2100000, guid: 03bbd08f3b0e61f4fbf721d68e1c641a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sillas
+    second: {fileID: 2100000, guid: 53061e8a48de0c147996f75598a81f4f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: suelosotano
+    second: {fileID: 2100000, guid: ec56962d3c1326f4d859b07d350ca940, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: techo
+    second: {fileID: 2100000, guid: c522e173f484cbc488cab143a3d9c0ff, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: LOGO_BaseColor
+    second: {fileID: 2800000, guid: fe4f3cb525bb8e24c90f5c8403e00a86, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: LOGO_Metallic
+    second: {fileID: 2800000, guid: 34796c4dce43685459977b1126be1979, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: LOGO_Normal
+    second: {fileID: 2800000, guid: bb96636742ec71f4d8b46700e9ff92a7, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: LOGO_Roughness
+    second: {fileID: 2800000, guid: d26a13c21bbb45a4ca132f319e1cfd8c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: PUERTA_BaseColor
+    second: {fileID: 2800000, guid: f30bae03f2ba09f49b2fe8fea3c25f04, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: PUERTA_Metallic
+    second: {fileID: 2800000, guid: c44127a31e22e6d40890c3b9c4c031d3, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: PUERTA_Normal
+    second: {fileID: 2800000, guid: 1034321468940b44db3fc343de16264e, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: PUERTA_Roughness
+    second: {fileID: 2800000, guid: fbc80b8947fce2f49a31ac97f5624190, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: mesa_BaseColor
+    second: {fileID: 2800000, guid: 9e6165c419ae0754a83c15528ea1b65a, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: mesa_Metallic
+    second: {fileID: 2800000, guid: 83f343a0b78d5e541bd2bdfd98ce6bea, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: mesa_Normal
+    second: {fileID: 2800000, guid: 8ed693d54736ba749abe9893ca7b09a4, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: mesa_Roughness
+    second: {fileID: 2800000, guid: 16d009c5bc7e87a438c123a5c00997e9, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: metal_BaseColor
+    second: {fileID: 2800000, guid: 99120eb546705d34da0df2e94d852ac2, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: metal_Metallic
+    second: {fileID: 2800000, guid: 76c9a15eae0adaf4db9c55f1ee24ad3c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: metal_Normal
+    second: {fileID: 2800000, guid: 7467936673efa5d43b0c415712c1c4fc, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: metal_Roughness
+    second: {fileID: 2800000, guid: 8ad4dc98a999acf4abec5dd9e655f45f, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: pantalla_BaseColor
+    second: {fileID: 2800000, guid: a7f824be469c8e14aa3009290e2679bd, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: pantalla_Metallic
+    second: {fileID: 2800000, guid: f786c57e96164f2488d256befa723f60, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: pantalla_Normal
+    second: {fileID: 2800000, guid: 37376f60258fea5448880b4914fee460, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: pantalla_Roughness
+    second: {fileID: 2800000, guid: 07f7e77052995f642a62403b23a8cb40, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: paredessotano_BaseColor
+    second: {fileID: 2800000, guid: 35122a93476f9314d8176b16c41b090f, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: paredessotano_Metallic
+    second: {fileID: 2800000, guid: 0e519f601def1de4bb319bf8647686db, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: paredessotano_Normal
+    second: {fileID: 2800000, guid: 7a092b25c9e8453448a073428ea69661, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: paredessotano_Roughness
+    second: {fileID: 2800000, guid: 0b80975843fc11d4c85fbd8405e6f9d7, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: silla2_BaseColor
+    second: {fileID: 2800000, guid: 7c956cde6f4636d46a1ba7f3d7dfdab3, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: silla2_Metallic
+    second: {fileID: 2800000, guid: 0dbada4beac85ba4b928a117cc7d6023, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: silla2_Normal
+    second: {fileID: 2800000, guid: e327e507757dc614eb6934a082e30fe8, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: silla2_Roughness
+    second: {fileID: 2800000, guid: 86a925f96956cae4b949d8139eb1ee48, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sillas_BaseColor
+    second: {fileID: 2800000, guid: b16dfd5469cbb274eae298647d3c8d63, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sillas_Metallic
+    second: {fileID: 2800000, guid: 2568392c2d921924285ee0c6457e4cdc, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sillas_Normal
+    second: {fileID: 2800000, guid: ca31c78a8476fc04589c87e7632689cb, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sillas_Roughness
+    second: {fileID: 2800000, guid: 64660824c1a081b4ca526669bf88d081, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: suelosotano_BaseColor
+    second: {fileID: 2800000, guid: dd461d6b2c1faed48ae5067cd86940e9, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: suelosotano_Metallic
+    second: {fileID: 2800000, guid: 80b066fd5529eee4dae3cec58cf7cf27, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: suelosotano_Normal
+    second: {fileID: 2800000, guid: 3e432e124157fd84d86173ee90e0244e, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: suelosotano_Roughness
+    second: {fileID: 2800000, guid: 5b2b7b6e00ed0a647a2d8cd11db3b1fd, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: techo_BaseColor
+    second: {fileID: 2800000, guid: 689cb966d96b90d429e8006b02168362, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: techo_Metallic
+    second: {fileID: 2800000, guid: cd3a081cc569ced48b9d310dfdaeb959, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: techo_Normal
+    second: {fileID: 2800000, guid: 0a84b5edc59d90e42a88c910ac76bd6d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: techo_Roughness
+    second: {fileID: 2800000, guid: ff39429f181da844b9755fe108787ea6, type: 3}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    nodeNameCollisionStrategy: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    strictVertexDataChecks: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  importBlendShapeDeformPercent: 1
+  remapMaterialsIfMaterialImportModeIsNone: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

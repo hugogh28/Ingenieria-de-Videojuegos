@@ -28,6 +28,22 @@ public class Bullet : MonoBehaviour
             return;
         }
 
+        TargetDummy target = collision.gameObject.GetComponentInParent<TargetDummy>();
+
+        if (target != null)
+        {
+            bool isCritical = Random.value < criticalChance;
+            float finalDamage = isCritical ? dmg * criticalMultiplier : dmg;
+            Vector3 hitPoint = collision.contacts.Length > 0
+                ? collision.contacts[0].point
+                : collision.transform.position;
+
+            target.TakeDamage(finalDamage, isCritical, hitPoint);
+
+            Destroy(gameObject);
+            return;
+        }
+
         if (collision.gameObject.CompareTag("Target"))
         {
             print("hit " + collision.gameObject.name + "!");

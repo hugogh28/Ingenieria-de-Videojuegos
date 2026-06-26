@@ -1,67 +1,90 @@
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class AjustesAudioSource : MonoBehaviour
 {
     public enum AudioChannel
     {
         Music,
-        Sfx
+        Sfx,
+        MasterOnly
     }
 
     [SerializeField] private AudioChannel channel = AudioChannel.Sfx;
-    [SerializeField] private AudioSource[] audioSources;
-    [Range(0f, 1f)] [SerializeField] private float baseVolume = 1f;
-    [SerializeField] private bool includeChildren = true;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private bool captureInitialVolumeOnAwake = true;
+    [SerializeField] private float baseVolume = 1f;
 
-    private Ajustes ajustes;
+    private Ajustes settings;
 
     private void Awake()
     {
-        if (audioSources == null || audioSources.Length == 0)
+        if (audioSource == null)
         {
-            audioSources = includeChildren
-                ? GetComponentsInChildren<AudioSource>(true)
-                : GetComponents<AudioSource>();
+            audioSource = GetComponent<AudioSource>();
+        }
+
+        if (captureInitialVolumeOnAwake && audioSource != null)
+        {
+            baseVolume = audioSource.volume;
         }
     }
 
     private void OnEnable()
     {
-        ajustes = Ajustes.EnsureExists();
-        ajustes.Changed += ApplyVolume;
+        settings = Ajustes.EnsureExists();
+        settings.Changed += ApplyVolume;
         ApplyVolume();
     }
 
     private void OnDisable()
     {
-        if (ajustes != null)
+        if (settings != null)
         {
-            ajustes.Changed -= ApplyVolume;
+            settings.Changed -= ApplyVolume;
         }
     }
 
     public void ApplyVolume()
     {
-        if (ajustes == null)
-        {
-            ajustes = Ajustes.EnsureExists();
-        }
-
-        float channelVolume = channel == AudioChannel.Music
-            ? ajustes.MusicVolume
-            : ajustes.SfxVolume;
-
-        if (audioSources == null)
+        if (audioSource == null)
         {
             return;
         }
 
-        foreach (AudioSource source in audioSources)
+        if (settings == null)
         {
-            if (source != null)
-            {
-                source.volume = baseVolume * channelVolume;
-            }
+            settings = Ajustes.EnsureExists();
+        }
+
+        float channelVolume = 1f;
+
+        switch (channel)
+        {
+            case AudioChannel.Music:
+                channelVolume = settings.MusicVolume;
+                break;
+            case AudioChannel.Sfx:
+                channelVolume = settings.SfxVolume;
+                break;
+            case AudioChannel.MasterOnly:
+                channelVolume = 1f;
+                break;
+        }
+
+        audioSource.volume = Mathf.Clamp01(baseVolume * channelVolume);
+    }
+
+    public void CaptureCurrentVolumeAsBase()
+    {
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+        }
+
+        if (audioSource != null)
+        {
+            baseVolume = audioSource.volume;
         }
     }
 }

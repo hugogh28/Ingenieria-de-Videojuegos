@@ -18,19 +18,28 @@ public class Ajustes : MonoBehaviour
     private const string ResolutionWidthKey = "settings.resolutionWidth";
     private const string ResolutionHeightKey = "settings.resolutionHeight";
 
+    public const float MaxMouseSensitivity = 500f;
+
     [Header("Valores por defecto")]
     [Range(0f, 1f)] [SerializeField] private float defaultMasterVolume = 1f;
     [Range(0f, 1f)] [SerializeField] private float defaultMusicVolume = 1f;
     [Range(0f, 1f)] [SerializeField] private float defaultSfxVolume = 1f;
-    [SerializeField] private float defaultMouseSensitivity = 100f;
+
+    [Tooltip("Valor normalizado para el slider: 0.0000 a 1.0000. 1.0000 equivale a sensibilidad real 500.")]
+    [Range(0f, 1f)] [SerializeField] private float defaultMouseSensitivity = 1.0000f;
+
     [SerializeField] private bool defaultFullScreen = true;
+
     [Tooltip("-1 usa el nivel de calidad actual del proyecto.")]
     [SerializeField] private int defaultQualityIndex = -1;
 
     private float masterVolume;
     private float musicVolume;
     private float sfxVolume;
-    private float mouseSensitivity;
+
+    // Valor guardado y mostrado por la UI: 0.0000 - 1.0000.
+    private float mouseSensitivity01;
+
     private int qualityIndex;
     private bool fullScreen;
     private int resolutionWidth;
@@ -39,7 +48,14 @@ public class Ajustes : MonoBehaviour
     public float MasterVolume => masterVolume;
     public float MusicVolume => musicVolume;
     public float SfxVolume => sfxVolume;
-    public float MouseSensitivity => mouseSensitivity;
+
+    // Valor para UI y PlayerPrefs: 0.0000 - 1.0000.
+    public float MouseSensitivity01 => mouseSensitivity01;
+
+    // Valor real para la cámara: 0 - 500.
+    public float MouseSensitivity => mouseSensitivity01 * MaxMouseSensitivity;
+    public float MouseSensitivityReal => MouseSensitivity;
+
     public int QualityIndex => qualityIndex;
     public bool FullScreen => fullScreen;
     public int ResolutionWidth => resolutionWidth;
@@ -61,6 +77,7 @@ public class Ajustes : MonoBehaviour
         Ajustes existing = FindFirstObjectByType<Ajustes>();
         if (existing != null)
         {
+            Instance = existing;
             return existing;
         }
 
@@ -106,7 +123,10 @@ public class Ajustes : MonoBehaviour
         masterVolume = PlayerPrefs.GetFloat(MasterVolumeKey, defaultMasterVolume);
         musicVolume = PlayerPrefs.GetFloat(MusicVolumeKey, defaultMusicVolume);
         sfxVolume = PlayerPrefs.GetFloat(SfxVolumeKey, defaultSfxVolume);
-        mouseSensitivity = PlayerPrefs.GetFloat(MouseSensitivityKey, defaultMouseSensitivity);
+
+        // Compatibilidad: si el valor antiguo estaba guardado como 500, se convierte a 1.0000.
+        mouseSensitivity01 = NormalizeMouseSensitivity(PlayerPrefs.GetFloat(MouseSensitivityKey, defaultMouseSensitivity));
+
         qualityIndex = PlayerPrefs.GetInt(QualityKey, defaultQuality);
         fullScreen = PlayerPrefs.GetInt(FullScreenKey, defaultFullScreen ? 1 : 0) == 1;
         resolutionWidth = PlayerPrefs.GetInt(ResolutionWidthKey, currentResolution.width);
@@ -115,7 +135,6 @@ public class Ajustes : MonoBehaviour
         masterVolume = Mathf.Clamp01(masterVolume);
         musicVolume = Mathf.Clamp01(musicVolume);
         sfxVolume = Mathf.Clamp01(sfxVolume);
-        mouseSensitivity = Mathf.Max(1f, mouseSensitivity);
         qualityIndex = Mathf.Clamp(qualityIndex, 0, Mathf.Max(0, QualitySettings.names.Length - 1));
         resolutionWidth = Mathf.Max(1, resolutionWidth);
         resolutionHeight = Mathf.Max(1, resolutionHeight);
@@ -158,10 +177,16 @@ public class Ajustes : MonoBehaviour
         SaveAndNotify();
     }
 
-    public void SetMouseSensitivity(float value)
+    // Recibe el valor del slider: 0.0000 - 1.0000.
+    public void SetMouseSensitivity(float value01)
     {
-        mouseSensitivity = Mathf.Max(1f, value);
+        mouseSensitivity01 = Mathf.Clamp01(value01);
         SaveAndNotify();
+    }
+
+    public void SetMouseSensitivity01(float value01)
+    {
+        SetMouseSensitivity(value01);
     }
 
     public void SetQualityIndex(int index)
@@ -196,7 +221,7 @@ public class Ajustes : MonoBehaviour
         masterVolume = Mathf.Clamp01(defaultMasterVolume);
         musicVolume = Mathf.Clamp01(defaultMusicVolume);
         sfxVolume = Mathf.Clamp01(defaultSfxVolume);
-        mouseSensitivity = Mathf.Max(1f, defaultMouseSensitivity);
+        mouseSensitivity01 = NormalizeMouseSensitivity(defaultMouseSensitivity);
         qualityIndex = defaultQualityIndex >= 0 ? defaultQualityIndex : QualitySettings.GetQualityLevel();
         fullScreen = defaultFullScreen;
 
@@ -219,11 +244,21 @@ public class Ajustes : MonoBehaviour
         PlayerPrefs.SetFloat(MasterVolumeKey, masterVolume);
         PlayerPrefs.SetFloat(MusicVolumeKey, musicVolume);
         PlayerPrefs.SetFloat(SfxVolumeKey, sfxVolume);
-        PlayerPrefs.SetFloat(MouseSensitivityKey, mouseSensitivity);
+        PlayerPrefs.SetFloat(MouseSensitivityKey, mouseSensitivity01);
         PlayerPrefs.SetInt(QualityKey, qualityIndex);
         PlayerPrefs.SetInt(FullScreenKey, fullScreen ? 1 : 0);
         PlayerPrefs.SetInt(ResolutionWidthKey, resolutionWidth);
         PlayerPrefs.SetInt(ResolutionHeightKey, resolutionHeight);
         PlayerPrefs.Save();
+    }
+
+    private float NormalizeMouseSensitivity(float value)
+    {
+        if (value > 1f)
+        {
+            return Mathf.Clamp01(value / MaxMouseSensitivity);
+        }
+
+        return Mathf.Clamp01(value);
     }
 }

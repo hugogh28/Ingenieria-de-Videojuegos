@@ -22,8 +22,8 @@ TagManager:
   - RatPassThough
   - Rat
   - Interactable
-  - 
-  - 
+  - Player
+  - Bullet
   - 
   - 
   - 

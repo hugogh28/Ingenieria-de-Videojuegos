@@ -140,12 +140,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39d987444860d9a4cbf47e14b145c5cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nCommonRatNormal: 50
-  nCommonRatTank: 50
-  nSupportRatNormal: 50
-  nSupportRatTank: 50
-  nShooterRatNormal: 50
-  nShooterRatTank: 50
+  nCommonRatNormal: 200
+  nCommonRatTank: 100
+  nSupportRatNormal: 0
+  nSupportRatTank: 0
+  nShooterRatNormal: 0
+  nShooterRatTank: 0
   poolOfRats:
   - {fileID: 0}
   - {fileID: 0}

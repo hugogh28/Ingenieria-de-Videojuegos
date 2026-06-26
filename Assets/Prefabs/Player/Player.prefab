@@ -792,8 +792,9 @@ GameObject:
   - component: {fileID: 1033009728577027689}
   - component: {fileID: 621327356219847358}
   - component: {fileID: 7324036292991579807}
-  - component: {fileID: 5663175583334014430}
   - component: {fileID: 8470015632336878199}
+  - component: {fileID: 2528381662659664406}
+  - component: {fileID: 5663175583334014430}
   - component: {fileID: 2068389787239264040}
   m_Layer: 0
   m_Name: Player
@@ -810,7 +811,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3732120875472112257}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.4618772, z: -0, w: 0.8869439}
+  m_LocalRotation: {x: 0, y: -0.4618801, z: 0, w: 0.8869423}
   m_LocalPosition: {x: -92.7, y: 5.9, z: 111}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -902,20 +903,6 @@ MonoBehaviour:
   debugHealthObserver: 0
   currentPoints: 0
   debugPointsObserver: 0
---- !u!114 &5663175583334014430
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3732120875472112257}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c61c19cbb8d6f2c4193e6994d2732036, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mouseSensitivity: 50
-  camera: {fileID: 3986798488659508336}
 --- !u!82 &8470015632336878199
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1013,6 +1000,36 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &2528381662659664406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3732120875472112257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62ede83be79b5de4c8a4480e453b0137, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  channel: 1
+  audioSource: {fileID: 8470015632336878199}
+  captureInitialVolumeOnAwake: 1
+  baseVolume: 1
+--- !u!114 &5663175583334014430
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3732120875472112257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c61c19cbb8d6f2c4193e6994d2732036, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mouseSensitivity: 500
+  camera: {fileID: 3986798488659508336}
 --- !u!114 &2068389787239264040
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1025,9 +1042,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ccea5058395bfd46a48925b31279ee0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouseMovement: {fileID: 5663175583334014430}
-  multiplier: 1
-  updateEveryFrame: 0
+  targetComponent: {fileID: 7972298545435739217}
+  memberName: mouseSensitivity
+  autoFindTargetOnSameObject: 1
+  warnIfMemberNotFound: 1
 --- !u!1 &4009798906380088056
 GameObject:
   m_ObjectHideFlags: 0

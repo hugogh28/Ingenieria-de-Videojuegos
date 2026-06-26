@@ -11,80 +11,93 @@ public class AjustesMenuUI : MonoBehaviour
     [SerializeField] private Slider sfxVolumeSlider;
     [SerializeField] private Slider mouseSensitivitySlider;
 
-    [Header("Textos")]
-    [SerializeField] private TMP_Text masterVolumeText;
-    [SerializeField] private TMP_Text musicVolumeText;
-    [SerializeField] private TMP_Text sfxVolumeText;
-    [SerializeField] private TMP_Text mouseSensitivityText;
+    [Header("Textos de valor")]
+    [SerializeField] private TMP_Text masterVolumeValueText;
+    [SerializeField] private TMP_Text musicVolumeValueText;
+    [SerializeField] private TMP_Text sfxVolumeValueText;
+    [SerializeField] private TMP_Text mouseSensitivityValueText;
 
-    [Header("Toggles")]
+    [Header("Pantalla")]
     [SerializeField] private Toggle fullScreenToggle;
-
-    [Header("Dropdowns")]
     [SerializeField] private TMP_Dropdown qualityDropdown;
     [SerializeField] private TMP_Dropdown resolutionDropdown;
     [SerializeField] private bool applyResolutionImmediately = true;
 
-    private readonly List<Vector2Int> resolutionValues = new List<Vector2Int>();
-    private Ajustes ajustes;
-    private bool initialized;
+    private readonly List<ResolutionOption> resolutionOptions = new List<ResolutionOption>();
+    private Ajustes settings;
+    private bool updatingUI;
 
-    private void Awake()
+    private struct ResolutionOption
     {
-        ajustes = Ajustes.EnsureExists();
-        BuildQualityDropdown();
-        BuildResolutionDropdown();
-        SyncUIFromSettings();
-        RegisterUIEvents();
-        initialized = true;
+        public int Width;
+        public int Height;
+        public string Label;
     }
 
     private void OnEnable()
     {
-        if (!initialized)
+        settings = Ajustes.EnsureExists();
+        settings.Changed += RefreshFromSettings;
+
+        ConfigureSliders();
+        BuildQualityDropdown();
+        BuildResolutionDropdown();
+        HookListeners();
+        RefreshFromSettings();
+    }
+
+    private void OnDisable()
+    {
+        UnhookListeners();
+
+        if (settings != null)
+        {
+            settings.Changed -= RefreshFromSettings;
+        }
+    }
+
+    private void ConfigureSliders()
+    {
+        Configure01Slider(masterVolumeSlider);
+        Configure01Slider(musicVolumeSlider);
+        Configure01Slider(sfxVolumeSlider);
+        Configure01Slider(mouseSensitivitySlider);
+    }
+
+    private void Configure01Slider(Slider slider)
+    {
+        if (slider == null)
         {
             return;
         }
 
-        SyncUIFromSettings();
+        slider.minValue = 0f;
+        slider.maxValue = 1f;
+        slider.wholeNumbers = false;
     }
 
-    private void RegisterUIEvents()
+    private void HookListeners()
     {
-        if (masterVolumeSlider != null)
-        {
-            masterVolumeSlider.onValueChanged.AddListener(OnMasterVolumeChanged);
-        }
+        UnhookListeners();
 
-        if (musicVolumeSlider != null)
-        {
-            musicVolumeSlider.onValueChanged.AddListener(OnMusicVolumeChanged);
-        }
+        if (masterVolumeSlider != null) masterVolumeSlider.onValueChanged.AddListener(OnMasterVolumeChanged);
+        if (musicVolumeSlider != null) musicVolumeSlider.onValueChanged.AddListener(OnMusicVolumeChanged);
+        if (sfxVolumeSlider != null) sfxVolumeSlider.onValueChanged.AddListener(OnSfxVolumeChanged);
+        if (mouseSensitivitySlider != null) mouseSensitivitySlider.onValueChanged.AddListener(OnMouseSensitivityChanged);
+        if (fullScreenToggle != null) fullScreenToggle.onValueChanged.AddListener(OnFullScreenChanged);
+        if (qualityDropdown != null) qualityDropdown.onValueChanged.AddListener(OnQualityChanged);
+        if (resolutionDropdown != null) resolutionDropdown.onValueChanged.AddListener(OnResolutionChanged);
+    }
 
-        if (sfxVolumeSlider != null)
-        {
-            sfxVolumeSlider.onValueChanged.AddListener(OnSfxVolumeChanged);
-        }
-
-        if (mouseSensitivitySlider != null)
-        {
-            mouseSensitivitySlider.onValueChanged.AddListener(OnMouseSensitivityChanged);
-        }
-
-        if (fullScreenToggle != null)
-        {
-            fullScreenToggle.onValueChanged.AddListener(OnFullScreenChanged);
-        }
-
-        if (qualityDropdown != null)
-        {
-            qualityDropdown.onValueChanged.AddListener(OnQualityChanged);
-        }
-
-        if (resolutionDropdown != null)
-        {
-            resolutionDropdown.onValueChanged.AddListener(OnResolutionDropdownChanged);
-        }
+    private void UnhookListeners()
+    {
+        if (masterVolumeSlider != null) masterVolumeSlider.onValueChanged.RemoveListener(OnMasterVolumeChanged);
+        if (musicVolumeSlider != null) musicVolumeSlider.onValueChanged.RemoveListener(OnMusicVolumeChanged);
+        if (sfxVolumeSlider != null) sfxVolumeSlider.onValueChanged.RemoveListener(OnSfxVolumeChanged);
+        if (mouseSensitivitySlider != null) mouseSensitivitySlider.onValueChanged.RemoveListener(OnMouseSensitivityChanged);
+        if (fullScreenToggle != null) fullScreenToggle.onValueChanged.RemoveListener(OnFullScreenChanged);
+        if (qualityDropdown != null) qualityDropdown.onValueChanged.RemoveListener(OnQualityChanged);
+        if (resolutionDropdown != null) resolutionDropdown.onValueChanged.RemoveListener(OnResolutionChanged);
     }
 
     private void BuildQualityDropdown()
@@ -95,7 +108,22 @@ public class AjustesMenuUI : MonoBehaviour
         }
 
         qualityDropdown.ClearOptions();
-        qualityDropdown.AddOptions(new List<string>(QualitySettings.names));
+
+        string[] qualityNames = QualitySettings.names;
+        List<string> options = new List<string>();
+
+        if (qualityNames != null && qualityNames.Length > 0)
+        {
+            options.AddRange(qualityNames);
+            qualityDropdown.interactable = true;
+        }
+        else
+        {
+            options.Add("Sin niveles de calidad");
+            qualityDropdown.interactable = false;
+        }
+
+        qualityDropdown.AddOptions(options);
     }
 
     private void BuildResolutionDropdown()
@@ -105,183 +133,215 @@ public class AjustesMenuUI : MonoBehaviour
             return;
         }
 
-        resolutionValues.Clear();
+        resolutionOptions.Clear();
         resolutionDropdown.ClearOptions();
 
-        Resolution[] resolutions = Screen.resolutions;
+        Resolution[] unityResolutions = Screen.resolutions;
+        HashSet<string> used = new HashSet<string>();
 
-        foreach (Resolution resolution in resolutions)
+        for (int i = 0; i < unityResolutions.Length; i++)
         {
-            Vector2Int value = new Vector2Int(resolution.width, resolution.height);
-
-            if (!resolutionValues.Contains(value))
-            {
-                resolutionValues.Add(value);
-            }
+            AddResolutionOption(unityResolutions[i].width, unityResolutions[i].height, used);
         }
 
-        if (resolutionValues.Count == 0)
+        if (resolutionOptions.Count == 0)
         {
-            resolutionValues.Add(new Vector2Int(Screen.width, Screen.height));
+            AddResolutionOption(Screen.currentResolution.width, Screen.currentResolution.height, used);
         }
 
-        List<string> options = new List<string>();
-        foreach (Vector2Int value in resolutionValues)
+        List<string> labels = new List<string>();
+        for (int i = 0; i < resolutionOptions.Count; i++)
         {
-            options.Add(value.x + " x " + value.y);
+            labels.Add(resolutionOptions[i].Label);
         }
 
-        resolutionDropdown.AddOptions(options);
+        resolutionDropdown.AddOptions(labels);
     }
 
-    private void SyncUIFromSettings()
+    private void AddResolutionOption(int width, int height, HashSet<string> used)
     {
-        if (ajustes == null)
-        {
-            ajustes = Ajustes.EnsureExists();
-        }
-
-        if (masterVolumeSlider != null)
-        {
-            masterVolumeSlider.SetValueWithoutNotify(ajustes.MasterVolume);
-        }
-
-        if (musicVolumeSlider != null)
-        {
-            musicVolumeSlider.SetValueWithoutNotify(ajustes.MusicVolume);
-        }
-
-        if (sfxVolumeSlider != null)
-        {
-            sfxVolumeSlider.SetValueWithoutNotify(ajustes.SfxVolume);
-        }
-
-        if (mouseSensitivitySlider != null)
-        {
-            mouseSensitivitySlider.SetValueWithoutNotify(ajustes.MouseSensitivity);
-        }
-
-        if (fullScreenToggle != null)
-        {
-            fullScreenToggle.SetIsOnWithoutNotify(ajustes.FullScreen);
-        }
-
-        if (qualityDropdown != null && QualitySettings.names.Length > 0)
-        {
-            qualityDropdown.SetValueWithoutNotify(Mathf.Clamp(ajustes.QualityIndex, 0, QualitySettings.names.Length - 1));
-        }
-
-        if (resolutionDropdown != null)
-        {
-            int index = FindResolutionIndex(ajustes.ResolutionWidth, ajustes.ResolutionHeight);
-            resolutionDropdown.SetValueWithoutNotify(Mathf.Clamp(index, 0, Mathf.Max(0, resolutionValues.Count - 1)));
-        }
-
-        RefreshTexts();
-    }
-
-    private int FindResolutionIndex(int width, int height)
-    {
-        for (int i = 0; i < resolutionValues.Count; i++)
-        {
-            if (resolutionValues[i].x == width && resolutionValues[i].y == height)
-            {
-                return i;
-            }
-        }
-
-        for (int i = 0; i < resolutionValues.Count; i++)
-        {
-            if (resolutionValues[i].x == Screen.width && resolutionValues[i].y == Screen.height)
-            {
-                return i;
-            }
-        }
-
-        return 0;
-    }
-
-    private void OnMasterVolumeChanged(float value)
-    {
-        ajustes.SetMasterVolume(value);
-        RefreshTexts();
-    }
-
-    private void OnMusicVolumeChanged(float value)
-    {
-        ajustes.SetMusicVolume(value);
-        RefreshTexts();
-    }
-
-    private void OnSfxVolumeChanged(float value)
-    {
-        ajustes.SetSfxVolume(value);
-        RefreshTexts();
-    }
-
-    private void OnMouseSensitivityChanged(float value)
-    {
-        ajustes.SetMouseSensitivity(value);
-        RefreshTexts();
-    }
-
-    private void OnFullScreenChanged(bool value)
-    {
-        ajustes.SetFullScreen(value);
-    }
-
-    private void OnQualityChanged(int index)
-    {
-        ajustes.SetQualityIndex(index);
-    }
-
-    private void OnResolutionDropdownChanged(int index)
-    {
-        if (applyResolutionImmediately)
-        {
-            ApplySelectedResolution();
-        }
-    }
-
-    public void ApplySelectedResolution()
-    {
-        if (resolutionDropdown == null || resolutionValues.Count == 0)
+        if (width <= 0 || height <= 0)
         {
             return;
         }
 
-        int index = Mathf.Clamp(resolutionDropdown.value, 0, resolutionValues.Count - 1);
-        Vector2Int resolution = resolutionValues[index];
-        ajustes.SetResolution(resolution.x, resolution.y);
-    }
-
-    public void ResetSettingsButton()
-    {
-        ajustes.ResetToDefaults();
-        BuildResolutionDropdown();
-        SyncUIFromSettings();
-    }
-
-    private void RefreshTexts()
-    {
-        SetPercentText(masterVolumeText, masterVolumeSlider != null ? masterVolumeSlider.value : ajustes.MasterVolume);
-        SetPercentText(musicVolumeText, musicVolumeSlider != null ? musicVolumeSlider.value : ajustes.MusicVolume);
-        SetPercentText(sfxVolumeText, sfxVolumeSlider != null ? sfxVolumeSlider.value : ajustes.SfxVolume);
-
-        if (mouseSensitivityText != null)
+        string key = width + "x" + height;
+        if (used.Contains(key))
         {
-            float value = mouseSensitivitySlider != null ? mouseSensitivitySlider.value : ajustes.MouseSensitivity;
-            mouseSensitivityText.text = Mathf.RoundToInt(value).ToString();
+            return;
         }
+
+        used.Add(key);
+        resolutionOptions.Add(new ResolutionOption
+        {
+            Width = width,
+            Height = height,
+            Label = width + " x " + height
+        });
     }
 
-    private void SetPercentText(TMP_Text text, float value)
+    private void RefreshFromSettings()
+    {
+        if (settings == null)
+        {
+            settings = Ajustes.EnsureExists();
+        }
+
+        updatingUI = true;
+
+        SetSliderWithoutNotify(masterVolumeSlider, settings.MasterVolume);
+        SetSliderWithoutNotify(musicVolumeSlider, settings.MusicVolume);
+        SetSliderWithoutNotify(sfxVolumeSlider, settings.SfxVolume);
+        SetSliderWithoutNotify(mouseSensitivitySlider, settings.MouseSensitivity01);
+
+        UpdateValueText(masterVolumeValueText, settings.MasterVolume);
+        UpdateValueText(musicVolumeValueText, settings.MusicVolume);
+        UpdateValueText(sfxVolumeValueText, settings.SfxVolume);
+        UpdateValueText(mouseSensitivityValueText, settings.MouseSensitivity01);
+
+        if (fullScreenToggle != null)
+        {
+            fullScreenToggle.SetIsOnWithoutNotify(settings.FullScreen);
+        }
+
+        if (qualityDropdown != null && QualitySettings.names.Length > 0)
+        {
+            int index = Mathf.Clamp(settings.QualityIndex, 0, QualitySettings.names.Length - 1);
+            qualityDropdown.SetValueWithoutNotify(index);
+            qualityDropdown.RefreshShownValue();
+        }
+
+        if (resolutionDropdown != null && resolutionOptions.Count > 0)
+        {
+            int index = GetResolutionIndex(settings.ResolutionWidth, settings.ResolutionHeight);
+            resolutionDropdown.SetValueWithoutNotify(index);
+            resolutionDropdown.RefreshShownValue();
+        }
+
+        updatingUI = false;
+    }
+
+    private int GetResolutionIndex(int width, int height)
+    {
+        for (int i = 0; i < resolutionOptions.Count; i++)
+        {
+            if (resolutionOptions[i].Width == width && resolutionOptions[i].Height == height)
+            {
+                return i;
+            }
+        }
+
+        return Mathf.Clamp(resolutionOptions.Count - 1, 0, Mathf.Max(0, resolutionOptions.Count - 1));
+    }
+
+    private void SetSliderWithoutNotify(Slider slider, float value)
+    {
+        if (slider == null)
+        {
+            return;
+        }
+
+        slider.SetValueWithoutNotify(Mathf.Clamp01(value));
+    }
+
+    private void UpdateValueText(TMP_Text text, float value)
     {
         if (text == null)
         {
             return;
         }
 
-        text.text = Mathf.RoundToInt(value * 100f) + "%";
+        text.text = Mathf.Clamp01(value).ToString("0.0000");
+    }
+
+    private void OnMasterVolumeChanged(float value)
+    {
+        if (updatingUI) return;
+
+        settings.SetMasterVolume(value);
+        UpdateValueText(masterVolumeValueText, value);
+    }
+
+    private void OnMusicVolumeChanged(float value)
+    {
+        if (updatingUI) return;
+
+        settings.SetMusicVolume(value);
+        UpdateValueText(musicVolumeValueText, value);
+    }
+
+    private void OnSfxVolumeChanged(float value)
+    {
+        if (updatingUI) return;
+
+        settings.SetSfxVolume(value);
+        UpdateValueText(sfxVolumeValueText, value);
+    }
+
+    private void OnMouseSensitivityChanged(float value)
+    {
+        if (updatingUI) return;
+
+        settings.SetMouseSensitivity01(value);
+        UpdateValueText(mouseSensitivityValueText, value);
+    }
+
+    private void OnFullScreenChanged(bool value)
+    {
+        if (updatingUI) return;
+
+        settings.SetFullScreen(value);
+    }
+
+    private void OnQualityChanged(int index)
+    {
+        if (updatingUI) return;
+
+        settings.SetQualityIndex(index);
+    }
+
+    private void OnResolutionChanged(int index)
+    {
+        if (updatingUI || !applyResolutionImmediately)
+        {
+            return;
+        }
+
+        ApplyResolutionIndex(index);
+    }
+
+    public void ApplySelectedResolution()
+    {
+        if (resolutionDropdown == null)
+        {
+            return;
+        }
+
+        ApplyResolutionIndex(resolutionDropdown.value);
+    }
+
+    private void ApplyResolutionIndex(int index)
+    {
+        if (settings == null || resolutionOptions.Count <= 0)
+        {
+            return;
+        }
+
+        index = Mathf.Clamp(index, 0, resolutionOptions.Count - 1);
+        ResolutionOption option = resolutionOptions[index];
+        settings.SetResolution(option.Width, option.Height);
+    }
+
+    public void ResetSettingsButton()
+    {
+        if (settings == null)
+        {
+            settings = Ajustes.EnsureExists();
+        }
+
+        settings.ResetToDefaults();
+        BuildQualityDropdown();
+        BuildResolutionDropdown();
+        RefreshFromSettings();
     }
 }

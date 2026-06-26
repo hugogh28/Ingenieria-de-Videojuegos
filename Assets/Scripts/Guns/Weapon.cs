@@ -136,6 +136,14 @@ public class Weapon : MonoBehaviour, IInteractable
                 foreach (Transform child2 in child)
                 {
                     child2.gameObject.layer = LayerMask.NameToLayer("WeaponRender");
+                    foreach (Transform child3 in child2)
+                    {
+                        child3.gameObject.layer = LayerMask.NameToLayer("WeaponRender");
+                        foreach (Transform child4 in child3)
+                        {
+                            child4.gameObject.layer = LayerMask.NameToLayer("WeaponRender");
+                        }
+                    }
                 }
             }
 
@@ -371,6 +379,17 @@ public class Weapon : MonoBehaviour, IInteractable
 
                 rat.TakeDamage(finalDamage, isCritical, hit.point);
                 GivePointsForRatHit();
+                return;
+            }
+
+            TargetDummy target = hit.collider.GetComponentInParent<TargetDummy>();
+
+            if (target != null)
+            {
+                bool isCritical = UnityEngine.Random.value < criticalChance;
+                float finalDamage = isCritical ? weaponDamage * criticalMultiplier : weaponDamage;
+
+                target.TakeDamage(finalDamage, isCritical, hit.point);
                 return;
             }
 

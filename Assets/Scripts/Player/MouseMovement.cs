@@ -1,24 +1,58 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MouseMovement : MonoBehaviour
 {
+    [Header("Sensitivity")]
+    [Tooltip("Sensibilidad real usada por la cámara. Si useAjustesSensitivity está activo, se sobrescribe con Ajustes.MouseSensitivity.")]
+    public float mouseSensitivity = 500f;
 
-    public float mouseSensitivity = 100f;
+    [SerializeField] private bool useAjustesSensitivity = true;
+    [SerializeField] private bool debugSensitivity = false;
 
+    [Header("References")]
     public Camera camera;
 
-    float xRotation = 0f;
-    float yRotation = 0f;
+    private float xRotation = 0f;
+    private float yRotation = 0f;
 
-    float topClamp = -90f;
-    float botClamp = 90f;
+    private float topClamp = -90f;
+    private float botClamp = 90f;
+
     private PlayerCameraMotion cameraMotion;
+    private Ajustes ajustes;
 
-    void Start()
+    private void OnEnable()
+    {
+        if (!useAjustesSensitivity)
+        {
+            return;
+        }
+
+        ajustes = Ajustes.EnsureExists();
+
+        if (ajustes != null)
+        {
+            ajustes.Changed += ApplyAjustesSensitivity;
+            ApplyAjustesSensitivity();
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (ajustes != null)
+        {
+            ajustes.Changed -= ApplyAjustesSensitivity;
+        }
+    }
+
+    private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+
+        if (camera == null)
+        {
+            camera = Camera.main;
+        }
 
         if (camera != null)
         {
@@ -29,16 +63,21 @@ public class MouseMovement : MonoBehaviour
                 cameraMotion = camera.gameObject.AddComponent<PlayerCameraMotion>();
             }
         }
+
+        ApplyAjustesSensitivity();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
+        if (camera == null)
+        {
+            return;
+        }
+
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
         xRotation -= mouseY;
-
         xRotation = Mathf.Clamp(xRotation, topClamp, botClamp);
 
         yRotation += mouseX;
@@ -53,5 +92,20 @@ public class MouseMovement : MonoBehaviour
         }
 
         camera.transform.localRotation = cameraRotation;
+    }
+
+    private void ApplyAjustesSensitivity()
+    {
+        if (!useAjustesSensitivity || Ajustes.Instance == null)
+        {
+            return;
+        }
+
+        mouseSensitivity = Ajustes.Instance.MouseSensitivity;
+
+        if (debugSensitivity)
+        {
+            Debug.Log($"MouseMovement sensibilidad aplicada: {mouseSensitivity}", this);
+        }
     }
 }

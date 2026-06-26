@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,6 +22,9 @@ public class InteractionManager : MonoBehaviour
     [SerializeField] private float promptFontSize = 24f;
     [SerializeField] private string promptFormat = "Presiona {0} para {1}";
 
+    [Header("UI Feedback")]
+    [SerializeField] private float temporaryMessageDefaultTime = 1.5f;
+
     [Header("Player")]
     [SerializeField] private PlayerController player;
     [SerializeField] private string playerTag = "Player";
@@ -28,6 +32,8 @@ public class InteractionManager : MonoBehaviour
     private IInteractable currentInteractable;
     private Outline currentOutline;
     private GameObject currentObject;
+    private Coroutine temporaryMessageRoutine;
+    private bool showingTemporaryMessage;
 
     private void Awake()
     {
@@ -60,6 +66,47 @@ public class InteractionManager : MonoBehaviour
         if (currentInteractable != null && Input.GetKeyDown(interactionKey))
         {
             currentInteractable.Interact(player);
+        }
+    }
+
+    public void ShowTemporaryMessage(string message)
+    {
+        ShowTemporaryMessage(message, temporaryMessageDefaultTime);
+    }
+
+    public void ShowTemporaryMessage(string message, float duration)
+    {
+        if (interactionText == null)
+        {
+            return;
+        }
+
+        if (temporaryMessageRoutine != null)
+        {
+            StopCoroutine(temporaryMessageRoutine);
+        }
+
+        temporaryMessageRoutine = StartCoroutine(TemporaryMessageRoutine(message, duration));
+    }
+
+    private IEnumerator TemporaryMessageRoutine(string message, float duration)
+    {
+        showingTemporaryMessage = true;
+        interactionText.gameObject.SetActive(true);
+        interactionText.text = message;
+
+        yield return new WaitForSeconds(duration);
+
+        showingTemporaryMessage = false;
+        temporaryMessageRoutine = null;
+
+        if (currentInteractable != null)
+        {
+            ShowPrompt(currentInteractable.InteractionActionText);
+        }
+        else
+        {
+            HidePrompt();
         }
     }
 
@@ -143,7 +190,7 @@ public class InteractionManager : MonoBehaviour
 
     private void ShowPrompt(string actionText)
     {
-        if (interactionText == null)
+        if (interactionText == null || showingTemporaryMessage)
         {
             return;
         }
@@ -154,7 +201,7 @@ public class InteractionManager : MonoBehaviour
 
     private void HidePrompt()
     {
-        if (interactionText == null)
+        if (interactionText == null || showingTemporaryMessage)
         {
             return;
         }
